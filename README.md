@@ -1,2 +1,2 @@
 # CFB-VoA
-A model for scraping college football stats off of ESPN's website and ranking FBS college football teams based on those stats. This model takes input variables of year and week to state which season and week of said season it is in FBS college football. The year is only used for creating titles for tables at the end of the script. After the week number is input, data from ESPN is scraped and ranked in an attempt to determine the best teams in FBS college football.
+A model for scraping college football stats off of ESPN's website and ranking FBS college football teams based on those stats.
