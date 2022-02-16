@@ -1,14 +1,13 @@
-## The Vortex of Accuracy, Version 4.1.6
+## The Vortex of Accuracy, Version 4.1.9
 ## Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy
 ## Created by Griffin Shelor
 ## installing packages
-# install.packages(c("tidyverse", "matrixStats", "grid", "gridExtra", "gt", "viridis", "webshot", "writexl", "here", "pacman"))
-
-# if needed install.packages("remotes")
+# install.packages(c("devtoools", "tidyverse", "matrixStats", "grid", "gridExtra", "gt", "viridis", "webshot", "writexl", "rvest", "cfbfastR", "espnscrapeR", "openxlsx", "here", "ggsci", "RColorBrewer", "ggpubr", "remotes"))
 ## remotes::install_github("jthomasmock/gtExtras")
 ## gtExtras will not install because it doesn't work for my current version of R (4.0.4)
 ## removed from package load section
 ## installing cfbfastR using the devtools package
+## UPDATE: cfbfastR appears to be in CRAN, so will likely no longer be using devtools
 ## devtools::install_github(repo = "saiemgilani/cfbfastR")
 ## Load Packages for Ranking Variables
 pacman::p_load(tidyverse, matrixStats, grid, gridExtra, gt, viridis, 
@@ -71,7 +70,7 @@ if (as.numeric(week) <= 4) {
   ## column names are off, appear as first row instead, renaming column names
   NewOffColNames <- c("Team", "Games", "Total_Yds", "Total_Yds_pg",
                       "Pass_Yds", "Pass_Yds_pg", "Rush_Yds", "Rush_Yds_pg",
-                      "Points", "Pts_pg")
+                      "Total_Pts", "Pts_pg")
   colnames(OffStatsTable) <- NewOffColNames
   colnames(OffStatsTable)
   ## head(OffStatsTable[,1:4])
@@ -86,8 +85,8 @@ if (as.numeric(week) <= 4) {
   ## eliminating sum stats, only keeping per-game stats
   ## keeping total yards and points in this table for a "yards per play" stat later on
   OffStatsTable <- OffStatsTable[,c("Team", "Games", "Total_Yds","Total_Yds_pg",
-                                    "Pass_Yds_pg", "Rush_Yds_pg", "Points",
-                                    "Pts_pg")]
+                                    "Pass_Yds_pg", "Rush_Yds_pg", "Total_Pts",
+                                    "Total_Pts", "Pts_pg")]
   
   
   ## Offensive Passing Stats
@@ -128,10 +127,12 @@ if (as.numeric(week) <= 4) {
   ## Selecting only variables which will be used for VoA
   ## eliminating sum stats, only keeping per-game stats, games already in Off_stats
   ## keeping attempts stat for a yards per play column later on
-  Off_Pass_Stats_Table <- Off_Pass_Stats_Table[,c("Team", "Attempts","Comp_Pct", "Pass_YPA", 
+  Off_Pass_Stats_Table <- Off_Pass_Stats_Table[,c("Team", "Attempts","Comp_Pct", 
+                                                  "Total_Pass_Yds", "Pass_YPA", 
                                                   "Off_YPC", "Off_INTs_pg", 
                                                   "Off_Sacks_Allowed_pg", 
-                                                  "Off_Sack_Yds_Lost_pg")]
+                                                  "Off_Sack_Yds_Lost_pg",
+                                                  "Pass_TD", "INTs_Thrown")]
   
   
   
@@ -486,7 +487,7 @@ if (as.numeric(week) <= 4) {
   ## head(Off_2020_Pass_Stats_Table[,1:4])
   ## column names are off, appear as first row instead, renaming column names
   New_Off_2020_Pass_ColNames <- c("Team", "Games_2020", "Completions_2020", "Attempts_2020", "Comp_Pct_2020", 
-                                  "Total_2020_Pass_Yds", "Pass_YPA_2020", "Pass_YPG_2020",
+                                  "Total_Pass_Yds_2020", "Pass_YPA_2020", "Pass_YPG_2020",
                                   "Longest_Pass_2020", "Pass_TD_2020", "INTs_Thrown_2020", 
                                   "Off_Sacks_Allowed_2020", "Off_Sack_Yds_Lost_2020", "QB_RTG_2020")
   colnames(Off_2020_Pass_Stats_Table) <- New_Off_2020_Pass_ColNames
@@ -498,13 +499,13 @@ if (as.numeric(week) <= 4) {
   ## head(Off_2020_Pass_Stats_Table[,1:4])
   ## some columns have commas
   # must get rid of these using gsub() function
-  Off_2020_Pass_Stats_Table$Total_2020_Pass_Yds = gsub(",","", Off_2020_Pass_Stats_Table$Total_2020_Pass_Yds)
+  Off_2020_Pass_Stats_Table$Total_Pass_Yds_2020 = gsub(",","", Off_2020_Pass_Stats_Table$Total_Pass_Yds_2020)
   ## changing Off_2020_Pass_Stats_Table to have numeric values for non-team columns
   # need to do this early to add yds_per_completion
   Off_2020_Pass_Stats_Table[,2:ncol(Off_2020_Pass_Stats_Table)] <- sapply(Off_2020_Pass_Stats_Table[,2:ncol(Off_2020_Pass_Stats_Table)], as.numeric)
   ## Adding offensive YPC, normalizing INTs and Sack stats columns
   Off_2020_Pass_Stats_Table <- Off_2020_Pass_Stats_Table %>%
-    mutate(Off_YPC_2020 = Total_2020_Pass_Yds/Completions_2020) %>%
+    mutate(Off_YPC_2020 = Total_Pass_Yds_2020/Completions_2020) %>%
     mutate(Off_INTs_pg_2020 = INTs_Thrown_2020/Games_2020) %>%
     mutate(Off_Sacks_Allowed_pg_2020 = Off_Sacks_Allowed_2020/Games_2020) %>%
     mutate(Off_Sack_Yds_Lost_pg_2020 = Off_Sack_Yds_Lost_2020/Games_2020)
@@ -512,10 +513,13 @@ if (as.numeric(week) <= 4) {
   ## Selecting only variables which will be used for VoA
   ## eliminating sum stats, only keeping per-game stats, games already in Off_stats
   ## keeping attemps for a yards per play stat later on
-  Off_2020_Pass_Stats_Table <- Off_2020_Pass_Stats_Table[,c("Team", "Attempts_2020","Comp_Pct_2020", "Pass_YPA_2020", 
+  Off_2020_Pass_Stats_Table <- Off_2020_Pass_Stats_Table[,c("Team", "Attempts_2020",
+                                                            "Total_Pass_Yds_2020","Comp_Pct_2020", 
+                                                            "Pass_YPA_2020", 
                                                             "Off_YPC_2020", "Off_INTs_pg_2020", 
                                                             "Off_Sacks_Allowed_pg_2020", 
-                                                            "Off_Sack_Yds_Lost_pg_2020")]
+                                                            "Off_Sack_Yds_Lost_pg_2020",
+                                                            "INTs_Thrown_2020")]
   
   
   
@@ -874,7 +878,7 @@ if (as.numeric(week) <= 4) {
   ## head(Off_2019_Pass_Stats_Table[,1:4])
   ## column names are off, appear as first row instead, renaming column names
   New_Off_2019_Pass_ColNames <- c("Team", "Games_2020", "Completions_2020", "Attempts_2020", "Comp_Pct_2020", 
-                                  "Total_2020_Pass_Yds", "Pass_YPA_2020", "Pass_YPG_2020",
+                                  "Total_Pass_Yds_2020", "Pass_YPA_2020", "Pass_YPG_2020",
                                   "Longest_Pass_2020", "Pass_TD_2020", "INTs_Thrown_2020", 
                                   "Off_Sacks_Allowed_2020", "Off_Sack_Yds_Lost_2020", "QB_RTG_2020")
   colnames(Off_2019_Pass_Stats_Table) <- New_Off_2019_Pass_ColNames
@@ -887,14 +891,14 @@ if (as.numeric(week) <= 4) {
   
   ## some columns have commas
   # must get rid of these using gsub() function
-  Off_2019_Pass_Stats_Table$Total_2020_Pass_Yds = gsub(",","", Off_2019_Pass_Stats_Table$Total_2020_Pass_Yds)
+  Off_2019_Pass_Stats_Table$Total_Pass_Yds_2020 = gsub(",","", Off_2019_Pass_Stats_Table$Total_Pass_Yds_2020)
   
   ## changing Off_2019_Pass_Stats_Table to have numeric values for non-team columns
   # need to do this early to add yds_per_completion
   Off_2019_Pass_Stats_Table[,2:ncol(Off_2019_Pass_Stats_Table)] <- sapply(Off_2019_Pass_Stats_Table[,2:ncol(Off_2019_Pass_Stats_Table)], as.numeric)
   ## Adding offensive YPC, normalizing INTs and Sack stats columns
   Off_2019_Pass_Stats_Table <- Off_2019_Pass_Stats_Table %>%
-    mutate(Off_YPC_2020 = Total_2020_Pass_Yds/Completions_2020) %>%
+    mutate(Off_YPC_2020 = Total_Pass_Yds_2020/Completions_2020) %>%
     mutate(Off_INTs_pg_2020 = INTs_Thrown_2020/Games_2020) %>%
     mutate(Off_Sacks_Allowed_pg_2020 = Off_Sacks_Allowed_2020/Games_2020) %>%
     mutate(Off_Sack_Yds_Lost_pg_2020 = Off_Sack_Yds_Lost_2020/Games_2020)
@@ -905,7 +909,8 @@ if (as.numeric(week) <= 4) {
   Off_2019_Pass_Stats_Table <- Off_2019_Pass_Stats_Table[,c("Team", "Attempts_2020","Comp_Pct_2020", "Pass_YPA_2020", 
                                                             "Off_YPC_2020", "Off_INTs_pg_2020", 
                                                             "Off_Sacks_Allowed_pg_2020", 
-                                                            "Off_Sack_Yds_Lost_pg_2020")]
+                                                            "Off_Sack_Yds_Lost_pg_2020",
+                                                            "INTs_Thrown_2020")]
   
   
   
@@ -1225,7 +1230,7 @@ if (as.numeric(week) <= 4) {
   ## column names are off, appear as first row instead, renaming column names
   NewOffColNames <- c("Team", "Games", "Total_Yds", "Total_Yds_pg",
                       "Pass_Yds", "Pass_Yds_pg", "Rush_Yds", "Rush_Yds_pg",
-                      "Points", "Pts_pg")
+                      "Total_Pts", "Pts_pg")
   colnames(OffStatsTable) <- NewOffColNames
   colnames(OffStatsTable)
   ## head(OffStatsTable[,1:4])
@@ -1241,7 +1246,7 @@ if (as.numeric(week) <= 4) {
   ## keeping total yards in this table for a "yards per play" stat later on
   OffStatsTable <- OffStatsTable[,c("Team", "Games", "Total_Yds","Total_Yds_pg",
                                     "Pass_Yds_pg", "Rush_Yds_pg",
-                                    "Pts_pg")]
+                                    "Total_Pts", "Pts_pg")]
   
   
   ## Offensive Passing Stats
@@ -1282,10 +1287,12 @@ if (as.numeric(week) <= 4) {
   ## Selecting only variables which will be used for VoA
   ## eliminating sum stats, only keeping per-game stats, games already in Off_stats
   ## keeping attempts stat for a yards per play column later on
-  Off_Pass_Stats_Table <- Off_Pass_Stats_Table[,c("Team", "Attempts","Comp_Pct", "Pass_YPA", 
+  Off_Pass_Stats_Table <- Off_Pass_Stats_Table[,c("Team", "Attempts","Comp_Pct", 
+                                                  "Total_Pass_Yds", "Pass_YPA", 
                                                   "Off_YPC", "Off_INTs_pg", 
                                                   "Off_Sacks_Allowed_pg", 
-                                                  "Off_Sack_Yds_Lost_pg")]
+                                                  "Off_Sack_Yds_Lost_pg",
+                                                  "Pass_TD", "INTs_Thrown")]
   
   
   
@@ -1641,11 +1648,7 @@ if (as.numeric(week) <= 4) {
   Temp_FPI_2019_df <- subset(Temp_FPI_2019_df, Team == "UConn Huskies" | Team == "New Mexico State Aggies" | Team == "Old Dominion Monarchs")
   ## Combining 2020 and subsetted 2019 FPI data
   Temp_Prev_Year_FPI_df <- rbind(Temp_FPI_2020_df, Temp_FPI_2019_df)
-  ## Southern Miss named differently in 2020 data compared to current season
-  # changing to "Southern Miss Golden Eagles"
-  # doing this for both regular and FPI data
-  Temp_Prev_Year_df$Team[Temp_Prev_Year_df$Team == "Southern Mississippi Golden Eagles"] = "Southern Miss Golden Eagles"
-  Temp_Prev_Year_FPI_df$Team[Temp_Prev_Year_FPI_df$Team == "Southern Mississippi Golden Eagles"] = "Southern Miss Golden Eagles"
+  
   ## Merging regular stat tables
   VoA_Variables <- merge(VoA_Variables, Temp_Prev_Year_df, by = "Team")
   ## changing VoA_Variables to have numeric values for non-team columns
@@ -1654,9 +1657,11 @@ if (as.numeric(week) <= 4) {
   VoA_Variables <- VoA_Variables %>%
     mutate(PPY = Pts_pg/Total_Yds_pg) %>%
     mutate(MOV = Pts_pg - Def_Pts_pg) %>%
+    mutate(ANYA = ((Total_Pass_Yds / Attempts) + ((Pass_TD * 20) + (INTs_Thrown * -40)))) %>%
     mutate(Yd_Diff = Total_Yds_pg - Def_Total_Yds_pg) %>%
     mutate(PPY_2020 = Pts_pg_2020/Total_Yds_pg_2020) %>%
     mutate(MOV_2020 = Pts_pg_2020 - Def_Pts_pg_2020) %>%
+    mutate(ANYA_2020 = (Total_Pass_Yds_2020 / Attempts_2020) + ((Pass_TD_2020 * 20) + (INTs_Thrown_2020 * -40))) %>%
     mutate(Yd_Diff_2020 = Total_Yds_pg_2020 - Def_Total_Yds_pg_2020) %>%
     mutate(YPP = Total_Yds / (Rush_Atts + Attempts)) %>%
     mutate(Pts_per_play = Pts_pg / (Rush_Atts+Attempts)) %>%
@@ -1665,7 +1670,8 @@ if (as.numeric(week) <= 4) {
     mutate(Def_YPP = Def_Total_Yds / (Rush_Att_Allowed + Pass_Atts_Allowed)) %>%
     mutate(Def_YPP_2020 = Def_Total_Yds_2020 / (Rush_Att_Allowed_2020 + Pass_Atts_Allowed_2020)) %>%
     mutate(Def_Pts_per_play = Def_Points / (Rush_Att_Allowed + Pass_Atts_Allowed)) %>%
-    mutate(Def_Pts_per_play_2020 = Def_Pts_2020 / (Rush_Att_Allowed_2020 + Pass_Atts_Allowed_2020))
+    mutate(Def_Pts_per_play_2020 = Def_Pts_2020 / (Rush_Att_Allowed_2020 + Pass_Atts_Allowed_2020)) %>%
+    mutate(Expected_Wins = ((Total_Pts^2.37)/(Total_Pts^2.37 + Def_Points^2.37))*Games)
   ## adding adjusted MOV
   # attempts to account for SOS in MOV
   SOS_Adj_MOV_Vector <- VoA_Variables$MOV / FPIResumeTable$SOS
@@ -1695,15 +1701,21 @@ if (as.numeric(week) <= 4) {
   ## changing VoA_Variables to have numeric values for non-team columns
   VoA_Variables[,2:ncol(VoA_Variables)] <- sapply(VoA_Variables[,2:ncol(VoA_Variables)], as.numeric)
   
-  ## adding points_per_yard, MOV, and yard differential stats
+  ## adding points_per_yard, MOV, yard differential, pythagorean wins stats
+  # pythagorean win formula created by Football Outsiders
+  ## also adding adjusted net yards/ pass attempt stat
+  # using modifying formula used by ESPN's Bill Connelly
   VoA_Variables <- VoA_Variables %>%
     mutate(PPY = Pts_pg/Total_Yds_pg) %>%
+    mutate(ANYA = (Total_Pass_Yds / Attempts) + ((Pass_TD * 20) + (INTs_Thrown * -40))) %>%
     mutate(MOV = Pts_pg - Def_Pts_pg) %>%
     mutate(Yd_Diff = Total_Yds_pg - Def_Total_Yds_pg) %>%
     mutate(YPP = Total_Yds / (Rush_Atts + Attempts)) %>%
-    mutate(Pts_per_play = Pts_pg / (Rush_Atts+Attempts)) %>%
+    mutate(Pts_per_play = Total_Pts / (Rush_Atts + Attempts)) %>%
     mutate(Def_YPP = Def_Total_Yds / (Rush_Att_Allowed + Pass_Atts_Allowed)) %>%
-    mutate(Def_Pts_per_play = Def_Points / (Rush_Att_Allowed + Pass_Atts_Allowed))
+    mutate(Def_Pts_per_play = Def_Points / (Rush_Att_Allowed + Pass_Atts_Allowed)) %>%
+    mutate(Expected_Wins = ((Total_Pts^2.37)/(Total_Pts^2.37 + Def_Points^2.37))*Games)
+  
   ## adding adjusted MOV
   # attempts to account for SOS in MOV
   SOS_Adj_MOV_Vector <- VoA_Variables$MOV / FPIResumeTable$SOS
@@ -1755,12 +1767,14 @@ if (as.numeric(week) <= 4) {
                                     "Kick_Return_TD_pg_2020", 
                                     "Punt_Return_Yd_Avg_2020",    
                                     "Punt_Return_TD_pg_2020", "FG_Pct_2020",   
-                                    "Extra_Pts_Pct_2020", "PPY","MOV","Yd_Diff",
-                                    "PPY_2020","MOV_2020","Yd_Diff_2020",
-                                    "YPP_2020","Pts_per_play_2020", "Def_YPP_2020",
+                                    "Extra_Pts_Pct_2020", "PPY","MOV", "ANYA",
+                                    "Yd_Diff", "PPY_2020", "MOV_2020", 
+                                    "ANYA_2020", "Yd_Diff_2020", "YPP_2020", 
+                                    "Pts_per_play_2020", "Def_YPP_2020",
                                     "Def_Pts_per_play_2020", "SOS_Adj_MOV", 
                                     "SOS_Adj_MOV_2020", "SOR_Adj_MOV", 
-                                    "SOR_Adj_MOV_2020", "FPI_Rank", "SOR", "SOS", 
+                                    "SOR_Adj_MOV_2020", "Expected_Wins",
+                                    "FPI_Rank", "SOR", "SOS", 
                                     "Game_Control_Rank", "Avg_WinProb", 
                                     "FPI_Ovrl_Rk", "FPI_Off_Rk", "FPI_Def_Rk", "FPI_ST_Rk",
                                     "FPI_Off_Def_Mean_Rk","FPI_Off_Def_ST_Mean_Rk",           
@@ -1787,11 +1801,13 @@ if (as.numeric(week) <= 4) {
                                     "Kick_Return_Yd_Avg", "Kick_Return_TD_pg", 
                                     "Punt_Return_Yd_Avg", "Punt_Return_TD_pg", 
                                     "FG_Percent", "Extra_Pts_Percent",
-                                    "PPY","MOV","Yd_Diff","YPP", "Pts_per_play",
-                                    "Def_YPP", "Def_Pts_per_play",
-                                    "SOS_Adj_MOV", "SOR_Adj_MOV", "FPI_Rank","SOR", "SOS", 
-                                    "Game_Control_Rank", "Avg_WinProb", 
-                                    "FPI_Ovrl_Rk", "FPI_Off_Rk", "FPI_Def_Rk", "FPI_ST_Rk",
+                                    "PPY","MOV", "ANYA", "Yd_Diff","YPP", 
+                                    "Pts_per_play", "Def_YPP", 
+                                    "Def_Pts_per_play", "SOS_Adj_MOV", 
+                                    "SOR_Adj_MOV", "Expected_Wins", "FPI_Rank",
+                                    "SOR", "SOS", "Game_Control_Rank", 
+                                    "Avg_WinProb", "FPI_Ovrl_Rk", "FPI_Off_Rk", 
+                                    "FPI_Def_Rk", "FPI_ST_Rk", 
                                     "FPI_Off_Def_Mean_Rk","FPI_Off_Def_ST_Mean_Rk")]
 }
 
@@ -1799,11 +1815,13 @@ if (as.numeric(week) <= 4) {
 ## adding Rank columns
 ## each variable (aside from team and Games Played) ranked in either ascending
 # or descending order using dense_rank()
+
 ## Vars to be ranked in ascending order: "Def_Total_Yds_pg"  
 # "Def_Pass_Yds_pg", "Def_Rush_Yds_pg", "Def_Pts_pg"
 # "Penalties_pg", "Penalty_Yds_pg", "Def_Comp_Pct_Allowed", "Yds_Per_Attempt_Allowed",
 # "Yds_Per_Rush_Attempt_Allowed", "Off_INTs_pg", "Off_Sacks_Allowed_pg", 
 # "Off_Sack_Yds_Lost_pg", "Def_YPP", "Def_Pts_per_play"
+
 ## Vars to be ranked in descending order: "Total_Yds_pg",
 # "Pass_Yds_pg","Rush_Yds_pg", "Pts_pg" "Kick_Return_Yd_Avg",
 # "Kick_Return_TD", "Punt_Return_Yd_Avg", "Punt_Return_TD", "FG_Percent",
@@ -1812,7 +1830,7 @@ if (as.numeric(week) <= 4) {
 # "Yd_Diff", "SOS_Adj_MOV", "SOR_Adj_MOV, "FPI_Rank","SOR", "SOS", "Game_Control_Rank", "Avg_WinProb",
 # "FPI_Ovrl_Rk", "FPI_Off_Rk", "FPI_Def_Rk", "FPI_ST_Rk", "Comp_Pct", 
 # "Pass_YPA", "Off_YPC", "Off_Rush_YPA", "YPP", "Pts_per_play", "
-# FPI_Off_Def_Mean_Rk", "FPI_Off_Def_ST_Rk
+# FPI_Off_Def_Mean_Rk", "FPI_Off_Def_ST_Rk", "Expected_Wins", "ANYA"
 ######## IF AFTER WEEK 4 
 ###### rank columns for rowmeans() start at column 32, ranked stats start at column 40
 if (as.numeric(week) <= 3) {
@@ -1862,11 +1880,13 @@ if (as.numeric(week) <= 3) {
     mutate(Rank_Fumbles_Forced = dense_rank(desc(Fumbles_Forced_pg))) %>%
     mutate(Rank_PPY = dense_rank(desc(PPY))) %>%
     mutate(Rank_MOV = dense_rank(desc(MOV))) %>%
+    mutate(Rank_ANYA = dense_rank_desc(ANYA)) %>%
     mutate(Rank_YPP = dense_rank(desc(YPP))) %>%
     mutate(Rank_Def_YPP = dense_rank(Def_YPP)) %>%
     mutate(Rank_Pts_per_play = dense_rank(desc(Pts_per_play))) %>%
     mutate(Rank_Def_Pts_per_play = dense_rank(Def_Pts_per_play)) %>%
     mutate(Rank_Yd_Diff = dense_rank(desc(Yd_Diff))) %>%
+    mutate(Rank_Expected_Wins = dense_rank(desc(Expected_Wins))) %>%
     mutate(Rank_SOS_Adj_MOV = dense_rank(desc(SOS_Adj_MOV))) %>%
     mutate(Rank_SOR_Adj_MOV = dense_rank(desc(SOR_Adj_MOV))) %>%
     ## ranking previous season columns
@@ -1922,6 +1942,8 @@ if (as.numeric(week) <= 3) {
     mutate(Rank_PPY_2020_Col2 = dense_rank(desc(PPY_2020))) %>%
     mutate(Rank_MOV_2020 = dense_rank(desc(MOV_2020))) %>%
     mutate(Rank_MOV_2020_Col2 = dense_rank(desc(MOV_2020))) %>%
+    mutate(Rank_ANYA_2020 = dense_rank(desc(ANYA_2020))) %>%
+    mutate(Rank_ANYA_2020_Col2 = Rank_ANYA_2020) %>%
     mutate(Rank_YPP_2020 = dense_rank(desc(YPP_2020))) %>%
     mutate(Rank_YPP_2020_Col2 = Rank_YPP_2020) %>%
     mutate(Rank_Def_YPP_2020 = dense_rank(Def_YPP_2020)) %>%
@@ -1984,6 +2006,8 @@ if (as.numeric(week) <= 3) {
     mutate(Rank_PPY = dense_rank(desc(PPY))) %>%
     mutate(Rank_MOV = dense_rank(desc(MOV))) %>%
     mutate(Rank_MOV_Col2 = Rank_MOV) %>%
+    mutate(Rank_ANYA = dense_rank(desc(ANYA))) %>%
+    mutate(Rank_ANYA_Col2 = Rank_ANYA) %>%
     mutate(Rank_YPP = dense_rank(desc(YPP))) %>%
     mutate(Rank_YPP_Col2 = Rank_YPP) %>%
     mutate(Rank_Def_YPP = dense_rank(Def_YPP)) %>%
@@ -1994,6 +2018,8 @@ if (as.numeric(week) <= 3) {
     mutate(Rank_Def_Pts_per_play_Col2 = Rank_Def_Pts_per_play) %>%
     mutate(Rank_Yd_Diff = dense_rank(desc(Yd_Diff))) %>%
     mutate(Rank_Yd_Diff_Col2 = Rank_Yd_Diff) %>%
+    mutate(Rank_Expected_Wins = dense_rank(desc(Expected_Wins))) %>%
+    mutate(Rank_Expected_Wins_Col2 = Rank_Expected_Wins) %>%
     mutate(Rank_SOS_Adj_MOV = dense_rank(desc(SOS_Adj_MOV))) %>%
     mutate(Rank_SOS_Adj_MOV_Col2 = Rank_SOS_Adj_MOV) %>%
     mutate(Rank_SOR_Adj_MOV = dense_rank(desc(SOR_Adj_MOV))) %>%
@@ -2022,6 +2048,7 @@ if (as.numeric(week) <= 3) {
     mutate(Rank_Yds_Rush_Att_Allowed_2020 = dense_rank(Yds_Per_Rush_Attempt_Allowed_2020)) %>%
     mutate(Rank_PPY_2020 = dense_rank(desc(PPY_2020))) %>%
     mutate(Rank_MOV_2020 = dense_rank(desc(MOV_2020))) %>%
+    mutate(Rank_ANYA_2020 = dense_rank(desc(ANYA_2020))) %>%
     mutate(Rank_YPP_2020 = dense_rank(desc(YPP_2020))) %>%
     mutate(Rank_Def_YPP_2020 = dense_rank(Def_YPP_2020)) %>%
     mutate(Rank_Pts_per_play_2020 = dense_rank(desc(Pts_per_play_2020))) %>%
@@ -2082,6 +2109,8 @@ if (as.numeric(week) <= 3) {
     mutate(Rank_PPY_Col2 = Rank_PPY) %>%
     mutate(Rank_MOV = dense_rank(desc(MOV))) %>%
     mutate(Rank_MOV_Col2 = Rank_MOV) %>%
+    mutate(Rank_ANYA = dense_rank(desc(ANYA))) %>%
+    mutate(Rank_ANYA_Col2 = Rank_ANYA) %>%
     mutate(Rank_YPP = dense_rank(desc(YPP))) %>%
     mutate(Rank_YPP_Col2 = Rank_YPP) %>%
     mutate(Rank_Def_YPP = dense_rank(Def_YPP)) %>%
@@ -2092,6 +2121,8 @@ if (as.numeric(week) <= 3) {
     mutate(Rank_Def_Pts_per_play_Col2 = Rank_Def_Pts_per_play) %>%
     mutate(Rank_Yd_Diff = dense_rank(desc(Yd_Diff))) %>%
     mutate(Rank_Yd_Diff_Col2 = Rank_Yd_Diff) %>%
+    mutate(Rank_Expected_Wins = dense_rank(desc(Expected_Wins))) %>%
+    mutate(Rank_Expected_Wins_Col2 = Rank_Expected_Wins) %>%
     mutate(Rank_SOS_Adj_MOV = dense_rank(desc(SOS_Adj_MOV))) %>%
     mutate(Rank_SOS_Adj_MOV_Col2 = Rank_SOS_Adj_MOV) %>%
     mutate(Rank_SOR_Adj_MOV = dense_rank(desc(SOR_Adj_MOV))) %>%
@@ -2104,18 +2135,18 @@ if (as.numeric(week) <= 3) {
 ## changing VoA_Variables to have numeric values for non-team columns
 VoA_Variables[,2:ncol(VoA_Variables)] <- sapply(VoA_Variables[,2:ncol(VoA_Variables)], as.numeric)
 
-### START ROW MEANS FUNCTION AT column 88 IF IT IS WEEK 4 OR EARLIER
-## if week 4 or earlier, FPI ranks start at column 88, ranked stats start at column 98
-## after week 4, FPI ranks start at column 45, ranked stats start at 66
+### START ROW MEANS FUNCTION AT column 89 IF IT IS WEEK 4 OR EARLIER
+## if week 4 or earlier, FPI ranks start at column 89, ranked stats start at column 99
+## after week 4, FPI ranks start at column 47, ranked stats start at 68
 ## Taking the mean of all individual stat rankings
 if (as.numeric(week) <= 4) {
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,88:ncol(VoA_Variables)]))) %>%
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,89:ncol(VoA_Variables)]))) %>%
     ## Append column of VoA Final Rankings
     mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else {
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,45:ncol(VoA_Variables)]))) %>%
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,47:ncol(VoA_Variables)]))) %>%
     ## Append column of VoA Final Rankings
     mutate(VoA_Ranking = dense_rank(VoA_Output))
 }
@@ -2840,19 +2871,33 @@ if (as.numeric(week) == 2) {
 }
 
 if (as.numeric(week) >= 2) {
-  ## Subsetting by team, each conference (including independents) gets separate charts
-  AAC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Cincinnati" | Team == "Memphis" | Team == "SMU" | Team == "UCF" | Team == "Houston" | Team == "Temple" | Team == "Tulane" | Team == "East Carolina" | Team == "Navy" | Team == "South Florida" | Team == "Tulsa")
-  ACC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Boston College" | Team == "Wake Forest" | Team == "Louisville" | Team == "NC State" | Team == "Syracuse" | Team == "Florida State" | Team == "Virginia Tech" | Team == "Pittsburgh" | Team == "Virginia" | Team == "Duke" | Team == "Georgia Tech" | Team == "Miami" | Team == "North Carolina" | Team == "Clemson")
-  Big12_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Baylor" | Team == "Kansas State" | Team == "Oklahoma" | Team == "Oklahoma State" | Team == "TCU" | Team == "Texas Tech" | Team == "Iowa State" | Team == "Kansas" | Team == "Texas" | Team == "West Virginia")
-  Big10_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Maryland" | Team == "Michigan State" | Team == "Penn State" | Team == "Ohio State" | Team == "Michigan" | Team == "Rutgers" | Team == "Indiana" | Team == "Iowa" | Team == "Illinois" | Team == "Purdue" | Team == "Nebraska" | Team == "Minnesota" | Team == "Northwestern" | Team == "Wisconsin")
-  CUSA_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Charlotte" | Team == "Marshall" | Team == "Florida Atlantic" | Team == "Florida International" | Team == "Middle Tennessee" | Team == "Old Dominion" | Team == "Western Kentucky" | Team == "UTSA" | Team == "UTEP" | Team == "Louisiana Tech" | Team == "North Texas" | Team == "Southern Miss" | Team == "UAB" | Team == "Rice")
-  Indy_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Army" | Team == "BYU" | Team == "Liberty" | Team == "Notre Dame" | Team == "UMass" | Team == "New Mexico State" | Team == "UConn")
-  MAC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Buffalo" | Team == "Kent State" | Team == "Akron" | Team == "Bowling Green" | Team == "Miami (OH)" | Team == "Ohio" | Team == "Ball State" | Team == "Central Michigan" | Team == "Eastern Michigan" | Team == "Northern Illinois" | Team == "Toledo" | Team == "Western Michigan")
-  MWC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Air Force" | Team == "New Mexico" | Team == "Utah State" | Team == "Wyoming" | Team == "Boise State" | Team == "Colorado State" | Team == "Nevada" | Team == "San Diego State" | Team == "Fresno State" | Team == "San José State" | Team == "Hawai'i" | Team == "UNLV")
-  Pac12_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Stanford" | Team == "Oregon" | Team == "Oregon State" | Team == "Washington State" | Team == "California" | Team == "Washington" | Team == "Arizona State" | Team == "UCLA" | Team == "Colorado" | Team == "Utah" | Team == "Arizona" | Team == "USC")
-  SEC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Kentucky" | Team == "Florida" | Team == "Georgia" | Team == "South Carolina" | Team == "Tennessee" | Team == "Vanderbilt" | Team == "Missouri" | Team == "Alabama" | Team == "Arkansas" | Team == "Auburn" | Team == "Mississippi State" | Team == "Ole Miss" | Team == "Texas A&M" | Team == "LSU")
-  SunBelt_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Coastal Carolina" | Team == "Appalachian State" | Team == "Georgia Southern" | Team == "Troy" | Team == "Georgia State" | Team == "South Alabama" | Team == "Louisiana" | Team == "Arkansas State" | Team == "Texas State" | Team == "UL Monroe")
+  # ## Subsetting by team, each conference (including independents) gets separate charts
+  # AAC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Cincinnati" | Team == "Memphis" | Team == "SMU" | Team == "UCF" | Team == "Houston" | Team == "Temple" | Team == "Tulane" | Team == "East Carolina" | Team == "Navy" | Team == "South Florida" | Team == "Tulsa")
+  # ACC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Boston College" | Team == "Wake Forest" | Team == "Louisville" | Team == "NC State" | Team == "Syracuse" | Team == "Florida State" | Team == "Virginia Tech" | Team == "Pittsburgh" | Team == "Virginia" | Team == "Duke" | Team == "Georgia Tech" | Team == "Miami" | Team == "North Carolina" | Team == "Clemson")
+  # Big12_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Baylor" | Team == "Kansas State" | Team == "Oklahoma" | Team == "Oklahoma State" | Team == "TCU" | Team == "Texas Tech" | Team == "Iowa State" | Team == "Kansas" | Team == "Texas" | Team == "West Virginia")
+  # Big10_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Maryland" | Team == "Michigan State" | Team == "Penn State" | Team == "Ohio State" | Team == "Michigan" | Team == "Rutgers" | Team == "Indiana" | Team == "Iowa" | Team == "Illinois" | Team == "Purdue" | Team == "Nebraska" | Team == "Minnesota" | Team == "Northwestern" | Team == "Wisconsin")
+  # CUSA_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Charlotte" | Team == "Marshall" | Team == "Florida Atlantic" | Team == "Florida International" | Team == "Middle Tennessee" | Team == "Old Dominion" | Team == "Western Kentucky" | Team == "UTSA" | Team == "UTEP" | Team == "Louisiana Tech" | Team == "North Texas" | Team == "Southern Miss" | Team == "UAB" | Team == "Rice")
+  # Indy_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Army" | Team == "BYU" | Team == "Liberty" | Team == "Notre Dame" | Team == "UMass" | Team == "New Mexico State" | Team == "UConn")
+  # MAC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Buffalo" | Team == "Kent State" | Team == "Akron" | Team == "Bowling Green" | Team == "Miami (OH)" | Team == "Ohio" | Team == "Ball State" | Team == "Central Michigan" | Team == "Eastern Michigan" | Team == "Northern Illinois" | Team == "Toledo" | Team == "Western Michigan")
+  # MWC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Air Force" | Team == "New Mexico" | Team == "Utah State" | Team == "Wyoming" | Team == "Boise State" | Team == "Colorado State" | Team == "Nevada" | Team == "San Diego State" | Team == "Fresno State" | Team == "San José State" | Team == "Hawai'i" | Team == "UNLV")
+  # Pac12_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Stanford" | Team == "Oregon" | Team == "Oregon State" | Team == "Washington State" | Team == "California" | Team == "Washington" | Team == "Arizona State" | Team == "UCLA" | Team == "Colorado" | Team == "Utah" | Team == "Arizona" | Team == "USC")
+  # SEC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Kentucky" | Team == "Florida" | Team == "Georgia" | Team == "South Carolina" | Team == "Tennessee" | Team == "Vanderbilt" | Team == "Missouri" | Team == "Alabama" | Team == "Arkansas" | Team == "Auburn" | Team == "Mississippi State" | Team == "Ole Miss" | Team == "Texas A&M" | Team == "LSU")
+  # SunBelt_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Coastal Carolina" | Team == "Appalachian State" | Team == "Georgia Southern" | Team == "Troy" | Team == "Georgia State" | Team == "South Alabama" | Team == "Louisiana" | Team == "Arkansas State" | Team == "Texas State" | Team == "UL Monroe")
   
+  ## ESPN for some fucking reason started the 2021 season using the full school names + nicknames, then switched to just school names, then for the last week switched back! why?!?! Who knows!
+  # anyway, subsetting by team so each conference (including independents) gets separate charts
+  ## Subsetting by team, each conference (including independents) gets separate charts
+  AAC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Cincinnati Bearcats" | Team == "Memphis Tigers" | Team == "SMU Mustangs" | Team == "UCF Knights" | Team == "Houston Cougars" | Team == "Temple Owls" | Team == "Tulane Green Wave" | Team == "East Carolina Pirates" | Team == "Navy Midshipmen" | Team == "South Florida Bulls" | Team == "Tulsa Golden Hurricane")
+  ACC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Boston College Eagles" | Team == "Wake Forest Demon Deacons" | Team == "Louisville Cardinals" | Team == "NC State Wolf Pack" | Team == "Syracuse Orange" | Team == "Florida State Seminoles" | Team == "Virginia Tech Hokies" | Team == "Pittsburgh Panthers" | Team == "Virginia Cavaliers" | Team == "Duke Blue Devils" | Team == "Georgia Tech Yellow Jackets" | Team == "Miami Hurricanes" | Team == "North Carolina Tar Heels" | Team == "Clemson Tigers")
+  Big12_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Baylor Bears" | Team == "Kansas State Wildcats" | Team == "Oklahoma Sooners" | Team == "Oklahoma State Cowboys" | Team == "TCU Horned Frogs" | Team == "Texas Tech Red Raiders" | Team == "Iowa State Cyclones" | Team == "Kansas Jayhawks" | Team == "Texas Longhorns" | Team == "West Virginia Mountaineers")
+  Big10_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Maryland Terrapins" | Team == "Michigan State Spartans" | Team == "Penn State Nittany Lions" | Team == "Ohio State Buckeyes" | Team == "Michigan Wolverines" | Team == "Rutgers Scarlet Knights" | Team == "Indiana Hoosiers" | Team == "Iowa Hawkeyes" | Team == "Illinois Fighting Illini" | Team == "Purdue Boilermakers" | Team == "Nebraska Cornhuskers" | Team == "Minnesota Golden Gophers" | Team == "Northwestern Wildcats" | Team == "Wisconsin Badgers")
+  CUSA_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Charlotte 49ers" | Team == "Marshall Thundering Herd" | Team == "Florida Atlantic Owls" | Team == "Florida International Panthers" | Team == "Middle Tennessee Blue Raiders" | Team == "Old Dominion Monarchs" | Team == "Western Kentucky Hilltoppers" | Team == "UTSA Roadrunners" | Team == "UTEP Miners" | Team == "Louisiana Tech Bulldogs" | Team == "North Texas Mean Green" | Team == "Southern Miss Golden Eagles" | Team == "UAB Blazers" | Team == "Rice Owls")
+  Indy_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Army Black Knights" | Team == "BYU Cougars" | Team == "Liberty Flames" | Team == "Notre Dame Fighting Irish" | Team == "UMass Minutemen" | Team == "New Mexico State Aggies" | Team == "UConn Huskies")
+  MAC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Buffalo Bulls" | Team == "Kent State Golden Flashes" | Team == "Akron Zips" | Team == "Bowling Green Falcons" | Team == "Miami (OH) RedHawks" | Team == "Ohio Bobcats" | Team == "Ball State Cardinals" | Team == "Central Michigan Chippewas" | Team == "Eastern Michigan Eagles" | Team == "Northern Illinois Huskies" | Team == "Toledo Rockets" | Team == "Western Michigan Broncos")
+  MWC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Air Force Falcons" | Team == "New Mexico Lobos" | Team == "Utah State Aggies" | Team == "Wyoming Cowboys" | Team == "Boise State Broncos" | Team == "Colorado State Rams" | Team == "Nevada Wolfpack" | Team == "San Diego State Aztecs" | Team == "Fresno State Bulldogs" | Team == "San José State Spartans" | Team == "Hawai'i Rainbow Warriors" | Team == "UNLV Rebels")
+  Pac12_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Stanford Cardinal" | Team == "Oregon Ducks" | Team == "Oregon State Beavers" | Team == "Washington State Cougars" | Team == "California Golden Bears" | Team == "Washington Huskies" | Team == "Arizona State Sun Devils" | Team == "UCLA Bruins" | Team == "Colorado Buffaloes" | Team == "Utah Utes" | Team == "Arizona Wildcats" | Team == "USC Trojans")
+  SEC_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Kentucky Wildcats" | Team == "Florida Gators" | Team == "Georgia Bulldogs" | Team == "South Carolina Gamecocks" | Team == "Tennessee Volunteers" | Team == "Vanderbilt Commodores" | Team == "Missouri Tigers" | Team == "Alabama Crimson Tide" | Team == "Arkansas Razorbacks" | Team == "Auburn Tigers" | Team == "Mississippi State Bulldogs" | Team == "Ole Miss Rebels" | Team == "Texas A&M Aggies" | Team == "LSU Tigers")
+  SunBelt_Outputs_Rks <- subset(Full_Outputs_Rks, subset = Team == "Coastal Carolina Chanticleers" | Team == "Appalachian State Mountaineers" | Team == "Georgia Southern Eagles" | Team == "Troy Trojans" | Team == "Georgia State Panthers" | Team == "South Alabama Jaguars" | Team == "Louisiana Ragin' Cajuns" | Team == "Arkansas State Red Wolves" | Team == "Texas State Bobcats" | Team == "UL Monroe Warhawks")
   
   ## Creating Charts
   # charting VoA_Output and VoA_Ranking for each week from week 2 on
@@ -3148,46 +3193,57 @@ if (as.numeric(week) >= 2) {
 ## Creating Histograms of VoA Output for all teams, and separate plots for power 5 and group of 5 teams subsetted out
 # plots will be made for each week, not just after week 2 like Unintelligble Charts will
 ## subsetting teams
-Power5_VoA <- subset(VoA_Variables, subset = Team == "Boston College" | Team == "Wake Forest" | 
-                       Team == "Louisville" | Team == "NC State" | Team == "Syracuse" | Team == "Florida State" | 
-                       Team == "Virginia Tech" | Team == "Pittsburgh" | Team == "Virginia" | 
-                       Team == "Duke" | Team == "Georgia Tech" | Team == "Miami" | 
-                       Team == "North Carolina" | Team == "Clemson" | Team == "Baylor" | 
-                       Team == "Kansas State" | Team == "Oklahoma" | Team == "Oklahoma State" | 
-                       Team == "TCU" | Team == "Texas Tech" | Team == "Iowa State" | 
-                       Team == "Kansas" | Team == "Texas" | Team == "West Virginia" | 
-                       Team == "Maryland" | Team == "Michigan State" | Team == "Penn State" | 
-                       Team == "Ohio State" | Team == "Michigan" | Team == "Rutgers" | 
-                       Team == "Indiana" | Team == "Iowa" | Team == "Illinois" | Team == "Purdue" | 
-                       Team == "Nebraska" | Team == "Minnesota" | Team == "Northwestern" | 
-                       Team == "Wisconsin"| Team == "Stanford" | Team == "Oregon" | 
-                       Team == "Oregon State" | Team == "Washington State" | Team == "California" | 
-                       Team == "Washington" | Team == "Arizona State" | Team == "UCLA" | 
-                       Team == "Colorado" | Team == "Utah" | Team == "Arizona" | Team == "USC" |  
-                       Team == "Kentucky" | Team == "Florida" | Team == "Georgia" | Team == "South Carolina" | 
-                       Team == "Tennessee" | Team == "Vanderbilt" | Team == "Missouri" | Team == "Alabama" | Team == "Arkansas" | 
-                       Team == "Auburn" | Team == "Mississippi State" | Team == "Ole Miss" | Team == "Texas A&M" | Team == "LSU" | 
-                       Team == "Notre Dame")
-Group5_VoA <- subset(VoA_Variables, subset = Team == "Cincinnati" | Team == "Memphis" | Team == "SMU" | 
-                       Team == "UCF" | Team == "Houston" | Team == "Temple" | Team == "Tulane" | 
-                       Team == "East Carolina" | Team == "Navy" | Team == "South Florida" | Team == "Tulsa" | 
-                       Team == "Charlotte" | Team == "Marshall" | Team == "Florida Atlantic" | Team == "Florida International" | 
-                       Team == "Middle Tennessee" | Team == "Old Dominion" | Team == "Western Kentucky" | 
-                       Team == "UTSA" | Team == "UTEP" | Team == "Louisiana Tech" | Team == "North Texas" | 
-                       Team == "Southern Miss" | Team == "UAB" | Team == "Rice" | Team == "Army" | Team == "BYU" | 
-                       Team == "Liberty" | Team == "UMass" | Team == "New Mexico State" | Team == "UConn" | 
-                       Team == "Buffalo" | Team == "Kent State" | Team == "Akron" | Team == "Bowling Green" | 
-                       Team == "Miami (OH)" | Team == "Ohio" | Team == "Ball State" | Team == "Central Michigan" | 
-                       Team == "Eastern Michigan" | Team == "Northern Illinois" | Team == "Toledo" | 
-                       Team == "Western Michigan" | Team == "Air Force" | Team == "New Mexico" | Team == "Utah State" | 
-                       Team == "Wyoming" | Team == "Boise State" | Team == "Colorado State" | Team == "Nevada" | 
-                       Team == "San Diego State" | Team == "Fresno State" | Team == "San José State" | Team == "Hawai'i" | 
-                       Team == "UNLV" | Team == "Coastal Carolina" | Team == "Appalachian State" | 
-                       Team == "Georgia Southern" | Team == "Troy" | Team == "Georgia State" | Team == "South Alabama" | 
-                       Team == "Louisiana" | Team == "Arkansas State" | Team == "Texas State" | Team == "UL Monroe")
+# Power5_VoA <- subset(VoA_Variables, subset = Team == "Boston College" | Team == "Wake Forest" | 
+#                        Team == "Louisville" | Team == "NC State" | Team == "Syracuse" | Team == "Florida State" | 
+#                        Team == "Virginia Tech" | Team == "Pittsburgh" | Team == "Virginia" | 
+#                        Team == "Duke" | Team == "Georgia Tech" | Team == "Miami" | 
+#                        Team == "North Carolina" | Team == "Clemson" | Team == "Baylor" | 
+#                        Team == "Kansas State" | Team == "Oklahoma" | Team == "Oklahoma State" | 
+#                        Team == "TCU" | Team == "Texas Tech" | Team == "Iowa State" | 
+#                        Team == "Kansas" | Team == "Texas" | Team == "West Virginia" | 
+#                        Team == "Maryland" | Team == "Michigan State" | Team == "Penn State" | 
+#                        Team == "Ohio State" | Team == "Michigan" | Team == "Rutgers" | 
+#                        Team == "Indiana" | Team == "Iowa" | Team == "Illinois" | Team == "Purdue" | 
+#                        Team == "Nebraska" | Team == "Minnesota" | Team == "Northwestern" | 
+#                        Team == "Wisconsin"| Team == "Stanford" | Team == "Oregon" | 
+#                        Team == "Oregon State" | Team == "Washington State" | Team == "California" | 
+#                        Team == "Washington" | Team == "Arizona State" | Team == "UCLA" | 
+#                        Team == "Colorado" | Team == "Utah" | Team == "Arizona" | Team == "USC" |  
+#                        Team == "Kentucky" | Team == "Florida" | Team == "Georgia" | Team == "South Carolina" | 
+#                        Team == "Tennessee" | Team == "Vanderbilt" | Team == "Missouri" | Team == "Alabama" | Team == "Arkansas" | 
+#                        Team == "Auburn" | Team == "Mississippi State" | Team == "Ole Miss" | Team == "Texas A&M" | Team == "LSU" | 
+#                        Team == "Notre Dame")
+# Group5_VoA <- subset(VoA_Variables, subset = Team == "Cincinnati" | Team == "Memphis" | Team == "SMU" | 
+#                        Team == "UCF" | Team == "Houston" | Team == "Temple" | Team == "Tulane" | 
+#                        Team == "East Carolina" | Team == "Navy" | Team == "South Florida" | Team == "Tulsa" | 
+#                        Team == "Charlotte" | Team == "Marshall" | Team == "Florida Atlantic" | Team == "Florida International" | 
+#                        Team == "Middle Tennessee" | Team == "Old Dominion" | Team == "Western Kentucky" | 
+#                        Team == "UTSA" | Team == "UTEP" | Team == "Louisiana Tech" | Team == "North Texas" | 
+#                        Team == "Southern Miss" | Team == "UAB" | Team == "Rice" | Team == "Army" | Team == "BYU" | 
+#                        Team == "Liberty" | Team == "UMass" | Team == "New Mexico State" | Team == "UConn" | 
+#                        Team == "Buffalo" | Team == "Kent State" | Team == "Akron" | Team == "Bowling Green" | 
+#                        Team == "Miami (OH)" | Team == "Ohio" | Team == "Ball State" | Team == "Central Michigan" | 
+#                        Team == "Eastern Michigan" | Team == "Northern Illinois" | Team == "Toledo" | 
+#                        Team == "Western Michigan" | Team == "Air Force" | Team == "New Mexico" | Team == "Utah State" | 
+#                        Team == "Wyoming" | Team == "Boise State" | Team == "Colorado State" | Team == "Nevada" | 
+#                        Team == "San Diego State" | Team == "Fresno State" | Team == "San José State" | Team == "Hawai'i" | 
+#                        Team == "UNLV" | Team == "Coastal Carolina" | Team == "Appalachian State" | 
+#                        Team == "Georgia Southern" | Team == "Troy" | Team == "Georgia State" | Team == "South Alabama" | 
+#                        Team == "Louisiana" | Team == "Arkansas State" | Team == "Texas State" | Team == "UL Monroe")
 
+Power5_VoA <- subset(VoA_Variables, subset = Team == "Boston College Eagles" | Team == "Wake Forest Demon Deacons" | Team == "Louisville Cardinals" | Team == "NC State Wolf Pack" | Team == "Syracuse Orange" | Team == "Florida State Seminoles" | Team == "Virginia Tech Hokies" | Team == "Pittsburgh Panthers" | Team == "Virginia Cavaliers" | Team == "Duke Blue Devils" | Team == "Georgia Tech Yellow Jackets" | Team == "Miami Hurricanes" | Team == "North Carolina Tar Heels" | Team == "Clemson Tigers" |
+                       Team == "Baylor Bears" | Team == "Kansas State Wildcats" | Team == "Oklahoma Sooners" | Team == "Oklahoma State Cowboys" | Team == "TCU Horned Frogs" | Team == "Texas Tech Red Raiders" | Team == "Iowa State Cyclones" | Team == "Kansas Jayhawks" | Team == "Texas Longhorns" | Team == "West Virginia Mountaineers" |
+                       Team == "Notre Dame Fighting Irish" |
+                       Team == "Maryland Terrapins" | Team == "Michigan State Spartans" | Team == "Penn State Nittany Lions" | Team == "Ohio State Buckeyes" | Team == "Michigan Wolverines" | Team == "Rutgers Scarlet Knights" | Team == "Indiana Hoosiers" | Team == "Iowa Hawkeyes" | Team == "Illinois Fighting Illini" | Team == "Purdue Boilermakers" | Team == "Nebraska Cornhuskers" | Team == "Minnesota Golden Gophers" | Team == "Northwestern Wildcats" | Team == "Wisconsin Badgers" |
+                       Team == "Stanford Cardinal" | Team == "Oregon Ducks" | Team == "Oregon State Beavers" | Team == "Washington State Cougars" | Team == "California Golden Bears" | Team == "Washington Huskies" | Team == "Arizona State Sun Devils" | Team == "UCLA Bruins" | Team == "Colorado Buffaloes" | Team == "Utah Utes" | Team == "Arizona Wildcats" | Team == "USC Trojans" |
+                       Team == "Kentucky Wildcats" | Team == "Florida Gators" | Team == "Georgia Bulldogs" | Team == "South Carolina Gamecocks" | Team == "Tennessee Volunteers" | Team == "Vanderbilt Commodores" | Team == "Missouri Tigers" | Team == "Alabama Crimson Tide" | Team == "Arkansas Razorbacks" | Team == "Auburn Tigers" | Team == "Mississippi State Bulldogs" | Team == "Ole Miss Rebels" | Team == "Texas A&M Aggies" | Team == "LSU Tigers")
 
-
+Group5_VoA <- subset(VoA_Variables, subset = Team == "Cincinnati Bearcats" | Team == "Memphis Tigers" | Team == "SMU Mustangs" | Team == "UCF Knights" | Team == "Houston Cougars" | Team == "Temple Owls" | Team == "Tulane Green Wave" | Team == "East Carolina Pirates" | Team == "Navy Midshipmen" | Team == "South Florida Bulls" | Team == "Tulsa Golden Hurricane" |
+                       Team == "Charlotte 49ers" | Team == "Marshall Thundering Herd" | Team == "Florida Atlantic Owls" | Team == "Florida International Panthers" | Team == "Middle Tennessee Blue Raiders" | Team == "Old Dominion Monarchs" | Team == "Western Kentucky Hilltoppers" | Team == "UTSA Roadrunners" | Team == "UTEP Miners" | Team == "Louisiana Tech Bulldogs" | Team == "North Texas Mean Green" | Team == "Southern Miss Golden Eagles" | Team == "UAB Blazers" | Team == "Rice Owls" |
+                       Team == "Army Black Knights" | Team == "BYU Cougars" | Team == "Liberty Flames" | Team == "UMass Minutemen" | Team == "New Mexico State Aggies" | Team == "UConn Huskies" |
+                       Team == "Buffalo Bulls" | Team == "Kent State Golden Flashes" | Team == "Akron Zips" | Team == "Bowling Green Falcons" | Team == "Miami (OH) RedHawks" | Team == "Ohio Bobcats" | Team == "Ball State Cardinals" | Team == "Central Michigan Chippewas" | Team == "Eastern Michigan Eagles" | Team == "Northern Illinois Huskies" | Team == "Toledo Rockets" | Team == "Western Michigan Broncos" |
+                       Team == "Air Force Falcons" | Team == "New Mexico Lobos" | Team == "Utah State Aggies" | Team == "Wyoming Cowboys" | Team == "Boise State Broncos" | Team == "Colorado State Rams" | Team == "Nevada Wolfpack" | Team == "San Diego State Aztecs" | Team == "Fresno State Bulldogs" | Team == "San José State Spartans" | Team == "Hawai'i Rainbow Warriors" | Team == "UNLV Rebels" |
+                       Team == "Coastal Carolina Chanticleers" | Team == "Appalachian State Mountaineers" | Team == "Georgia Southern Eagles" | Team == "Troy Trojans" | Team == "Georgia State Panthers" | Team == "South Alabama Jaguars" | Team == "Louisiana Ragin' Cajuns" | Team == "Arkansas State Red Wolves" | Team == "Texas State Bobcats" | Team == "UL Monroe Warhawks")
 
 
 FBS_Output_histogram <- ggplot(VoA_Variables, aes(VoA_Output)) +
@@ -3242,3 +3298,8 @@ VoA_Output_Rk_plot <- ggplot(VoA_Variables, aes(x = VoA_Ranking, y = VoA_Output)
 VoA_Output_Rk_plot
 ## deciding not to export this one for now, it's interesting to look at, not that informative
 ## ggsave(Output_Rk_Plot_filename, path = output_dir, width = 50, height = 40, units = 'cm')
+
+
+## End of Script
+
+
