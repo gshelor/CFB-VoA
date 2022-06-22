@@ -2,8 +2,8 @@
 ## Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy
 ## Created by Griffin Shelor
 ## installing packages
-# install.packages(c("devtoools", "tidyverse", "matrixStats", "grid", "gridExtra", "gt", "viridis", "webshot", "writexl", "rvest", "cfbfastR", "espnscrapeR", "openxlsx", "here", "ggsci", "RColorBrewer", "ggpubr", "remotes"))
-## remotes::install_github("jthomasmock/gtExtras")
+# install.packages(c("devtoools", "tidyverse", "matrixStats", "grid", "gridExtra", "gt", "viridis", "webshot", "writexl", "rvest", "cfbfastR", "espnscrapeR", "openxlsx", "here", "ggsci", "RColorBrewer", "ggpubr", "remotes", "pacman"))
+remotes::install_github("jthomasmock/gtExtras")
 ## gtExtras will not install because it doesn't work for my current version of R (4.0.4)
 ## removed from package load section
 ## installing cfbfastR using the devtools package
@@ -12,7 +12,7 @@
 ## Load Packages for Ranking Variables
 pacman::p_load(tidyverse, matrixStats, grid, gridExtra, gt, viridis, 
                webshot, writexl, rvest, cfbfastR, espnscrapeR, openxlsx, 
-               here, ggsci, RColorBrewer, ggpubr)
+               here, ggsci, RColorBrewer, ggpubr, gtExtras)
 
 ## Creating Week and Year String for Top 25 Table Title, eventually could be used as part of reading in cfbfastR/cfbdata API data
 year <- readline(prompt = "What year is it? ")
@@ -2172,7 +2172,7 @@ Final_gt_Top25 <- FinalVoATop25 %>%
 
 ## setting strings for table titles, file pathways, unintelligible charts
 output_dir <- here("RVoA", "Outputs")
-VoAString <- "VoA.xlsx"
+VoAString <- "VoA.csv"
 week_text <- "Week"
 VoA_Top25_text <- "Vortex of Accuracy Top 25"
 top25_png <- "VoATop25.png"
@@ -2259,7 +2259,10 @@ VoATop25Table <- Final_gt_Top25 %>%
     )
   ) %>%
   cols_label(VoA_Output = "Final VoA Output", VoA_Ranking = "VoA Ranking") %>% # Update labels
-  cols_move_to_end(columns = "VoA_Output")
+  cols_move_to_end(columns = "VoA_Output") %>%
+  tab_footnote(
+    footnote = "Data from ESPN.com"
+  )
 VoATop25Table
 VoATop25Table %>%
   gtsave(
@@ -2294,7 +2297,10 @@ VoA_Full_Table <- Final_gt_table %>%
     )
   ) %>%
   cols_label(VoA_Output = "Final VoA Output", VoA_Ranking = "VoA Ranking") %>% # Update labels
-  cols_move_to_end(columns = "VoA_Output")
+  cols_move_to_end(columns = "VoA_Output") %>%
+  tab_footnote(
+    footnote = "Data from ESPN.com"
+  )
 VoA_Full_Table
 VoA_Full_Table %>%
   gtsave(
@@ -2302,21 +2308,11 @@ VoA_Full_Table %>%
     path = here("RVoA", "Outputs")
   )
 
-## Export Final Spreadsheet as excel file
-
-## new column names for VoA_Output and ranking columns
-# adding week number to beginning to so columns will be different
-## new_output_colname <- paste(week_text, week, "_", "VoA_Output", sep = "")
-## new_ranking_colname <- paste(week_text, week, "_", "VoA_Ranking", sep = "")
-## colnames(VoA_Variables)[colnames(VoA_Variables) == "VoA_Output"] <- new_output_colname
-## colnames(VoA_Variables)[colnames(VoA_Variables) == "VoA_Ranking"] <- new_ranking_colname
-## doing the same for FinalTable for unintelligible chart
-## colnames(FinalTable)[colnames(FinalTable) == "VoA_Output"] <- new_output_colname
-## colnames(FinalTable)[colnames(FinalTable) == "VoA_Ranking"] <- new_ranking_colname
 ## creating string for excel spreadsheet pathway
 file_pathway <- paste(output_dir, "/",week_text, week,"_",year, VoAString, sep = "")
 
-write_xlsx(VoA_Variables, file_pathway)
+## Exporting final dataframe as csv
+write_csv(VoA_Variables, file_pathway)
 
 #### possible future code for trying out different formats for top 25 tables
 ## testing adding column colors
