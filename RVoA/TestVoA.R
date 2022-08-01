@@ -2,11 +2,13 @@
 ## test code for accessing cfb data API
 pacman::p_load(tidyverse, matrixStats, grid, gridExtra, gt, viridis, 
                webshot, writexl, rvest, cfbfastR, espnscrapeR, openxlsx, 
-               here, ggsci, RColorBrewer, ggpubr, gtExtras)
+               here, ggsci, RColorBrewer, ggpubr, gtExtras, tidymodels)
 
 ## testing readline function with cfbfastR pkg
 week <- readline(prompt = "What week is it? ")
 year <- readline(prompt = "What year is it? ")
+
+breaktest_var <- 4
 
 ## test line using readline function to set end week for cfbfastR stats pull in function
 # going to change this later, to read in whole 2018 season
@@ -59,6 +61,14 @@ Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_ti
 
 ## checking which teams are showing up for regular stats but not advanced
 missing_teams <- dplyr::anti_join(Stats, Adv_Stats, by = "team")
+missing_adv_teams <- dplyr::anti_join(Adv_Stats, Stats, by = "team")
+
+## breaking script if stats and adv_stats don't match
+if (nrow(missing_teams) > 0) {
+  break
+} else if (nrow(missing_adv_teams) > 0) {
+  break
+}
 
 ## Pulling in adv_stats for teams not in original Adv_Stats df
 Adv_Stats_AirForce <- cfbd_stats_season_advanced(year = as.integer(year), team = "Air Force" , excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week) + 1)
@@ -114,13 +124,22 @@ Adv_Stats <- Adv_Stats %>%
 Adv_Stats <- Adv_Stats %>% mutate_if(is.integer,as.numeric)
 
 ## merging stat tables, will rank afterwards
-VoA_Variables_Test <- merge(Stats, Adv_Stats, by = "team")
+# VoA_Variables_Test <- merge(Stats, Adv_Stats, by = "team")
+## above line not working for some reason, trying different solution
+df_list <- list(Stats, Adv_Stats)
+VoA_Variables_Test <- df_list %>%
+  reduce(full_join, by = "team")
 
 ## Eliminating NAs
-VoA_Variables_Test[is.na(VoA_Variables_Test)] = 0
+## VoA_Variables_Test[is.na(VoA_Variables_Test)] = 0
+
+## Eliminating James Madison from 2019 data frame
+VoA_Variables_Test <- VoA_Variables_Test %>%
+  dplyr::filter(team != "James Madison")
+
 
 ## adding SP+ rankings
-SP_Rankings <- cfbd_ratings_sp(2021)
+SP_Rankings <- cfbd_ratings_sp(year = as.numeric(year))
 SP_Rankings <- SP_Rankings %>%
   select(-one_of("year", "conference"))
 SP_Rankings <- SP_Rankings[,c("team", "rating", "offense_rating", 
@@ -145,12 +164,14 @@ missing_SP_teams <- dplyr::anti_join(VoA_Variables_Test, SP_Rankings, by = "team
 missing_VoATest_teams <- dplyr::anti_join(SP_Rankings, VoA_Variables_Test, by = "team")
 
 ## Testing pulling in FPI data
-FPI <- espn_ratings_fpi(year=2021)
+FPI <- espn_ratings_fpi(year= as.numeric(year))
+
+## changing FPI colnames
 
 ## Merging stats with SP data
 # VoA_Variables_Test <- merge(VoA_Variables_Test, SP_Rankings, by = "team")
 ## above line not working for some reason, trying different solution
-df_list <- list(VoA_Variables_Test, SP_Rankings)
+df_list <- list(VoA_Variables_Test, SP_Rankings, FPI)
 VoA_Variables_Test <- df_list %>%
   reduce(full_join, by = "team")
 
