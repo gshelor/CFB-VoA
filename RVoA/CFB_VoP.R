@@ -43,10 +43,10 @@ if (as.numeric(upcoming) == 1) {
 }
 
 ## simple function to take VoA Ratings as inputs
-margin_projection <- function(home, away, neutral) {
+margin_projection <- function(away, home, neutral) {
   margin_proj = PrevWeek_VoA$VoA_Rating[PrevWeek_VoA$team == away] -  PrevWeek_VoA$VoA_Rating[PrevWeek_VoA$team == home]
   if (neutral == FALSE) {
-    margin_proj = margin_proj + 2.5
+    margin_proj = margin_proj - 2.5
   }
   return(margin_proj)
 }
