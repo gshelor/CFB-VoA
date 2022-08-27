@@ -1,0 +1,125 @@
+﻿Rank,Team,G,W-L,Penalties,PYards,YPG
+1,Princeton (Ivy League),10,8-2,35,274,27.40
+2,Dartmouth (Ivy League),10,9-1,37,311,31.10
+3,Samford (SoCon),12,5-7,43,408,34.00
+4,Drake (Pioneer),11,6-5,46,398,36.18
+5,Davidson (Pioneer),12,8-4,51,446,37.17
+6,Furman (SoCon),13,8-5,52,485,37.31
+7,Lehigh (Patriot),11,4-7,47,416,37.82
+8,Delaware (CAA),12,5-7,47,458,38.17
+9,Butler (Pioneer),12,3-9,59,472,39.33
+10,Presbyterian (Big South),12,2-10,56,475,39.58
+11,Mercer (SoCon),12,4-8,60,484,40.33
+12,Lafayette (Patriot),12,4-8,61,488,40.67
+13,New Hampshire (CAA),11,6-5,54,456,41.45
+14,Gardner-Webb (Big South),12,3-9,60,501,41.75
+15,Georgetown (Patriot),11,5-6,56,466,42.36
+16,VMI (SoCon),12,5-7,61,511,42.58
+16,Indiana St. (MVFC),12,5-7,57,511,42.58
+18,Eastern Ill. (OVC),12,1-11,61,513,42.75
+19,Monmouth (Big South),14,11-3,71,602,43.00
+20,Valparaiso (Pioneer),12,1-11,58,521,43.42
+21,Illinois St. (MVFC),15,10-5,72,652,43.47
+22,Harvard (Ivy League),10,4-6,54,438,43.80
+23,Mississippi Val. (SWAC),11,2-9,61,486,44.18
+24,North Dakota (FCS Independent),12,7-5,65,538,44.83
+25,UNI (MVFC),15,10-5,75,675,45.00
+26,Missouri St. (MVFC),11,1-10,59,496,45.09
+27,Elon (CAA),11,5-6,58,501,45.55
+28,Montana St. (Big Sky),15,11-4,77,690,46.00
+29,Wofford (SoCon),12,8-4,69,563,46.92
+30,Villanova (CAA),13,9-4,69,611,47.00
+30,Texas Southern (SWAC),11,0-11,61,517,47.00
+32,Chattanooga (SoCon),12,6-6,60,568,47.33
+32,Richmond (CAA),12,5-7,65,568,47.33
+34,Idaho St. (Big Sky),12,3-9,58,571,47.58
+35,Charleston So. (Big South),12,6-6,75,574,47.83
+36,Weber St. (Big Sky),15,11-4,84,726,48.40
+37,Towson (CAA),12,7-5,72,582,48.50
+37,UT Martin (OVC),12,7-5,59,582,48.50
+39,Tennessee Tech (OVC),12,6-6,66,588,49.00
+40,Holy Cross (Patriot),13,7-6,72,643,49.46
+41,Sacramento St. (Big Sky),13,9-4,69,646,49.69
+42,Bucknell (Patriot),11,3-8,61,551,50.09
+43,Columbia (Ivy League),10,3-7,54,503,50.30
+44,Western Caro. (SoCon),12,3-9,73,608,50.67
+45,Jacksonville (Pioneer),12,3-9,62,609,50.75
+45,Wagner (NEC),12,1-11,77,609,50.75
+47,Cornell (Ivy League),10,4-6,57,508,50.80
+48,Brown (Ivy League),10,2-8,61,509,50.90
+49,The Citadel (SoCon),12,6-6,65,614,51.17
+50,Central Ark. (Southland),13,9-4,78,668,51.38
+51,South Dakota St. (MVFC),13,8-5,76,669,51.46
+52,Southern Ill. (MVFC),12,7-5,63,627,52.25
+53,Fordham (Patriot),12,4-8,80,628,52.33
+54,Albany (NY) (CAA),14,9-5,91,733,52.36
+55,Howard (MEAC),12,2-10,79,631,52.58
+56,James Madison (CAA),16,14-2,83,843,52.69
+57,Northern Colo. (Big Sky),12,2-10,73,633,52.75
+58,Penn (Ivy League),10,5-5,68,528,52.80
+59,Western Ill. (MVFC),12,1-11,83,637,53.08
+60,Stetson (Pioneer),11,7-4,69,589,53.55
+61,ETSU (SoCon),12,3-9,63,646,53.83
+62,Colgate (Patriot),12,4-8,72,648,54.00
+63,SFA (Southland),12,3-9,71,652,54.33
+64,Cal Poly (Big Sky),11,3-8,63,598,54.36
+65,North Dakota St. (MVFC),16,16-0,97,871,54.44
+66,Robert Morris (NEC),12,7-5,69,655,54.58
+67,Dayton (Pioneer),11,8-3,60,602,54.73
+68,Nicholls (Southland),14,9-5,88,778,55.57
+69,William & Mary (CAA),12,5-7,76,674,56.17
+70,Morgan St. (MEAC),12,3-9,75,676,56.33
+71,UC Davis (Big Sky),12,5-7,79,685,57.08
+72,Northern Ariz. (Big Sky),12,4-8,72,689,57.42
+73,Bryant (NEC),12,4-8,85,696,58.00
+74,Kennesaw St. (Big South),14,11-3,83,815,58.21
+75,Montana (Big Sky),14,10-4,76,823,58.79
+76,Yale (Ivy League),10,9-1,66,588,58.80
+77,Duquesne (NEC),11,6-5,71,651,59.18
+78,Eastern Ky. (OVC),12,7-5,74,717,59.75
+78,Rhode Island (CAA),12,2-10,87,717,59.75
+80,Murray St. (OVC),12,4-8,78,720,60.00
+81,Alabama A&M (SWAC),12,7-5,92,728,60.67
+82,South Carolina St. (MEAC),11,8-3,76,672,61.09
+83,Lamar University (Southland),12,4-8,77,735,61.25
+84,Tennessee St. (OVC),12,3-9,95,746,62.17
+85,LIU (NEC),10,0-10,68,622,62.20
+86,Abilene Christian (Southland),12,5-7,86,763,63.58
+87,Alabama St. (SWAC),11,5-6,74,705,64.09
+88,Ark.-Pine Bluff (SWAC),11,6-5,75,712,64.73
+89,Marist (Pioneer),11,4-7,82,714,64.91
+90,Youngstown St. (MVFC),12,6-6,77,782,65.17
+90,Jacksonville St. (OVC),12,6-6,81,782,65.17
+92,Saint Francis (PA) (NEC),12,6-6,77,786,65.50
+93,Portland St. (Big Sky),12,5-7,91,804,67.00
+94,Northwestern St. (Southland),12,3-9,81,806,67.17
+95,Southern U. (SWAC),13,8-5,88,874,67.23
+96,Southeastern La. (Southland),13,8-5,98,877,67.46
+97,Morehead St. (Pioneer),12,5-7,85,819,68.25
+98,Central Conn. St. (NEC),13,11-2,93,894,68.77
+99,Southern Utah (Big Sky),12,3-9,89,828,69.00
+100,Southeast Mo. St. (OVC),13,9-4,97,907,69.77
+101,Alcorn (SWAC),13,9-4,108,912,70.15
+102,N.C. A&T (MEAC),12,9-3,95,852,71.00
+103,Stony Brook (CAA),12,5-7,91,859,71.58
+104,San Diego (Pioneer),12,9-3,87,890,74.17
+105,Jackson St. (SWAC),12,4-8,103,896,74.67
+106,Campbell (Big South),11,6-5,94,823,74.82
+107,Idaho (Big Sky),12,5-7,104,911,75.92
+108,Sacred Heart (NEC),12,7-5,93,913,76.08
+109,South Dakota (MVFC),12,5-7,94,925,77.08
+110,Norfolk St. (MEAC),12,5-7,99,929,77.42
+111,Grambling (SWAC),11,6-5,84,852,77.45
+112,Sam Houston (Southland),12,7-5,100,931,77.58
+113,Eastern Wash. (Big Sky),12,7-5,98,940,78.33
+114,Hampton (Big South),12,5-7,104,942,78.50
+115,McNeese (Southland),12,7-5,107,979,81.58
+116,Bethune-Cookman (MEAC),11,7-4,94,918,83.45
+117,UIW (Southland),12,5-7,112,"1,002",83.50
+118,Maine (CAA),12,6-6,103,"1,003",83.58
+119,Florida A&M (MEAC),11,9-2,105,938,85.27
+120,N.C. Central (MEAC),12,4-8,118,"1,029",85.75
+121,Austin Peay (OVC),15,11-4,134,"1,312",87.47
+122,Houston Baptist (Southland),12,5-7,121,"1,073",89.42
+123,Delaware St. (MEAC),12,2-10,106,"1,136",94.67
+124,Prairie View (SWAC),11,6-5,126,"1,082",98.36
