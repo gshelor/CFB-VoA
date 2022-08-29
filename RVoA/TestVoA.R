@@ -1,5 +1,8 @@
 ##### script includes assortment of testing options for data collection, analysis, visualization, etc
 ## test code for accessing cfb data API
+## as of Aug 29, 2022, script is exact same as Official VoA, with 2 changes
+# In this script, garbage time is excluded from Advanced Stats
+# This script uses tidymodels random forest function to predict SP+/FPI-style metric instead of lm() function that main script uses
 library(pacman)
 pacman::p_load(tidyverse, matrixStats, grid, gridExtra, gt, viridis, webshot, 
                writexl, rvest, cfbfastR, espnscrapeR, openxlsx, here, ggsci, 
@@ -142,7 +145,7 @@ if (as.numeric(week) == 0) {
   Stats_PY2 <- rbind(Stats_PY2, COVID_Optouts)
   
   ## advanced stats data
-  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
+  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = TRUE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
@@ -163,7 +166,7 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
-  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
+  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = TRUE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
@@ -184,7 +187,7 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
-  Adv_Stats_PY3 <- cfbd_stats_season_advanced(year = as.integer(year) - 3, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
+  Adv_Stats_PY3 <- cfbd_stats_season_advanced(year = as.integer(year) - 3, excl_garbage_time = TRUE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
@@ -458,7 +461,7 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   
   ## advanced stats data
-  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
+  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = TRUE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
@@ -479,7 +482,7 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
-  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
+  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = TRUE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
@@ -500,7 +503,7 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
-  Adv_Stats_PY3 <- cfbd_stats_season_advanced(year = as.integer(year) - 3, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
+  Adv_Stats_PY3 <- cfbd_stats_season_advanced(year = as.integer(year) - 3, excl_garbage_time = TRUE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
@@ -722,7 +725,7 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   
   ## advanced stats data
-  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
+  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = TRUE, start_week = 1, end_week = as.numeric(week)) %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -834,7 +837,7 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   
   ## advanced stats data
-  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
+  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = TRUE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
@@ -855,7 +858,7 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
-  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
+  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = TRUE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
@@ -1023,7 +1026,7 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   
   ## advanced stats data
-  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
+  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = TRUE, start_week = 1, end_week = as.numeric(week)) %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -1114,7 +1117,7 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   
   ## advanced stats data
-  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
+  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = TRUE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
@@ -1228,7 +1231,7 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   
   ## advanced stats data
-  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
+  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = TRUE, start_week = 1, end_week = as.numeric(week)) %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -1317,7 +1320,7 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   
   ## advanced stats data
-  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
+  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = TRUE, start_week = 1, end_week = as.numeric(week)) %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -2070,6 +2073,9 @@ if (as.numeric(week) == 0) {
     mutate(FPI_SP_mean = (sp_rating + FPI) / 2)
 } 
 ## end of if statement
+
+VoA_Variables_Test <- VoA_Variables_Test %>%
+  filter(team != "Boise St" & team != "Michigan St" & team != "San Diego St" & team != "Fresno St" & team != "Miami OH" & team != "Colorado St" & team != "Coastal Car" & team != "Texas St" & team != "Arizona St" & team != "Pitt" & team != "Kansas St" & team != "Florida St" & team != "Georgia St" & team != "Arkansas St")
 
 ## eliminating NAs that may still exist
 # leaving this outside an if statement because this could be an issue regardless of season or CFB_Week
@@ -6371,13 +6377,14 @@ VoA_rf_fit <- parsnip::fit(VoA_rf,
                                 AllPY_FPI_SP_mean ~ off_ppa_PY1 + off_ppa_PY2 + def_ppa_PY1 + def_ppa_PY2 + off_ppa_PY3 + def_ppa_PY3,
                                 data = VoA_Variables_Test)
 VoA_rf_predict <- parsnip::predict_raw(VoA_rf_fit, VoA_Variables_Test)
-test <- VoA_Variables_Test %>%
-  mutate(VoA_Rating = VoA_rf_predict$predictions) %>%
-  select(team, conference, VoA_Output, VoA_Rating, VoA_Ranking)
+VoA_Variables_Test <- VoA_Variables_Test %>%
+  mutate(VoA_Rating = VoA_rf_predict$predictions,
+         VoA_Ranking = dense_rank(desc(VoA_Rating)))
+  
 
 ## Creating data frames of just variables used for creating gt tables of rankings and Unintelligible Charts™©® showing VoA output and ranking during the season (after week 2)
 FinalTable <- VoA_Variables_Test %>%
-  select(team,CFB_Week, VoA_Ranking, VoA_Rating) %>%
+  select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating) %>%
   arrange(VoA_Ranking)
 FinalVoATop25 <- FinalTable %>%
   filter(VoA_Ranking < 26)
@@ -6408,11 +6415,12 @@ VoATop25Table <- FinalVoATop25 %>%
     colors = scales::col_numeric( # <- bc it's numeric
       palette = brewer.pal(9, "Reds"), # A color scheme (gradient)
       domain = c(), # Column scale endpoints
-      reverse = TRUE
+      reverse = FALSE
     )
   ) %>%
   cols_label(VoA_Rating = "BETA Final VoA Rating", VoA_Ranking = "BETA VoA Ranking") %>% # Update labels
   cols_move_to_end(columns = "VoA_Rating") %>%
+  cols_hide(c(conference, CFB_Week, VoA_Output)) %>%
   tab_footnote(
     footnote = "Data from CFB Data API, ESPN.com, the NCAA, and ESPN's Bill Connelly via cfbfastR"
   )
@@ -6451,6 +6459,7 @@ VoA_Full_Table <- FinalTable %>%
   ) %>%
   cols_label(VoA_Rating = "Final VoA Output", VoA_Ranking = "VoA Ranking") %>% # Update labels
   cols_move_to_end(columns = "VoA_Rating") %>%
+  cols_hide(c(conference, CFB_Week, VoA_Output)) %>%
   tab_footnote(
     footnote = "Data from CFB Data API, ESPN.com, the NCAA, and ESPN's Bill Connelly via cfbfastR"
   )

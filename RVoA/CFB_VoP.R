@@ -46,7 +46,7 @@ if (as.numeric(upcoming) == 1) {
 margin_projection <- function(away, home, neutral) {
   margin_proj = PrevWeek_VoA$VoA_Rating[PrevWeek_VoA$team == away] -  PrevWeek_VoA$VoA_Rating[PrevWeek_VoA$team == home]
   if (neutral == FALSE) {
-    margin_proj = margin_proj - 2.5
+    margin_proj = margin_proj - 2
   }
   return(margin_proj)
 }
