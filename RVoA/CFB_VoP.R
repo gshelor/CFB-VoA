@@ -159,7 +159,7 @@ upcoming_games_df <- upcoming_games_df %>%
   select(game_id, home_team, away_team, predicted)
 colnames(upcoming_games_df) <- c("id", "home", "away", "predicted")
 
-write_csv(upcoming_games_df, here("Data", paste("VoA", year, sep = ""), paste(year, "VoP", "Week", upcoming, "Games", ".csv", sep = "")))
+write_csv(upcoming_games_df, here("Data", paste("VoA", year, sep = ""), "Projections", paste(year, "VoP", "Week", upcoming, "Games", ".csv", sep = "")))
 
 ## simple function to take VoA Ratings and field neutrality as inputs
 ## commenting out function so I can still use it here in case above code fails
