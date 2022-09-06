@@ -6,9 +6,10 @@
 ## Load Packages for Ranking Variables
 start_time <- Sys.time()
 library(pacman)
-pacman::p_load(tidyverse, matrixStats, grid, gridExtra, gt, viridis, 
-               webshot, writexl, rvest, cfbfastR, espnscrapeR, openxlsx, 
-               here, ggsci, RColorBrewer, ggpubr, gtExtras, tidymodels, ranger)
+pacman::p_load(tidyverse, gt, viridis, webshot, cfbfastR,  here, ggsci, RColorBrewer, 
+               ggpubr, gtExtras)
+## testing to see if script runs without certain packeges I don't think are being used
+# writexl, rvest, openxlsx, tidymodels, ranger, grid, gridExtra, matrixStats, espnscrapeR,
 
 ## Creating Week and Year String for Top 25 Table Title, eventually could be used as part of reading in cfbfastR/cfbdata API data
 year <- readline(prompt = "What year is it? ")
@@ -80,7 +81,7 @@ Output_Rating_Plot_filename <- paste(year, "_", week_text, week, "_", Output_Rat
 file_pathway <- paste(data_dir, "/", year, week_text, week,"_", VoAString, sep = "")
 
 
-## pulling in data based on week of the season
+##### pulling in data based on week of the season
 if (as.numeric(week) == 0) {
   ## reading in data for 3 previous years
   JMU_AllYears <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_AllYears.csv"))
@@ -750,6 +751,16 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  
+  ## IFF advanced stats data for current year is missing due to data issues
+  missing_adv_teams <- anti_join(Stats, Adv_Stats)
+  if (nrow(missing_adv_teams) > 0) {
+    missing_adv_teams_adv_stats <- Adv_Stats_PY1 %>%
+      filter(team %in% missing_adv_teams$team) 
+  } else {
+    print("no teams missing from advanced stats data frame")
+  }
+    
   ## current FPI data as of this week
   ## pulling FPI data
   FPI_df <- espn_ratings_fpi(year = as.integer(year)) %>%
@@ -6233,28 +6244,28 @@ if (as.numeric(week) == 0) {
 } else if (as.numeric(week) == 1) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) <= 4) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) == 5) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
@@ -6313,28 +6324,28 @@ if (as.numeric(week) == 0) {
 } else if (as.numeric(week) == 1) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) <= 4) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) == 5) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
