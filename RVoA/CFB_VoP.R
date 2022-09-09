@@ -12,6 +12,11 @@ year <- readline(prompt = "What Year is it? ")
 ## Inputting upcoming week number
 upcoming <- readline(prompt = "What week is upcoming? ")
 
+## Text Strings for gt table of game projections at the end
+week_text <- "Week"
+gameprojections_png <- "GameProjections.png"
+gameprojections_filename <- paste(year, week_text, upcoming, gameprojections_png, sep = "")
+
 ## reading in appropriate csv based on upcoming week
 if (as.numeric(upcoming) == 1) {
   PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week0_VoA.csv")) %>%
@@ -153,13 +158,13 @@ upcoming_games_df <- upcoming_games_df[!duplicated(upcoming_games_df),]
 
 
 ## Creating Vortex of Projection Spread column
-upcoming_games_df <- upcoming_games_df %>%
-  mutate(predicted = case_when(neutral_site = TRUE ~ away_VoA_Rating - home_VoA_Rating,
-                               TRUE ~ away_VoA_Rating - home_VoA_Rating - 2)) %>%
+cfbdata_contest_df <- upcoming_games_df %>%
+  mutate(predicted = case_when(neutral_site == FALSE ~ away_VoA_Rating - (home_VoA_Rating + 2),
+                               TRUE ~ away_VoA_Rating - (home_VoA_Rating - 2))) %>%
   select(game_id, home_team, away_team, predicted)
-colnames(upcoming_games_df) <- c("id", "home", "away", "predicted")
+colnames(cfbdata_contest_df) <- c("id", "home", "away", "predicted")
 
-write_csv(upcoming_games_df, here("Data", paste("VoA", year, sep = ""), "Projections", paste(year, "VoP", "Week", upcoming, "Games", ".csv", sep = "")))
+write_csv(cfbdata_contest_df, here("Data", paste("VoA", year, sep = ""), "Projections", paste(year, "VoP", "Week", upcoming, "Games", ".csv", sep = "")))
 
 ## simple function to take VoA Ratings and field neutrality as inputs
 ## commenting out function so I can still use it here in case above code fails
@@ -170,3 +175,54 @@ write_csv(upcoming_games_df, here("Data", paste("VoA", year, sep = ""), "Project
 #   }
 #   return(margin_proj)
 # }
+
+## making gt table of upcoming games df to display games with close spreads
+upcoming_games_df <- upcoming_games_df %>%
+  mutate(Proj_Winner = case_when((neutral_site == FALSE & (home_VoA_Rating + 2) > away_VoA_Rating) ~ home_team,
+                                 (neutral_site == FALSE & away_VoA_Rating > (home_VoA_Rating + 2)) ~ away_team,
+                                 TRUE ~ "TIE"),
+         Proj_Margin = case_when(neutral_site == FALSE ~ abs(away_VoA_Rating - (home_VoA_Rating)) + 2,
+                                 TRUE ~ abs(away_VoA_Rating - home_VoA_Rating))) %>%
+  arrange(desc(Proj_Margin))
+## Creating gt table
+# adding title and subtitle
+upcoming_games_gt <- upcoming_games_df %>%
+  gt() %>% # use 'gt' to make an awesome table...
+  gt_theme_espn() %>%
+  tab_header(
+    title = paste(year, week_text, week, "Vortex of Projection Game Projections"), # ...with this title
+    subtitle = "The Unquestionably Puzzling Yet Impeccibly Perceptive Vortex of Projection")  %>%  # and this subtitle
+  fmt_number( # A column (numeric data)
+    columns = c(Proj_Margin), # What column variable? FinalVoATop25$VoA_Rating
+    decimals = 5 # With four decimal places
+  ) %>% 
+  fmt_number( # Another column (also numeric data)
+    columns = c(home_VoA_Rating), # What column variable? FinalVoATop25$VoA_Ranking
+    decimals = 5 # I want this column to have 5 decimal places
+  ) %>%
+  fmt_number( # Another numeric column
+    columns = c(away_VoA_Rating),
+    decimals = 5
+  ) %>%
+  data_color( # Update cell colors, testing different color palettes
+    columns = c(Proj_Margin), # ...for dose column
+    colors = scales::col_numeric( # <- bc it's numeric
+      palette = brewer.pal(9, "RdBu"), # A color scheme (gradient)
+      domain = c(), # Column scale endpoints
+      reverse = FALSE
+    )
+  ) %>%
+  cols_label(home_VoA_Rating = "Home VoA Rating", away_VoA_Rating = "Away VoA Rating", Proj_Winner = "Projected Winner", Proj_Margin = "Projected Margin") %>% # Update labels
+  cols_move_to_end(columns = "Proj_Margin") %>%
+  cols_hide(c(game_id, season, week, neutral_site)) %>%
+  tab_footnote(
+    footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org,
+    VoA Ratings for FCS teams are semi-randomly assigned based on bottom half of VoA Ratings"
+  )
+
+upcoming_games_gt
+upcoming_games_gt %>%
+  gtsave(
+    gameprojections_filename, expand = 5,
+    path = here("RVoA", "Outputs", "VoP")
+  )

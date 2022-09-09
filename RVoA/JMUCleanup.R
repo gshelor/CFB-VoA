@@ -50,7 +50,7 @@ colnames(PassOff_PY3) <- PassOff_PY3_colnames
 PassOff_PY3[,5:ncol(PassOff_PY3)] <- PassOff_PY3[,5:ncol(PassOff_PY3)] %>% mutate_if(is.character,as.numeric)
 PassOff_PY3 <- PassOff_PY3 %>%
   mutate(int_pct_PY3 = INTs / pass_atts_PY3) %>%
-  mutate(completion_pct_PY3 = pass_atts_PY3 / pass_comps_PY3) %>%
+  mutate(completion_pct_PY3 = pass_comps_PY3 / pass_atts_PY3) %>%
   select(team, int_pct_PY3, pass_ypa_PY3, pass_ypr_PY3, pass_yds_pg_PY3, completion_pct_PY3)
 PassOff_PY3[1,1] = "James Madison"
 
@@ -222,28 +222,44 @@ FPI_df_PY3[,2] <- FPI_df_PY3[,2] %>% mutate_if(is.character,as.numeric)
 ## Changing team names in FPI df to match what appears in cfbfastR stats function
 FPI_df_PY3 <- FPI_df_PY3 %>%
   mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
-            team == 'C Michigan' ~ 'Central Michigan',
-            team == 'Coast Carolina' ~ 'Coastal Carolina',
-            team == 'UConn' ~ 'Connecticut',
-            team == 'E Michigan' ~ 'Eastern Michigan',
-            team == 'FAU' ~ 'Florida Atlantic',
-            team == 'Florida Intl' ~ 'Florida International',
-            team == 'Georgia So' ~ 'Georgia Southern',
-            team == 'UL Monroe' ~ 'Louisiana Monroe',
-            team == 'LA Tech' ~ 'Louisiana Tech',
-            team == 'MTSU' ~ 'Middle Tennessee',
-            team == 'Mississippi St' ~ 'Mississippi State',
-            team == 'New Mexico St' ~ 'New Mexico State',
-            team == 'N Illinois' ~ 'Northern Illinois',
-            team == 'Oklahoma St' ~ 'Oklahoma State',
-            team == 'Oregon St' ~ 'Oregon State',
-            team == 'San Jose State' ~ 'San José State',
-            team == 'Southern Miss' ~ 'Southern Mississippi',
-            team == 'UTSA' ~ 'UT San Antonio',
-            team == 'Washington St' ~ 'Washington State',
-            team == 'Western KY' ~ 'Western Kentucky',
-            team == 'W Michigan' ~ 'Western Michigan',
-            TRUE ~ team)) %>%
+                            team == 'C Michigan' ~ 'Central Michigan',
+                            team == 'Coast Carolina' ~ 'Coastal Carolina',
+                            team == 'Coastal Car' ~ 'Coastal Carolina',
+                            team == 'UConn' ~ 'Connecticut',
+                            team == 'E Michigan' ~ 'Eastern Michigan',
+                            team == 'FAU' ~ 'Florida Atlantic',
+                            team == 'Florida Intl' ~ 'Florida International',
+                            team == 'FIU' ~ 'Florida International',
+                            team == 'Georgia So' ~ 'Georgia Southern',
+                            team == 'UL Monroe' ~ 'Louisiana Monroe',
+                            team == 'LA Tech' ~ 'Louisiana Tech',
+                            team == 'MTSU' ~ 'Middle Tennessee',
+                            team == 'Mississippi St' ~ 'Mississippi State',
+                            team == 'New Mexico St' ~ 'New Mexico State',
+                            team == 'N Illinois' ~ 'Northern Illinois',
+                            team == 'Oklahoma St' ~ 'Oklahoma State',
+                            team == 'Oregon St' ~ 'Oregon State',
+                            team == 'San Jose State' ~ 'San José State',
+                            team == 'Southern Miss' ~ 'Southern Mississippi',
+                            team == 'UTSA' ~ 'UT San Antonio',
+                            team == 'Washington St' ~ 'Washington State',
+                            team == 'Western KY' ~ 'Western Kentucky',
+                            team == 'W Michigan' ~ 'Western Michigan',
+                            team == 'Arizona St' ~ 'Arizona State',
+                            team == 'Arkansas St' ~ 'Arkansas State',
+                            team == 'Boise St' ~ 'Boise State',
+                            team == 'Colorado St' ~ 'Colorado State',
+                            team == 'Florida St' ~ 'Florida State',
+                            team == 'Fresno St' ~ 'Fresno State',
+                            team == 'Georgia St' ~ 'Georgia State',
+                            team == 'Kansas St' ~ 'Kansas State',
+                            team == 'Miami OH' ~ 'Miami (OH)',
+                            team == 'Michigan St' ~ 'Michigan State',
+                            team == 'Pitt' ~ 'Pittsburgh',
+                            team == 'San Diego St' ~ 'San Diego State',
+                            team == 'San José St' ~ 'San José State',
+                            team == 'Texas St' ~ 'Texas State',
+                            TRUE ~ team)) %>%
   select(school, FPI_PY3)
 colnames(FPI_df_PY3) <- FPI_colnames_PY3
 
@@ -272,6 +288,7 @@ JMU_FPI_PY3[1,2] = mean(FPI_df_PY3$FPI_PY3)
 ## pulling in recruiting rankings
 recruit_PY3 <- cfbd_recruiting_team(year = 2019, team = "James Madison") %>%
   select(team, points)
+recruit_PY3[,2] <- recruit_PY3[,2] %>% mutate_if(is.character, as.numeric)
 colnames(recruit_PY3) <- c("team", "recruit_pts_PY3")
 
 ## pulling in talent rankings
@@ -326,7 +343,7 @@ colnames(PassOff_PY2) <- PassOff_PY2_colnames
 PassOff_PY2[,5:ncol(PassOff_PY2)] <- PassOff_PY2[,5:ncol(PassOff_PY2)] %>% mutate_if(is.character,as.numeric)
 PassOff_PY2 <- PassOff_PY2 %>%
   mutate(int_pct_PY2 = INTs / pass_atts_PY2) %>%
-  mutate(completion_pct_PY2 = pass_atts_PY2 / pass_comps_PY2) %>%
+  mutate(completion_pct_PY2 = pass_comps_PY2 / pass_atts_PY2) %>%
   select(team, int_pct_PY2, pass_ypa_PY2, pass_ypr_PY2, pass_yds_pg_PY2, completion_pct_PY2)
 PassOff_PY2[1,1] = "James Madison"
 
@@ -500,10 +517,12 @@ FPI_df_PY2 <- FPI_df_PY2 %>%
   mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                             team == 'C Michigan' ~ 'Central Michigan',
                             team == 'Coast Carolina' ~ 'Coastal Carolina',
+                            team == 'Coastal Car' ~ 'Coastal Carolina',
                             team == 'UConn' ~ 'Connecticut',
                             team == 'E Michigan' ~ 'Eastern Michigan',
                             team == 'FAU' ~ 'Florida Atlantic',
                             team == 'Florida Intl' ~ 'Florida International',
+                            team == 'FIU' ~ 'Florida International',
                             team == 'Georgia So' ~ 'Georgia Southern',
                             team == 'UL Monroe' ~ 'Louisiana Monroe',
                             team == 'LA Tech' ~ 'Louisiana Tech',
@@ -519,6 +538,20 @@ FPI_df_PY2 <- FPI_df_PY2 %>%
                             team == 'Washington St' ~ 'Washington State',
                             team == 'Western KY' ~ 'Western Kentucky',
                             team == 'W Michigan' ~ 'Western Michigan',
+                            team == 'Arizona St' ~ 'Arizona State',
+                            team == 'Arkansas St' ~ 'Arkansas State',
+                            team == 'Boise St' ~ 'Boise State',
+                            team == 'Colorado St' ~ 'Colorado State',
+                            team == 'Florida St' ~ 'Florida State',
+                            team == 'Fresno St' ~ 'Fresno State',
+                            team == 'Georgia St' ~ 'Georgia State',
+                            team == 'Kansas St' ~ 'Kansas State',
+                            team == 'Miami OH' ~ 'Miami (OH)',
+                            team == 'Michigan St' ~ 'Michigan State',
+                            team == 'Pitt' ~ 'Pittsburgh',
+                            team == 'San Diego St' ~ 'San Diego State',
+                            team == 'San José St' ~ 'San José State',
+                            team == 'Texas St' ~ 'Texas State',
                             TRUE ~ team)) %>%
   select(school, FPI_PY2)
 colnames(FPI_df_PY2) <- FPI_colnames_PY2
@@ -552,6 +585,7 @@ JMU_FPI_PY2[1,2] = mean(FPI_df_PY2$FPI_PY2)
 ## pulling in recruiting rankings
 recruit_PY2 <- cfbd_recruiting_team(year = 2020, team = "James Madison") %>%
   select(team, points)
+recruit_PY2[,2] <- recruit_PY2[,2] %>% mutate_if(is.character, as.numeric)
 colnames(recruit_PY2) <- c("team", "recruit_pts_PY2")
 
 ## pulling in talent rankings
@@ -616,7 +650,7 @@ colnames(PassOff_PY1) <- PassOff_PY1_colnames
 PassOff_PY1[,5:ncol(PassOff_PY1)] <- PassOff_PY1[,5:ncol(PassOff_PY1)] %>% mutate_if(is.character,as.numeric)
 PassOff_PY1 <- PassOff_PY1 %>%
   mutate(int_pct_PY1 = INTs / pass_atts_PY1) %>%
-  mutate(completion_pct_PY1 = pass_atts_PY1 / pass_comps_PY1) %>%
+  mutate(completion_pct_PY1 = pass_comps_PY1 / pass_atts_PY1) %>%
   select(team, int_pct_PY1, pass_ypa_PY1, pass_ypr_PY1, pass_yds_pg_PY1, completion_pct_PY1)
 PassOff_PY1[1,1] = "James Madison"
 
@@ -791,10 +825,12 @@ FPI_df_PY1 <- FPI_df_PY1 %>%
   mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                             team == 'C Michigan' ~ 'Central Michigan',
                             team == 'Coast Carolina' ~ 'Coastal Carolina',
+                            team == 'Coastal Car' ~ 'Coastal Carolina',
                             team == 'UConn' ~ 'Connecticut',
                             team == 'E Michigan' ~ 'Eastern Michigan',
                             team == 'FAU' ~ 'Florida Atlantic',
                             team == 'Florida Intl' ~ 'Florida International',
+                            team == 'FIU' ~ 'Florida International',
                             team == 'Georgia So' ~ 'Georgia Southern',
                             team == 'UL Monroe' ~ 'Louisiana Monroe',
                             team == 'LA Tech' ~ 'Louisiana Tech',
@@ -810,6 +846,20 @@ FPI_df_PY1 <- FPI_df_PY1 %>%
                             team == 'Washington St' ~ 'Washington State',
                             team == 'Western KY' ~ 'Western Kentucky',
                             team == 'W Michigan' ~ 'Western Michigan',
+                            team == 'Arizona St' ~ 'Arizona State',
+                            team == 'Arkansas St' ~ 'Arkansas State',
+                            team == 'Boise St' ~ 'Boise State',
+                            team == 'Colorado St' ~ 'Colorado State',
+                            team == 'Florida St' ~ 'Florida State',
+                            team == 'Fresno St' ~ 'Fresno State',
+                            team == 'Georgia St' ~ 'Georgia State',
+                            team == 'Kansas St' ~ 'Kansas State',
+                            team == 'Miami OH' ~ 'Miami (OH)',
+                            team == 'Michigan St' ~ 'Michigan State',
+                            team == 'Pitt' ~ 'Pittsburgh',
+                            team == 'San Diego St' ~ 'San Diego State',
+                            team == 'San José St' ~ 'San José State',
+                            team == 'Texas St' ~ 'Texas State',
                             TRUE ~ team)) %>%
   select(school, FPI_PY1)
 colnames(FPI_df_PY1) <- FPI_colnames_PY1
@@ -840,6 +890,7 @@ JMU_FPI_PY1[1,2] = mean(FPI_df_PY1$FPI_PY1)
 ## pulling in recruiting rankings
 recruit_PY1 <- cfbd_recruiting_team(year = 2021, team = "James Madison") %>%
   select(team, points)
+recruit_PY1[,2] <- recruit_PY1[,2] %>% mutate_if(is.character, as.numeric)
 colnames(recruit_PY1) <- c("team", "recruit_pts_PY1")
 
 ## pulling in talent rankings
@@ -853,6 +904,13 @@ df_PY1_list <- list(Ints_PY1, Fourth_Down_Off_PY1, FirstDown_PY1, Kick_Returns_P
 JMU_PY1 <- df_PY1_list %>%
   reduce(full_join, by = "team") %>%
   mutate(season = 2022, .before = 1)
+
+## current recruiting rankings
+# JMU_recruit <- cfbd_recruiting_team(year = as.numeric(year)) %>%
+#   filter(team == "James Madison") %>%
+#   select(team, points)
+# recruit[,2] <- recruit[,2] %>% mutate_if(is.character, as.numeric)
+# colnames(JMU_recruit) <- c("team", "recruit_pts")
 
 ## getting columns in proper order, then merging them all together in the forms they'll be used in during the VoA
 JMU_PY3 <- JMU_PY3 %>%
@@ -948,7 +1006,7 @@ write_csv(JMU_AllYears, here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_Al
 
 ## setting up JMU_PY2 to be lead data frame
 JMU_PY2 <- JMU_PY2 %>%
-  select(season, team, conference, games_PY2, Wins_PY2, Losses_PY2, completion_pct_PY2, 
+  select(team, games_PY2, Wins_PY2, Losses_PY2, completion_pct_PY2, 
          pass_ypa_PY2, pass_ypr_PY2, int_pct_PY2, rush_ypc_PY2, turnovers_pg_PY2, 
          third_conv_rate_PY2, fourth_conv_rate_PY2, penalty_yds_pg_PY2, 
          yards_per_penalty_PY2, kick_return_avg_PY2, punt_return_avg_PY2, total_yds_pg_PY2, 
@@ -983,7 +1041,7 @@ write_csv(JMU_2Years, here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_2Yea
 
 ## setting up PY1 to match column order of VoA_Variables in main VoA
 JMU_PY1 <- JMU_PY1 %>%
-  select(season, team, conference, games_PY1, Wins_PY1, Losses_PY1, completion_pct_PY1, 
+  select(team, games_PY1, Wins_PY1, Losses_PY1, completion_pct_PY1, 
          pass_ypa_PY1, pass_ypr_PY1, int_pct_PY1, rush_ypc_PY1, turnovers_pg_PY1, 
          third_conv_rate_PY1, fourth_conv_rate_PY1, penalty_yds_pg_PY1, 
          yards_per_penalty_PY1, kick_return_avg_PY1, punt_return_avg_PY1, total_yds_pg_PY1, 
@@ -1008,6 +1066,10 @@ JMU_PY1 <- JMU_PY1 %>%
          def_passing_plays_success_rate_PY1, def_passing_plays_explosiveness_PY1, 
          recruit_pts_PY1, talent_PY1, sp_rating_PY1, sp_offense_rating_PY1, 
          sp_defense_rating_PY1, sp_special_teams_rating_PY1, FPI_PY1)
+
+# PY1_current_recruit_list <- list(JMU_PY1, JMU_recruit)
+# JMU_PY1 <- PY1_current_recruit_list %>%
+#   reduce(full_join, by = "team")
 
 ## saving PY1 as csv, to be used when PY3 and PY2 no longer included in VoA
 write_csv(JMU_PY1, here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_PrevYear.csv"))

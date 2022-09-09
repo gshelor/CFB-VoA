@@ -1,6 +1,11 @@
-## The Vortex of Accuracy, Version 4.0
+## The Vortex of Accuracy, Version 4.0.1
 ## Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy
 ## Created by Griffin Shelor
+## Initially intended to use SP+ ratings but due to paywall issues they are unlikely to be
+# accessible via collegefootballdata.com's API and thus they will be inaccessible via
+# cfbfastR, so sections involving current season SP+ will no longer be included in
+# Vortex of Accuracy. Those sections will be commented out in case this accessibility
+# issue ever changes.
 ## installing packages
 # install.packages(c("devtoools", "tidyverse", "matrixStats", "grid", "gridExtra", "gt", "viridis", "webshot", "writexl", "rvest", "cfbfastR", "espnscrapeR", "openxlsx", "here", "ggsci", "RColorBrewer", "ggpubr", "remotes", "pacman", "gtExtras"))
 ## Load Packages for Ranking Variables
@@ -105,6 +110,8 @@ if (as.numeric(week) == 0) {
            yards_per_penalty = penalty_yds / penalties,
            kick_return_avg = kick_return_yds / kick_returns,
            punt_return_avg = punt_return_yds / punt_returns)
+  ## removing NAs
+  Stats_PY1[is.na(Stats_PY1)] = 0
   Stats_PY2 <- cfbd_stats_season_team(year = as.integer(year) - 2, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     mutate(total_yds_pg = total_yds/games,
@@ -125,6 +132,8 @@ if (as.numeric(week) == 0) {
            yards_per_penalty = penalty_yds / penalties,
            kick_return_avg = kick_return_yds / kick_returns,
            punt_return_avg = punt_return_yds / punt_returns)
+  ## removing NAs
+  Stats_PY2[is.na(Stats_PY2)] = 0
   Stats_PY3 <- cfbd_stats_season_team(year = as.integer(year) - 3, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     mutate(total_yds_pg = total_yds/games,
@@ -145,6 +154,8 @@ if (as.numeric(week) == 0) {
            yards_per_penalty = penalty_yds / penalties,
            kick_return_avg = kick_return_yds / kick_returns,
            punt_return_avg = punt_return_yds / punt_returns)
+  ## removing NAs
+  Stats_PY3[is.na(Stats_PY3)] = 0
   ## filtering out COVID opt-outs from 2019 (PY3) data, will be merged into 2020 (PY2) data
   COVID_Optouts <- Stats_PY3 %>%
     filter(team == "New Mexico State" | team == "Connecticut" | team == "Old Dominion")
@@ -172,6 +183,8 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  ## removing NAs
+  Adv_Stats_PY1[is.na(Adv_Stats_PY1)] = 0
   Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
@@ -193,6 +206,8 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  ## removing NAs
+  Adv_Stats_PY2[is.na(Adv_Stats_PY2)] = 0
   Adv_Stats_PY3 <- cfbd_stats_season_advanced(year = as.integer(year) - 3, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
@@ -214,6 +229,8 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  ## removing NAs
+  Adv_Stats_PY3[is.na(Adv_Stats_PY3)] = 0
   ## filtering out COVID opt-outs from 2019 (PY3) data, will be merged into 2020 (PY2) data
   COVID_Optouts_adv <- Adv_Stats_PY3 %>%
     filter(team == "New Mexico State" | team == "Connecticut" | team == "Old Dominion")
@@ -246,12 +263,15 @@ if (as.numeric(week) == 0) {
   FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) %>%
     filter(name != "James Madison") %>%
     select(name, fpi, w, l)
+  ## reading in PY2 FPI data
   FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) %>%
     filter(name != "James Madison") %>%
     select(name, fpi, w, l)
+  ## reading in PY3 FPI data
   FPI_df_PY3 <- espn_ratings_fpi(year = as.integer(year) - 3) %>%
     filter(name != "James Madison") %>%
     select(name, fpi, w, l)
+  
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_PY1_colnames <- c("team", "FPI_PY1", "Wins_PY1", "Losses_PY1")
   FPI_PY2_colnames <- c("team", "FPI_PY2", "Wins_PY2", "Losses_PY2")
@@ -263,6 +283,12 @@ if (as.numeric(week) == 0) {
   FPI_df_PY1[,2:ncol(FPI_df_PY1)] <- FPI_df_PY1[,2:ncol(FPI_df_PY1)] %>% mutate_if(is.character,as.numeric)
   FPI_df_PY2[,2:ncol(FPI_df_PY2)] <- FPI_df_PY2[,2:ncol(FPI_df_PY2)] %>% mutate_if(is.character,as.numeric)
   FPI_df_PY3[,2:ncol(FPI_df_PY3)] <- FPI_df_PY3[,2:ncol(FPI_df_PY3)] %>% mutate_if(is.character,as.numeric)
+  ## removing NAs
+  FPI_df_PY1[is.na(FPI_df_PY1)] = 0
+  ## removing NAs
+  FPI_df_PY2[is.na(FPI_df_PY2)] = 0
+  ## removing NAs
+  FPI_df_PY3[is.na(FPI_df_PY3)] = 0
   
   ## Changing FPI team names to match up with outputs of cfbdata functions
   ## Changing team names in FPI df to match what appears in cfbfastR stats function
@@ -270,6 +296,7 @@ if (as.numeric(week) == 0) {
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -290,12 +317,27 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI_PY1, Wins_PY1, Losses_PY1)
   FPI_df_PY2 <- FPI_df_PY2 %>%
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -316,12 +358,27 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI_PY2, Wins_PY2, Losses_PY2)
   FPI_df_PY3 <- FPI_df_PY3 %>%
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -342,6 +399,20 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI_PY3, Wins_PY3, Losses_PY3)
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
@@ -398,13 +469,131 @@ if (as.numeric(week) == 0) {
   
   ## incoming recruiting class rankings
   recruit <- cfbd_recruiting_team(year = as.numeric(year)) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY1$team) %>%
     select(team, points)
+  recruit <- recruit %>%
+    mutate(school = case_when(team == "Florida Intl" ~ "Florida International",
+                              TRUE ~ team)) %>%
+    filter(school %in% Stats_PY1$team) %>%
+    select(school, points)
+  recruit[,2] <- recruit[,2] %>% mutate_if(is.character, as.numeric)
   colnames(recruit) <- c("team", "recruit_pts")
+  JMU_recruit <- recruit %>%
+    filter(team == "Ohio")
+  JMU_recruit[1,1] = "James Madison"
+  JMU_recruit[1,2] = median(recruit$recruit_pts)
+  recruit <- rbind(recruit, JMU_recruit)
 } else if (as.numeric(week) == 1) {
   ## reading in data for 3 previous years
   JMU_AllYears <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_AllYears.csv"))
+  JMU_AllYears[,4:ncol(JMU_AllYears)] <- JMU_AllYears[,4:ncol(JMU_AllYears)] %>% mutate_if(is.character, as.numeric)
+  ### CURRENT SEASON STATS
+  Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) %>%
+    mutate(total_yds_pg = total_yds/games,
+           pass_yds_pg = net_pass_yds/games,
+           rush_yds_pg = rush_yds/games,
+           first_downs_pg = first_downs/games,
+           def_interceptions_pg = passes_intercepted/games,
+           pass_ypa = net_pass_yds / pass_atts,
+           off_ypp = total_yds / (rush_atts + pass_atts),
+           completion_pct = pass_comps / pass_atts,
+           pass_ypr = net_pass_yds / pass_comps,
+           int_pct = interceptions / pass_atts,
+           rush_ypc = rush_yds / rush_atts,
+           turnovers_pg = turnovers / games,
+           third_conv_rate = third_down_convs / third_downs,
+           fourth_conv_rate = fourth_down_convs / fourth_downs,
+           penalty_yds_pg = penalty_yds / games,
+           yards_per_penalty = penalty_yds / penalties,
+           kick_return_avg = kick_return_yds / kick_returns,
+           punt_return_avg = punt_return_yds / punt_returns)
+  Stats[is.na(Stats)] = 0
+  
+  ## advanced stats data
+  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
+    select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
+           off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
+           off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
+           off_havoc_front_seven, off_havoc_db, off_standard_downs_ppa,
+           off_standard_downs_success_rate, off_standard_downs_explosiveness,
+           off_passing_downs_ppa, off_passing_downs_success_rate,
+           off_passing_downs_explosiveness, off_rushing_plays_ppa,
+           off_rushing_plays_success_rate, off_rushing_plays_explosiveness,
+           off_passing_plays_ppa, off_passing_plays_success_rate,
+           off_passing_plays_explosiveness, def_ppa, def_success_rate,
+           def_explosiveness, def_power_success, def_stuff_rate, def_line_yds,
+           def_second_lvl_yds, def_open_field_yds, def_pts_per_opp, 
+           def_field_pos_avg_predicted_points, def_havoc_total, def_havoc_front_seven,
+           def_havoc_db, def_standard_downs_ppa, def_standard_downs_success_rate,
+           def_standard_downs_explosiveness , def_passing_downs_ppa,
+           def_passing_downs_success_rate, def_passing_downs_explosiveness,
+           def_rushing_plays_ppa, def_rushing_plays_success_rate,
+           def_rushing_plays_explosiveness, def_passing_plays_ppa,
+           def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  Adv_Stats[is.na(Adv_Stats)] = 0
+  
+  ## current FPI data as of this week
+  ## pulling FPI data
+  FPI_df <- espn_ratings_fpi(year = as.integer(year)) %>%
+    select(name, fpi, w, l)
+  ## changing column names here since all of the columns used in the VoA are extracted in the first step
+  FPI_colnames <- c("team", "FPI", "Wins", "Losses")
+  colnames(FPI_df) <- FPI_colnames
+  ## converting character columns to numeric
+  FPI_df[,2:ncol(FPI_df)] <- FPI_df[,2:ncol(FPI_df)] %>% mutate_if(is.character,as.numeric)
+  
+  ## Changing FPI team names to match up with outputs of cfbdata functions
+  ## Changing team names in FPI df to match what appears in cfbfastR stats function
+  FPI_df <- FPI_df %>%
+    mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
+                              team == 'C Michigan' ~ 'Central Michigan',
+                              team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
+                              team == 'UConn' ~ 'Connecticut',
+                              team == 'E Michigan' ~ 'Eastern Michigan',
+                              team == 'FAU' ~ 'Florida Atlantic',
+                              team == 'Florida Intl' ~ 'Florida International',
+                              team == 'FIU' ~ 'Florida International',
+                              team == 'Georgia So' ~ 'Georgia Southern',
+                              team == 'UL Monroe' ~ 'Louisiana Monroe',
+                              team == 'LA Tech' ~ 'Louisiana Tech',
+                              team == 'MTSU' ~ 'Middle Tennessee',
+                              team == 'Mississippi St' ~ 'Mississippi State',
+                              team == 'New Mexico St' ~ 'New Mexico State',
+                              team == 'N Illinois' ~ 'Northern Illinois',
+                              team == 'Oklahoma St' ~ 'Oklahoma State',
+                              team == 'Oregon St' ~ 'Oregon State',
+                              team == 'San Jose State' ~ 'San José State',
+                              team == 'Southern Miss' ~ 'Southern Mississippi',
+                              team == 'UTSA' ~ 'UT San Antonio',
+                              team == 'Washington St' ~ 'Washington State',
+                              team == 'Western KY' ~ 'Western Kentucky',
+                              team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
+                              TRUE ~ team)) %>%
+    select(school, FPI, Wins, Losses)
+  colnames(FPI_df) <- FPI_colnames
+  ## Current SP+ data
+  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
+  #   filter(team != "nationalAverages") %>%
+  #   select(team, rating, offense_rating, defense_rating, special_teams_rating)
+  # colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
+  # ## Eliminating NAs
+  # SP_Rankings[is.na(SP_Rankings)] = 0
+  
+  ### Previous Years
   Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     mutate(total_yds_pg = total_yds/games,
@@ -425,8 +614,11 @@ if (as.numeric(week) == 0) {
            yards_per_penalty = penalty_yds / penalties,
            kick_return_avg = kick_return_yds / kick_returns,
            punt_return_avg = punt_return_yds / punt_returns)
+  ## removing NAs
+  Stats_PY1[is.na(Stats_PY1)] = 0
   Stats_PY2 <- cfbd_stats_season_team(year = as.integer(year) - 2, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
+    filter(team != "New Mexico State") %>%
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -445,6 +637,8 @@ if (as.numeric(week) == 0) {
            yards_per_penalty = penalty_yds / penalties,
            kick_return_avg = kick_return_yds / kick_returns,
            punt_return_avg = punt_return_yds / punt_returns)
+  ## removing NAs
+  Stats_PY2[is.na(Stats_PY2)] = 0
   Stats_PY3 <- cfbd_stats_season_team(year = as.integer(year) - 3, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     mutate(total_yds_pg = total_yds/games,
@@ -465,6 +659,8 @@ if (as.numeric(week) == 0) {
            yards_per_penalty = penalty_yds / penalties,
            kick_return_avg = kick_return_yds / kick_returns,
            punt_return_avg = punt_return_yds / punt_returns)
+  ## removing NAs
+  Stats_PY3[is.na(Stats_PY3)] = 0
   
   ## advanced stats data
   Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
@@ -488,6 +684,20 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  ## removing NAs
+  Adv_Stats_PY1[is.na(Adv_Stats_PY1)] = 0
+  
+  ## IFF advanced stats data for current year is missing due to data issues
+  missing_adv_teams <- anti_join(Stats, Adv_Stats)
+  if (nrow(missing_adv_teams) > 0) {
+    missing_adv_teams_adv_stats <- Adv_Stats_PY1 %>%
+      filter(team %in% missing_adv_teams$team) 
+    Adv_Stats <- rbind(Adv_Stats, missing_adv_teams_adv_stats)
+  } else {
+    print("no teams missing from advanced stats data frame")
+  }
+  
+  ## pulling in PY2 advanced stats
   Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
@@ -509,6 +719,9 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  ## removing NAs
+  Adv_Stats_PY2[is.na(Adv_Stats_PY2)] = 0
+  ## pulling in PY3 advanced stats
   Adv_Stats_PY3 <- cfbd_stats_season_advanced(year = as.integer(year) - 3, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
@@ -530,6 +743,8 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  ## removing NAs
+  Adv_Stats_PY3[is.na(Adv_Stats_PY3)] = 0
   
   ## pulling in SP+ data
   SP_Rankings_PY1 <-cfbd_ratings_sp(year = as.integer(year) - 1) %>%
@@ -558,9 +773,11 @@ if (as.numeric(week) == 0) {
   FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) %>%
     filter(name != "James Madison") %>%
     select(name, fpi, w, l)
+  ## pulling in PY2 FPI data
   FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) %>%
     filter(name != "James Madison") %>%
     select(name, fpi, w, l)
+  ## pulling in PY3 FPI data
   FPI_df_PY3 <- espn_ratings_fpi(year = as.integer(year) - 3) %>%
     filter(name != "James Madison") %>%
     select(name, fpi, w, l)
@@ -575,6 +792,12 @@ if (as.numeric(week) == 0) {
   FPI_df_PY1[,2:ncol(FPI_df_PY1)] <- FPI_df_PY1[,2:ncol(FPI_df_PY1)] %>% mutate_if(is.character,as.numeric)
   FPI_df_PY2[,2:ncol(FPI_df_PY2)] <- FPI_df_PY2[,2:ncol(FPI_df_PY2)] %>% mutate_if(is.character,as.numeric)
   FPI_df_PY3[,2:ncol(FPI_df_PY3)] <- FPI_df_PY3[,2:ncol(FPI_df_PY3)] %>% mutate_if(is.character,as.numeric)
+  ## removing NAs
+  FPI_df_PY1[is.na(FPI_df_PY1)] = 0
+  ## removing NAs
+  FPI_df_PY2[is.na(FPI_df_PY2)] = 0
+  ## removing NAs
+  FPI_df_PY3[is.na(FPI_df_PY3)] = 0
   
   ## Changing FPI team names to match up with outputs of cfbdata functions
   ## Changing team names in FPI df to match what appears in cfbfastR stats function
@@ -582,6 +805,7 @@ if (as.numeric(week) == 0) {
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -602,12 +826,27 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI_PY1, Wins_PY1, Losses_PY1)
   FPI_df_PY2 <- FPI_df_PY2 %>%
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -628,12 +867,27 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI_PY2, Wins_PY2, Losses_PY2)
   FPI_df_PY3 <- FPI_df_PY3 %>%
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -654,6 +908,20 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI_PY3, Wins_PY3, Losses_PY3)
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
@@ -665,6 +933,7 @@ if (as.numeric(week) == 0) {
     filter(team != "James Madison") %>%
     filter(team %in% Stats_PY1$team) %>%
     select(team, points)
+  recruit_PY1[,2] <- recruit_PY1[,2] %>% mutate_if(is.character, as.numeric)
   colnames(recruit_PY1) <- c("team", "recruit_pts_PY1")
   
   ## pulling in talent rankings
@@ -679,6 +948,7 @@ if (as.numeric(week) == 0) {
     filter(team != "James Madison") %>%
     filter(team %in% Stats_PY2$team) %>%
     select(team, points)
+  recruit_PY2[,2] <- recruit_PY2[,2] %>% mutate_if(is.character, as.numeric)
   colnames(recruit_PY2) <- c("team", "recruit_pts_PY2")
   
   ## pulling in talent rankings
@@ -693,6 +963,7 @@ if (as.numeric(week) == 0) {
     filter(team != "James Madison") %>%
     filter(team %in% Stats_PY3$team) %>%
     select(team, points)
+  recruit_PY3[,2] <- recruit_PY3[,2] %>% mutate_if(is.character, as.numeric)
   colnames(recruit_PY3) <- c("team", "recruit_pts_PY3")
   
   ## pulling in talent rankings
@@ -704,12 +975,21 @@ if (as.numeric(week) == 0) {
   
   ## incoming recruiting class rankings
   recruit <- cfbd_recruiting_team(year = as.numeric(year)) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY1$team) %>%
     select(team, points)
+  recruit <- recruit %>%
+    mutate(school = case_when(team == "Florida Intl" ~ "Florida International",
+                              TRUE ~ team)) %>%
+    filter(school %in% Stats_PY1$team) %>%
+    select(school, points)
+  recruit[,2] <- recruit[,2] %>% mutate_if(is.character, as.numeric)
   colnames(recruit) <- c("team", "recruit_pts")
-  
-  ### CURRENT SEASON
+  JMU_recruit <- recruit %>%
+    filter(team == "Ohio")
+  JMU_recruit[1,1] = "James Madison"
+  JMU_recruit[1,2] = median(recruit$recruit_pts)
+  recruit <- rbind(recruit, JMU_recruit)
+} else if (as.numeric(week) <= 4) {
+  ### CURRENT SEASON STATS
   Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) %>%
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
@@ -751,16 +1031,6 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
-  
-  ## IFF advanced stats data for current year is missing due to data issues
-  missing_adv_teams <- anti_join(Stats, Adv_Stats)
-  if (nrow(missing_adv_teams) > 0) {
-    missing_adv_teams_adv_stats <- Adv_Stats_PY1 %>%
-      filter(team %in% missing_adv_teams$team) 
-  } else {
-    print("no teams missing from advanced stats data frame")
-  }
-    
   ## current FPI data as of this week
   ## pulling FPI data
   FPI_df <- espn_ratings_fpi(year = as.integer(year)) %>%
@@ -777,6 +1047,7 @@ if (as.numeric(week) == 0) {
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -797,20 +1068,35 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI, Wins, Losses)
   colnames(FPI_df) <- FPI_colnames
   ## Current SP+ data
-  SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
-    filter(team != "nationalAverages") %>%
-    select(team, rating, offense_rating, defense_rating, special_teams_rating)
-  colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
-  ## Eliminating NAs
-  SP_Rankings[is.na(SP_Rankings)] = 0
-} else if (as.numeric(week) <= 4) {
+  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
+  #   filter(team != "nationalAverages") %>%
+  #   select(team, rating, offense_rating, defense_rating, special_teams_rating)
+  # colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
+  # ## Eliminating NAs
+  # SP_Rankings[is.na(SP_Rankings)] = 0
+  
   ########## WEEKS 2-4
   ## reading in data for 2 previous years
   JMU_2Years <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_2Years.csv"))
+  JMU_2Years[,2:ncol(JMU_2Years)] <- JMU_2Years[,2:ncol(JMU_2Years)] %>% mutate_if(is.character, as.numeric)
   Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) %>%
     filter(team != "James Madison") %>%
     mutate(total_yds_pg = total_yds/games,
@@ -934,6 +1220,7 @@ if (as.numeric(week) == 0) {
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -954,12 +1241,27 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI_PY1, Wins_PY1, Losses_PY1)
   FPI_df_PY2 <- FPI_df_PY2 %>%
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -980,6 +1282,20 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI_PY2, Wins_PY2, Losses_PY2)
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
@@ -1015,12 +1331,21 @@ if (as.numeric(week) == 0) {
   
   ## incoming recruiting class rankings
   recruit <- cfbd_recruiting_team(year = as.numeric(year)) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY1$team) %>%
     select(team, points)
+  recruit <- recruit %>%
+    mutate(school = case_when(team == "Florida Intl" ~ "Florida International",
+                              TRUE ~ team)) %>%
+    filter(school %in% Stats_PY1$team) %>%
+    select(school, points)
+  recruit[,2] <- recruit[,2] %>% mutate_if(is.character, as.numeric)
   colnames(recruit) <- c("team", "recruit_pts")
-  
-  ### CURRENT SEASON
+  JMU_recruit <- recruit %>%
+    filter(team == "Ohio")
+  JMU_recruit[1,1] = "James Madison"
+  JMU_recruit[1,2] = median(recruit$recruit_pts)
+  recruit <- rbind(recruit, JMU_recruit)
+} else if (as.numeric(week) == 5) {
+  ### CURRENT SEASON STATS
   Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) %>%
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
@@ -1078,6 +1403,7 @@ if (as.numeric(week) == 0) {
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -1098,17 +1424,30 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI, Wins, Losses)
   colnames(FPI_df) <- FPI_colnames
   ## Current SP+ data
-  SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
-    filter(team != "nationalAverages") %>%
-    select(team, rating, offense_rating, defense_rating, special_teams_rating)
-  colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
-  ## Eliminating NAs
-  SP_Rankings[is.na(SP_Rankings)] = 0
-} else if (as.numeric(week) == 5) {
+  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
+  #   filter(team != "nationalAverages") %>%
+  #   select(team, rating, offense_rating, defense_rating, special_teams_rating)
+  # colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
+  # ## Eliminating NAs
+  # SP_Rankings[is.na(SP_Rankings)] = 0
   ## reading in data for previous year
   JMU_PrevYear <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_PreYear.csv"))
   Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) %>%
@@ -1180,6 +1519,7 @@ if (as.numeric(week) == 0) {
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -1200,6 +1540,20 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI_PY1, Wins_PY1, Losses_PY1)
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
@@ -1220,99 +1574,19 @@ if (as.numeric(week) == 0) {
   
   ## incoming recruiting class rankings
   recruit <- cfbd_recruiting_team(year = as.numeric(year)) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY1$team) %>%
     select(team, points)
-  colnames(recruit) <- c("team", "recruit_pts")
-  
-  ### CURRENT SEASON STATS
-  Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) %>%
-    mutate(total_yds_pg = total_yds/games,
-           pass_yds_pg = net_pass_yds/games,
-           rush_yds_pg = rush_yds/games,
-           first_downs_pg = first_downs/games,
-           def_interceptions_pg = passes_intercepted/games,
-           pass_ypa = net_pass_yds / pass_atts,
-           off_ypp = total_yds / (rush_atts + pass_atts),
-           completion_pct = pass_comps / pass_atts,
-           pass_ypr = net_pass_yds / pass_comps,
-           int_pct = interceptions / pass_atts,
-           rush_ypc = rush_yds / rush_atts,
-           turnovers_pg = turnovers / games,
-           third_conv_rate = third_down_convs / third_downs,
-           fourth_conv_rate = fourth_down_convs / fourth_downs,
-           penalty_yds_pg = penalty_yds / games,
-           yards_per_penalty = penalty_yds / penalties,
-           kick_return_avg = kick_return_yds / kick_returns,
-           punt_return_avg = punt_return_yds / punt_returns)
-  
-  ## advanced stats data
-  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
-    select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
-           off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
-           off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
-           off_havoc_front_seven, off_havoc_db, off_standard_downs_ppa,
-           off_standard_downs_success_rate, off_standard_downs_explosiveness,
-           off_passing_downs_ppa, off_passing_downs_success_rate,
-           off_passing_downs_explosiveness, off_rushing_plays_ppa,
-           off_rushing_plays_success_rate, off_rushing_plays_explosiveness,
-           off_passing_plays_ppa, off_passing_plays_success_rate,
-           off_passing_plays_explosiveness, def_ppa, def_success_rate,
-           def_explosiveness, def_power_success, def_stuff_rate, def_line_yds,
-           def_second_lvl_yds, def_open_field_yds, def_pts_per_opp, 
-           def_field_pos_avg_predicted_points, def_havoc_total, def_havoc_front_seven,
-           def_havoc_db, def_standard_downs_ppa, def_standard_downs_success_rate,
-           def_standard_downs_explosiveness , def_passing_downs_ppa,
-           def_passing_downs_success_rate, def_passing_downs_explosiveness,
-           def_rushing_plays_ppa, def_rushing_plays_success_rate,
-           def_rushing_plays_explosiveness, def_passing_plays_ppa,
-           def_passing_plays_success_rate, def_passing_plays_explosiveness)
-  ## current FPI data as of this week
-  ## pulling FPI data
-  FPI_df <- espn_ratings_fpi(year = as.integer(year)) %>%
-    select(name, fpi, w, l)
-  ## changing column names here since all of the columns used in the VoA are extracted in the first step
-  FPI_colnames <- c("team", "FPI", "Wins", "Losses")
-  colnames(FPI_df) <- FPI_colnames
-  ## converting character columns to numeric
-  FPI_df[,2:ncol(FPI_df)] <- FPI_df[,2:ncol(FPI_df)] %>% mutate_if(is.character,as.numeric)
-  
-  ## Changing FPI team names to match up with outputs of cfbdata functions
-  ## Changing team names in FPI df to match what appears in cfbfastR stats function
-  FPI_df <- FPI_df %>%
-    mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
-                              team == 'C Michigan' ~ 'Central Michigan',
-                              team == 'Coast Carolina' ~ 'Coastal Carolina',
-                              team == 'UConn' ~ 'Connecticut',
-                              team == 'E Michigan' ~ 'Eastern Michigan',
-                              team == 'FAU' ~ 'Florida Atlantic',
-                              team == 'Florida Intl' ~ 'Florida International',
-                              team == 'FIU' ~ 'Florida International',
-                              team == 'Georgia So' ~ 'Georgia Southern',
-                              team == 'UL Monroe' ~ 'Louisiana Monroe',
-                              team == 'LA Tech' ~ 'Louisiana Tech',
-                              team == 'MTSU' ~ 'Middle Tennessee',
-                              team == 'Mississippi St' ~ 'Mississippi State',
-                              team == 'New Mexico St' ~ 'New Mexico State',
-                              team == 'N Illinois' ~ 'Northern Illinois',
-                              team == 'Oklahoma St' ~ 'Oklahoma State',
-                              team == 'Oregon St' ~ 'Oregon State',
-                              team == 'San Jose State' ~ 'San José State',
-                              team == 'Southern Miss' ~ 'Southern Mississippi',
-                              team == 'UTSA' ~ 'UT San Antonio',
-                              team == 'Washington St' ~ 'Washington State',
-                              team == 'Western KY' ~ 'Western Kentucky',
-                              team == 'W Michigan' ~ 'Western Michigan',
+  recruit <- recruit %>%
+    mutate(school = case_when(team == "Florida Intl" ~ "Florida International",
                               TRUE ~ team)) %>%
-    select(school, FPI, Wins, Losses)
-  colnames(FPI_df) <- FPI_colnames
-  ## Current SP+ data
-  SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
-    filter(team != "nationalAverages") %>%
-    select(team, rating, offense_rating, defense_rating, special_teams_rating)
-  colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
-  ## Eliminating NAs
-  SP_Rankings[is.na(SP_Rankings)] = 0
+    filter(school %in% Stats_PY1$team) %>%
+    select(school, points)
+  recruit[,2] <- recruit[,2] %>% mutate_if(is.character, as.numeric)
+  colnames(recruit) <- c("team", "recruit_pts")
+  JMU_recruit <- recruit %>%
+    filter(team == "Ohio")
+  JMU_recruit[1,1] = "James Madison"
+  JMU_recruit[1,2] = median(recruit$recruit_pts)
+  recruit <- rbind(recruit, JMU_recruit)
 } else {
   ### CURRENT SEASON STATS
   Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) %>%
@@ -1372,6 +1646,7 @@ if (as.numeric(week) == 0) {
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -1392,23 +1667,46 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) %>%
     select(school, FPI, Wins, Losses)
   colnames(FPI_df) <- FPI_colnames
   ## Current SP+ data
-  SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
-    filter(team != "nationalAverages") %>%
-    select(team, rating, offense_rating, defense_rating, special_teams_rating)
-  colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
-  ## Eliminating NAs
-  SP_Rankings[is.na(SP_Rankings)] = 0
+  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
+  #   filter(team != "nationalAverages") %>%
+  #   select(team, rating, offense_rating, defense_rating, special_teams_rating)
+  # colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
+  # ## Eliminating NAs
+  # SP_Rankings[is.na(SP_Rankings)] = 0
   
-  ## incoming class recruiting rankings
+  ## incoming recruiting class rankings
   recruit <- cfbd_recruiting_team(year = as.numeric(year)) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY1$team) %>%
     select(team, points)
+  recruit <- recruit %>%
+    mutate(school = case_when(team == "Florida Intl" ~ "Florida International",
+                              TRUE ~ team)) %>%
+    filter(school %in% Stats_PY1$team) %>%
+    select(school, points)
+  recruit[,2] <- recruit[,2] %>% mutate_if(is.character, as.numeric)
   colnames(recruit) <- c("team", "recruit_pts")
+  JMU_recruit <- recruit %>%
+    filter(team == "Ohio")
+  JMU_recruit[1,1] = "James Madison"
+  JMU_recruit[1,2] = median(recruit$recruit_pts)
+  recruit <- rbind(recruit, JMU_recruit)
 }
 
 ## merging data frames together
@@ -1698,9 +1996,16 @@ if (as.numeric(week) == 0) {
   PY2_df_list <- list(PY2_stats_adv_stats_merge, recruit_PY2, talent_df_PY2, SP_Rankings_PY2, FPI_df_PY2)
   PY2_df <- PY2_df_list %>%
     reduce(full_join, by = "team")
+  PY2_df <- PY2_df %>%
+    filter(team != "Old Dominion" | team != "New Mexico State" | team != "Connecticut")
+  ## making columns numeric
+  PY2_df[,2:ncol(PY2_df)] <- PY2_df[,2:ncol(PY2_df)] %>% mutate_if(is.character, as.numeric)
   ## reading in full csv of opt outs, created in Preseason VoA to hopefully save time
   COVID_Optouts_total <- read_csv(here("Data", "VoA2022", "COVIDOptouts_total.csv"))
+  COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] <- COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] %>% mutate_if(is.character, as.numeric)
   PY2_df <- rbind(PY2_df, COVID_Optouts_total)
+  PY2_df <- PY2_df %>%
+    drop_na()
   
   PY1_stats_adv_stats_list <- list(Stats_PY1, Adv_Stats_PY1)
   PY1_stats_adv_stats_merge <- PY1_stats_adv_stats_list %>%
@@ -1756,7 +2061,7 @@ if (as.numeric(week) == 0) {
   
   ## Current Years dataframes
   stats_adv_stats_list <- list(Stats, Adv_Stats)
-  stats_adv_stats_merge <- PY2_stats_adv_stats_list %>%
+  stats_adv_stats_merge <- stats_adv_stats_list %>%
     reduce(full_join, by = "team") %>%
     select(season, team, conference, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
@@ -1781,7 +2086,8 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_explosiveness, def_passing_plays_ppa, 
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
   ## merging all current year data frames
-  Current_df_list <- list(stats_adv_stats_merge, recruit, SP_Rankings, FPI_df)
+  # due to availability issues, SP_Rankings not included with current data
+  Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df)
   Current_df <- Current_df_list %>%
     reduce(full_join, by = "team")
   
@@ -1789,6 +2095,11 @@ if (as.numeric(week) == 0) {
   all_PY_df_list <- list(PY3_df, PY2_df, PY1_df)
   all_PY_df <- all_PY_df_list %>%
     reduce(full_join, by = "team")
+  ## dropping season, conference, and recruit_pts columns from JMU_AllYears after Week 1
+  # those columns are brought in via the pulling of current season data
+  JMU_AllYears <- JMU_AllYears %>%
+    select(-season, -conference)
+  ## Binding PY data with previously created JMU PY data
   all_PY_df <- rbind(all_PY_df, JMU_AllYears)
   
   ## after binding JMU csv as new row to PY df
@@ -1798,8 +2109,9 @@ if (as.numeric(week) == 0) {
     mutate(FPI_SP_PY3_mean = (sp_rating_PY3 + FPI_PY3) / 2,
            FPI_SP_PY2_mean = (sp_rating_PY2 + FPI_PY2) / 2,
            FPI_SP_PY1_mean = (sp_rating_PY1 + FPI_PY1) / 2,
-           AllPY_FPI_SP_mean = (FPI_SP_PY3_mean + FPI_SP_PY2_mean + FPI_SP_PY1_mean) / 3,
-           FPI_SP_mean = (sp_rating + FPI) / 2)
+           AllPY_FPI_SP_mean = (FPI_SP_PY3_mean + FPI_SP_PY2_mean + FPI_SP_PY1_mean) / 3)
+           # FPI_SP_mean = (sp_rating + FPI) / 2)
+  # due to availability issues, SP_Rankings not included with current data
 } else if (as.numeric(week) <= 4) {
   ## merging data frames together, arranging columns
   ## need to merge stats and advanced stats together first so I can change column names to avoid duplicate column names later on
@@ -1940,7 +2252,8 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_explosiveness, def_passing_plays_ppa, 
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
   ## merging all current year data frames
-  Current_df_list <- list(stats_adv_stats_merge, recruit, SP_Rankings, FPI_df)
+  # due to availability issues, SP_Rankings not included with current data
+  Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df)
   Current_df <- Current_df_list %>%
     reduce(full_join, by = "team")
   
@@ -1956,8 +2269,9 @@ if (as.numeric(week) == 0) {
     reduce(full_join, by = "team") %>%
     mutate(FPI_SP_PY2_mean = (sp_rating_PY2 + FPI_PY2) / 2,
            FPI_SP_PY1_mean = (sp_rating_PY1 + FPI_PY1) / 2,
-           AllPY_FPI_SP_mean = (FPI_SP_PY2_mean + FPI_SP_PY1_mean) / 2,
-           FPI_SP_mean = (sp_rating + FPI) / 2)
+           AllPY_FPI_SP_mean = (FPI_SP_PY2_mean + FPI_SP_PY1_mean) / 2)
+           # FPI_SP_mean = (sp_rating + FPI) / 2)
+  # due to availability issues, SP_Rankings not included with current data
 } else if (as.numeric(week) == 5) {
   ## merging data frames together, arranging columns
   ## need to merge stats and advanced stats together first so I can change column names to avoid duplicate column names later on
@@ -2045,7 +2359,8 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_explosiveness, def_passing_plays_ppa, 
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
   ## merging all current year data frames
-  Current_df_list <- list(stats_adv_stats_merge, recruit, SP_Rankings, FPI_df)
+  # due to availability issues, SP_Rankings not included with current data
+  Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df)
   Current_df <- Current_df_list %>%
     reduce(full_join, by = "team")
   
@@ -2053,8 +2368,9 @@ if (as.numeric(week) == 0) {
   all_df_list <- list(Current_df, PY1_df)
   VoA_Variables <- all_df_list %>%
     reduce(full_join, by = "team") %>%
-    mutate(FPI_SP_PY1_mean = (sp_rating_PY1 + FPI_PY1) / 2,
-           FPI_SP_mean = (sp_rating + FPI) / 2)
+    mutate(FPI_SP_PY1_mean = (sp_rating_PY1 + FPI_PY1) / 2)
+           # FPI_SP_mean = (sp_rating + FPI) / 2)
+           # due to availability issues, SP_Rankings not included with current data
 } else {
   ## Current Years data frames
   stats_adv_stats_list <- list(Stats, Adv_Stats)
@@ -2083,25 +2399,32 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_explosiveness, def_passing_plays_ppa, 
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
   ## merging all current year data frames
-  Current_df_list <- list(stats_adv_stats_merge, recruit, SP_Rankings, FPI_df)
+  # due to availability issues, SP_Rankings not included with current data
+  Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df)
   VoA_Variables <- Current_df_list %>%
-    reduce(full_join, by = "team") %>%
-    mutate(FPI_SP_mean = (sp_rating + FPI) / 2)
+    reduce(full_join, by = "team") ## %>%
+    ## mutate(FPI_SP_mean = (sp_rating + FPI) / 2)
+  # due to availability issues, SP_Rankings not included with current data
 } 
 ## end of if statement
 
 ## eliminating NAs that may still exist
 # leaving this outside an if statement because this could be an issue regardless of season or CFB_Week
-VoA_Variables[is.na(VoA_Variables)] = 0
-VoA_Variables <- VoA_Variables %>%
-  mutate(conference_temp = case_when(team == "Old Dominion" ~ "Sun Belt",
-                                     team == "Marshall" ~ "Sun Belt",
-                                     team == "Southern Mississippi" ~ "Sun Belt",
-                                     team == "Connecticut" ~ "FBS Independents",
-                                     TRUE ~ conference), .before = 3) %>%
-  select(-conference)
-colnames(VoA_Variables)[colnames(VoA_Variables) == "conference_temp"] <- "conference"
-
+# currently commented out because I added this fix to each individual stat pull in function
+## VoA_Variables[is.na(VoA_Variables)] = 0
+## above code useful for Week 0, not necessary now that current season data is available
+if (as.numeric(week) == 0) {
+  VoA_Variables <- VoA_Variables %>%
+      mutate(conference_temp = case_when(team == "Old Dominion" ~ "Sun Belt",
+                                         team == "Marshall" ~ "Sun Belt",
+                                         team == "Southern Mississippi" ~ "Sun Belt",
+                                         team == "Connecticut" ~ "FBS Independents",
+                                         TRUE ~ conference), .before = 3) %>%
+      select(-conference)
+    colnames(VoA_Variables)[colnames(VoA_Variables) == "conference_temp"] <- "conference"
+} else {
+  print("current season conferences should be in use!")
+}
 ## Adding Rank Columns
 ### if Week = 0
 # PY3 weighted 1x, PY2 weighted 2x, PY1 weighted 3x
@@ -3684,12 +4007,13 @@ if (as.numeric(week) == 0) {
            Rank_Def_Pass_Play_PPA = dense_rank(def_passing_plays_ppa),
            Rank_Def_Pass_Play_Success_Rt = dense_rank(def_passing_plays_success_rate),
            Rank_Def_Pass_Play_Explosiveness = dense_rank(def_passing_plays_explosiveness),
-           Rank_SP_Rating = dense_rank(desc(sp_rating)),
-           Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
-           Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
-           Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
+           # Rank_SP_Rating = dense_rank(desc(sp_rating)),
+           # Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
+           # Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
+           # Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
            Rank_FPI = dense_rank(desc(FPI)),
-           Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
+           # Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
+           # due to availability issues, SP_Rankings not included with current data
            ## Extra weighted variables for current year
            Rank_Wins_col2 = dense_rank(desc(Wins)),
            Rank_Losses_col2 = dense_rank(Losses),
@@ -4426,12 +4750,13 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_PPA = dense_rank(def_passing_plays_ppa),
       Rank_Def_Pass_Play_Success_Rt = dense_rank(def_passing_plays_success_rate),
       Rank_Def_Pass_Play_Explosiveness = dense_rank(def_passing_plays_explosiveness),
-      Rank_SP_Rating = dense_rank(desc(sp_rating)),
-      Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
-      Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
-      Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
+      # Rank_SP_Rating = dense_rank(desc(sp_rating)),
+      # Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
+      # Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
+      # Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
       Rank_FPI = dense_rank(desc(FPI)),
-      Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
+      # Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
+      # due to availability issues, SP_Rankings not included with current data
       ## Extra weighted variables for current year
       Rank_Wins_col2 = dense_rank(desc(Wins)),
       Rank_Losses_col2 = dense_rank(Losses),
@@ -5047,12 +5372,13 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_PPA = dense_rank(def_passing_plays_ppa),
       Rank_Def_Pass_Play_Success_Rt = dense_rank(def_passing_plays_success_rate),
       Rank_Def_Pass_Play_Explosiveness = dense_rank(def_passing_plays_explosiveness),
-      Rank_SP_Rating = dense_rank(desc(sp_rating)),
-      Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
-      Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
-      Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
+      # Rank_SP_Rating = dense_rank(desc(sp_rating)),
+      # Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
+      # Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
+      # Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
       Rank_FPI = dense_rank(desc(FPI)),
-      Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
+      # Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
+      # due to availability issues, SP_Rankings not included with current data
       ## Extra weighted variables for current year
       Rank_Wins_col2 = dense_rank(desc(Wins)),
       Rank_Losses_col2 = dense_rank(Losses),
@@ -5546,12 +5872,13 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_PPA = dense_rank(def_passing_plays_ppa),
       Rank_Def_Pass_Play_Success_Rt = dense_rank(def_passing_plays_success_rate),
       Rank_Def_Pass_Play_Explosiveness = dense_rank(def_passing_plays_explosiveness),
-      Rank_SP_Rating = dense_rank(desc(sp_rating)),
-      Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
-      Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
-      Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
+      # Rank_SP_Rating = dense_rank(desc(sp_rating)),
+      # Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
+      # Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
+      # Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
       Rank_FPI = dense_rank(desc(FPI)),
-      Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
+      # Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
+      # due to availability issues, SP_Rankings not included with current data
       ## Current stats weighted 2x
       Rank_Wins_col2 = dense_rank(desc(Wins)),
       Rank_Losses_col2 = dense_rank(Losses),
@@ -5623,12 +5950,12 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_PPA_col2 = dense_rank(def_passing_plays_ppa),
       Rank_Def_Pass_Play_Success_Rt_col2 = dense_rank(def_passing_plays_success_rate),
       Rank_Def_Pass_Play_Explosiveness_col2 = dense_rank(def_passing_plays_explosiveness),
-      Rank_SP_Rating_col2 = dense_rank(desc(sp_rating)),
-      Rank_SP_Off_Rating_col2 = dense_rank(desc(sp_offense_rating)),
-      Rank_SP_Def_Rating_col2 = dense_rank(sp_defense_rating),
-      Rank_SP_SpecialTeams_Rating_col2 = dense_rank(desc(sp_special_teams_rating)),
+      # Rank_SP_Rating_col2 = dense_rank(desc(sp_rating)),
+      # Rank_SP_Off_Rating_col2 = dense_rank(desc(sp_offense_rating)),
+      # Rank_SP_Def_Rating_col2 = dense_rank(sp_defense_rating),
+      # Rank_SP_SpecialTeams_Rating_col2 = dense_rank(desc(sp_special_teams_rating)),
       Rank_FPI_col2 = dense_rank(desc(FPI)),
-      Rank_FPI_SP_mean_col2 = dense_rank(desc(FPI_SP_mean)),
+      # Rank_FPI_SP_mean_col2 = dense_rank(desc(FPI_SP_mean)),
       ## Extra weighted variables for current year (weighted 2x)
       Rank_Wins_col3 = dense_rank(desc(Wins)),
       Rank_Losses_col3 = dense_rank(Losses),
@@ -5921,12 +6248,13 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_PPA = dense_rank(def_passing_plays_ppa),
       Rank_Def_Pass_Play_Success_Rt = dense_rank(def_passing_plays_success_rate),
       Rank_Def_Pass_Play_Explosiveness = dense_rank(def_passing_plays_explosiveness),
-      Rank_SP_Rating = dense_rank(desc(sp_rating)),
-      Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
-      Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
-      Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
+      # Rank_SP_Rating = dense_rank(desc(sp_rating)),
+      # Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
+      # Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
+      # Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
       Rank_FPI = dense_rank(desc(FPI)),
-      Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
+      # Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
+      # due to availability issues, SP_Rankings not included with current data
       ## Current stats weighted 2x
       Rank_Wins_col2 = dense_rank(desc(Wins)),
       Rank_Losses_col2 = dense_rank(Losses),
@@ -5998,12 +6326,12 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_PPA_col2 = dense_rank(def_passing_plays_ppa),
       Rank_Def_Pass_Play_Success_Rt_col2 = dense_rank(def_passing_plays_success_rate),
       Rank_Def_Pass_Play_Explosiveness_col2 = dense_rank(def_passing_plays_explosiveness),
-      Rank_SP_Rating_col2 = dense_rank(desc(sp_rating)),
-      Rank_SP_Off_Rating_col2 = dense_rank(desc(sp_offense_rating)),
-      Rank_SP_Def_Rating_col2 = dense_rank(sp_defense_rating),
-      Rank_SP_SpecialTeams_Rating_col2 = dense_rank(desc(sp_special_teams_rating)),
+      # Rank_SP_Rating_col2 = dense_rank(desc(sp_rating)),
+      # Rank_SP_Off_Rating_col2 = dense_rank(desc(sp_offense_rating)),
+      # Rank_SP_Def_Rating_col2 = dense_rank(sp_defense_rating),
+      # Rank_SP_SpecialTeams_Rating_col2 = dense_rank(desc(sp_special_teams_rating)),
       Rank_FPI_col2 = dense_rank(desc(FPI)),
-      Rank_FPI_SP_mean_col2 = dense_rank(desc(FPI_SP_mean)),
+      # Rank_FPI_SP_mean_col2 = dense_rank(desc(FPI_SP_mean)),
       ## Extra weighted variables for current year (weighted 2x)
       Rank_Wins_col3 = dense_rank(desc(Wins)),
       Rank_Losses_col3 = dense_rank(Losses),
@@ -6172,12 +6500,12 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_PPA = dense_rank(def_passing_plays_ppa),
       Rank_Def_Pass_Play_Success_Rt = dense_rank(def_passing_plays_success_rate),
       Rank_Def_Pass_Play_Explosiveness = dense_rank(def_passing_plays_explosiveness),
-      Rank_SP_Rating = dense_rank(desc(sp_rating)),
-      Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
-      Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
-      Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
+      # Rank_SP_Rating = dense_rank(desc(sp_rating)),
+      # Rank_SP_Off_Rating = dense_rank(desc(sp_offense_rating)),
+      # Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
+      # Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
       Rank_FPI = dense_rank(desc(FPI)),
-      Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
+      # Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
       ## Extra weighted variables for current year (weighted 2x)
       Rank_Wins_col2 = dense_rank(desc(Wins)),
       Rank_Losses_col2 = dense_rank(Losses),
@@ -6227,8 +6555,12 @@ if (as.numeric(week) == 0) {
 }
 ## end of if statement
 
+
+
+
 ## calculating the mean stat ranking, VoA_Output
 ## Rank variables start at 244 for Week 0
+## Rank variables start at 315 for Week 1
 ## it will be a different number for the other weeks (except maybe week 2?)
 ## script wouldn't run properly without a real number in there so I'll have to come back
 # and edit the number in during the season as I figure out how big VoA_Variables gets
@@ -6244,7 +6576,7 @@ if (as.numeric(week) == 0) {
 } else if (as.numeric(week) == 1) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,315:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
@@ -6310,21 +6642,21 @@ VoA_Variables <- VoA_Variables %>%
          Conference_Strength_col10 = Conference_Strength)
 
 ## Re running rowMeans function to get VoA Output
-## Rank variables start at 244 for Week 0
+## Rank variables start at 1 column further than previous VoA Output calculation due to addition of CFB_Week column in between
 ## it will be a different number for the other weeks (except maybe week 2?)
 ## script wouldn't run properly without a real number in there so I'll have to come back
 # and edit the number in during the season as I figure out how big VoA_Variables gets
 if (as.numeric(week) == 0) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,245:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) == 1) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,316:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
@@ -6354,36 +6686,40 @@ if (as.numeric(week) == 0) {
 
 ## using R's linear model function to create FPI/SP+ like metric
 # includes PPA, success rate, explosiveness, VoA_Output, VoA's Conference_Strength, and pts_per_opp (offense and defense where applicable)
+## For current season starting in week 1 and beyond, I would have preferred to use
+# a mean of FPI and SP+ as the "predicted" variable in the lm() model
+# due to availability issues, SP_Rankings not included with current data
+# so this is not possible. as such, I will use just FPI
 set.seed(386)
 if (as.numeric(week) == 0) {
-  test_model <- lm(AllPY_FPI_SP_mean ~ off_ppa_PY1 + off_ppa_PY2 + def_ppa_PY1 + def_ppa_PY2 + off_ppa_PY3 + def_ppa_PY3 + VoA_Output + Conference_Strength + off_ypp_PY3 + off_ypp_PY2 + off_ypp_PY1 + off_success_rate_PY3 + off_success_rate_PY2 + off_success_rate_PY1 + def_success_rate_PY3 + def_success_rate_PY2 + def_success_rate_PY1 + off_explosiveness_PY3 + off_explosiveness_PY2 + off_explosiveness_PY1 + def_explosiveness_PY3 + def_explosiveness_PY2 + def_explosiveness_PY1 + off_pts_per_opp_PY3 + off_pts_per_opp_PY2 + off_pts_per_opp_PY1 + def_pts_per_opp_PY3 + def_pts_per_opp_PY2 + def_pts_per_opp_PY1, data = VoA_Variables)
-  ## summary(test_model)
+  model <- lm(AllPY_FPI_SP_mean ~ off_ppa_PY1 + off_ppa_PY2 + def_ppa_PY1 + def_ppa_PY2 + off_ppa_PY3 + def_ppa_PY3 + VoA_Output + Conference_Strength + off_ypp_PY3 + off_ypp_PY2 + off_ypp_PY1 + off_success_rate_PY3 + off_success_rate_PY2 + off_success_rate_PY1 + def_success_rate_PY3 + def_success_rate_PY2 + def_success_rate_PY1 + off_explosiveness_PY3 + off_explosiveness_PY2 + off_explosiveness_PY1 + def_explosiveness_PY3 + def_explosiveness_PY2 + def_explosiveness_PY1 + off_pts_per_opp_PY3 + off_pts_per_opp_PY2 + off_pts_per_opp_PY1 + def_pts_per_opp_PY3 + def_pts_per_opp_PY2 + def_pts_per_opp_PY1, data = VoA_Variables)
+  ## summary(model)
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Rating = predict(test_model),
+    mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating))) 
 } else if (as.numeric(week) == 1) {
-  test_model <- lm(AllPY_FPI_SP_mean ~ off_ppa + off_ppa_PY1 + off_ppa_PY2 + def_ppa + def_ppa_PY1 + def_ppa_PY2 + off_ppa_PY3 + def_ppa_PY3 + VoA_Output + Conference_Strength + off_ypp_PY3 + off_ypp_PY2 + off_ypp_PY1 + off_ypp + off_success_rate_PY3 + off_success_rate + off_success_rate_PY2 + off_success_rate_PY1 + def_success_rate_PY3 + def_success_rate_PY2 + def_success_rate_PY1 + def_success_rate + off_explosiveness_PY3 + off_explosiveness_PY2 + off_explosiveness_PY1 + off_explosiveness + def_explosiveness_PY3 + def_explosiveness_PY2 + def_explosiveness_PY1 + def_explosiveness + off_pts_per_opp_PY3 + off_pts_per_opp_PY2 + off_pts_per_opp_PY1 + off_pts_per_opp + def_pts_per_opp_PY3 + def_pts_per_opp_PY2 + def_pts_per_opp_PY1 + def_pts_per_opp, data = VoA_Variables)
-  ## summary(test_model)
+  model <- lm(FPI ~ off_ppa + off_ppa_PY1 + off_ppa_PY2 + def_ppa + def_ppa_PY1 + def_ppa_PY2 + off_ppa_PY3 + def_ppa_PY3 + VoA_Output + Conference_Strength + off_ypp_PY3 + off_ypp_PY2 + off_ypp_PY1 + off_ypp + off_success_rate_PY3 + off_success_rate + off_success_rate_PY2 + off_success_rate_PY1 + def_success_rate_PY3 + def_success_rate_PY2 + def_success_rate_PY1 + def_success_rate + off_explosiveness_PY3 + off_explosiveness_PY2 + off_explosiveness_PY1 + off_explosiveness + def_explosiveness_PY3 + def_explosiveness_PY2 + def_explosiveness_PY1 + def_explosiveness + off_pts_per_opp_PY3 + off_pts_per_opp_PY2 + off_pts_per_opp_PY1 + off_pts_per_opp + def_pts_per_opp_PY3 + def_pts_per_opp_PY2 + def_pts_per_opp_PY1 + def_pts_per_opp, data = VoA_Variables)
+  ## summary(model)
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Rating = predict(test_model),
+    mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 } else if (as.numeric(week) <= 4) {
-  test_model <- lm(AllPY_FPI_SP_mean ~ off_ppa + off_ppa_PY1 + off_ppa_PY2 + def_ppa + def_ppa_PY1 + def_ppa_PY2 + VoA_Output + Conference_Strength + off_ypp_PY2 + off_ypp_PY1 + off_ypp + off_success_rate + off_success_rate_PY2 + off_success_rate_PY1 + def_success_rate_PY2 + def_success_rate_PY1 + def_success_rate + off_explosiveness_PY2 + off_explosiveness_PY1 + off_explosiveness + def_explosiveness_PY2 + def_explosiveness_PY1 + def_explosiveness + off_pts_per_opp_PY2 + off_pts_per_opp_PY1 + off_pts_per_opp + def_pts_per_opp_PY2 + def_pts_per_opp_PY1 + def_pts_per_opp, data = VoA_Variables)
-  ## summary(test_model)
+  model <- lm(FPI ~ off_ppa + off_ppa_PY1 + off_ppa_PY2 + def_ppa + def_ppa_PY1 + def_ppa_PY2 + VoA_Output + Conference_Strength + off_ypp_PY2 + off_ypp_PY1 + off_ypp + off_success_rate + off_success_rate_PY2 + off_success_rate_PY1 + def_success_rate_PY2 + def_success_rate_PY1 + def_success_rate + off_explosiveness_PY2 + off_explosiveness_PY1 + off_explosiveness + def_explosiveness_PY2 + def_explosiveness_PY1 + def_explosiveness + off_pts_per_opp_PY2 + off_pts_per_opp_PY1 + off_pts_per_opp + def_pts_per_opp_PY2 + def_pts_per_opp_PY1 + def_pts_per_opp, data = VoA_Variables)
+  ## summary(model)
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Rating = predict(test_model),
+    mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 } else if (as.numeric(week) == 5) {
-  test_model <- lm(AllPY_FPI_SP_mean ~ off_ppa + off_ppa_PY1 + def_ppa + def_ppa_PY1 + VoA_Output + Conference_Strength + off_ypp_PY1 + off_ypp + off_success_rate + off_success_rate_PY1 + def_success_rate_PY1 + def_success_rate + off_explosiveness_PY1 + off_explosiveness + def_explosiveness_PY1 + def_explosiveness + off_pts_per_opp_PY1 + off_pts_per_opp + def_pts_per_opp_PY1 + def_pts_per_opp, data = VoA_Variables)
-  ## summary(test_model)
+  model <- lm(FPI ~ off_ppa + off_ppa_PY1 + def_ppa + def_ppa_PY1 + VoA_Output + Conference_Strength + off_ypp_PY1 + off_ypp + off_success_rate + off_success_rate_PY1 + def_success_rate_PY1 + def_success_rate + off_explosiveness_PY1 + off_explosiveness + def_explosiveness_PY1 + def_explosiveness + off_pts_per_opp_PY1 + off_pts_per_opp + def_pts_per_opp_PY1 + def_pts_per_opp, data = VoA_Variables)
+  ## summary(model)
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Rating = predict(test_model),
+    mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 } else {
-  test_model <- lm(AllPY_FPI_SP_mean ~ off_ppa + def_ppa + VoA_Output + Conference_Strength + off_ypp + off_success_rate + def_success_rate + off_explosiveness + def_explosiveness + off_pts_per_opp + def_pts_per_opp, data = VoA_Variables)
-  ## summary(test_model)
+  model <- lm(FPI ~ off_ppa + def_ppa + VoA_Output + Conference_Strength + off_ypp + off_success_rate + def_success_rate + off_explosiveness + def_explosiveness + off_pts_per_opp + def_pts_per_opp, data = VoA_Variables)
+  ## summary(model)
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Rating = predict(test_model),
+    mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 }
 
@@ -6492,7 +6828,7 @@ if (as.numeric(week) == 0) {
       colors = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "Reds"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
-        reverse = TRUE
+        reverse = FALSE
       )
     ) %>%
     cols_label(VoA_Rating = "VoA Rating", VoA_Ranking = "VoA Ranking") %>% # Update labels
