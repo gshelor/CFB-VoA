@@ -1,4 +1,4 @@
-##### Vortex of Projection version 0.1
+##### Vortex of Projection version 0.3
 ### This script will take the most recent csv from the VoA
 ### It will take the VoA Ratings from that csv and use them to project scoring margins for upcoming FBS games
 ## loading packages
