@@ -6559,7 +6559,7 @@ if (as.numeric(week) == 0) {
 
 
 ## calculating the mean stat ranking, VoA_Output
-## Rank variables start at 244 for Week 0
+## Rank variables start at 243 for Week 0
 ## Rank variables start at 315 for Week 1
 ## it will be a different number for the other weeks (except maybe week 2?)
 ## script wouldn't run properly without a real number in there so I'll have to come back
@@ -6569,7 +6569,7 @@ if (as.numeric(week) == 0) {
   VoA_Variables$season = rep(as.numeric(year), nrow(VoA_Variables))
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,243:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
@@ -6643,13 +6643,13 @@ VoA_Variables <- VoA_Variables %>%
 
 ## Re running rowMeans function to get VoA Output
 ## Rank variables start at 1 column further than previous VoA Output calculation due to addition of CFB_Week column in between
-## it will be a different number for the other weeks (except maybe week 2?)
-## script wouldn't run properly without a real number in there so I'll have to come back
+## it will be a different number for the other weeks
+## script wouldn't run properly without a real number in the later weeks so I'll have to come back
 # and edit the number in during the season as I figure out how big VoA_Variables gets
 if (as.numeric(week) == 0) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,245:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
