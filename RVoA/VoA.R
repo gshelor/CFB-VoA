@@ -78,15 +78,15 @@ SEC_Output_filename <- paste(year,week_text, week, SEC_text, Rating_text, sep = 
 SEC_Ranking_filename <- paste(year,week_text, week, SEC_text, Ranking_text, sep = "")
 SunBelt_Output_filename <- paste(year,week_text, week, SunBelt_text, Rating_text, sep = "")
 SunBelt_Ranking_filename <- paste(year,week_text, week, SunBelt_text, Ranking_text, sep = "")
-FBS_hist_filename <- paste(year, "_", week_text, week, "_", FBS_text, Histogram_text, sep = "")
-Power5_hist_filename <- paste(year, "_", week_text, week, "_", Power_Five_text, Histogram_text, sep = "")
-Group5_hist_filename <- paste(year, "_", week_text, week, "_", Group_Five_text, Histogram_text, sep = "")
-Output_Rating_Plot_filename <- paste(year, "_", week_text, week, "_", Output_Rating_Plot_png, sep = "")
+FBS_hist_filename <- paste(year, week_text, week, "_", FBS_text, Histogram_text, sep = "")
+Power5_hist_filename <- paste(year, week_text, week, "_", Power_Five_text, Histogram_text, sep = "")
+Group5_hist_filename <- paste(year, week_text, week, "_", Group_Five_text, Histogram_text, sep = "")
+Output_Rating_Plot_filename <- paste(year, week_text, week, "_", Output_Rating_Plot_png, sep = "")
 ## creating string for excel spreadsheet pathway
 file_pathway <- paste(data_dir, "/", year, week_text, week,"_", VoAString, sep = "")
 
-
-##### pulling in data based on week of the season
+##### Reading in Data #####
+## pulling in data based on week of the season
 if (as.numeric(week) == 0) {
   ## reading in data for 3 previous years
   JMU_AllYears <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_AllYears.csv"))
@@ -1009,6 +1009,7 @@ if (as.numeric(week) == 0) {
            yards_per_penalty = penalty_yds / penalties,
            kick_return_avg = kick_return_yds / kick_returns,
            punt_return_avg = punt_return_yds / punt_returns)
+  Stats[is.na(Stats)] = 0
   
   ## advanced stats data
   Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
@@ -1031,6 +1032,7 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  Adv_Stats[is.na(Adv_Stats)] = 0
   ## current FPI data as of this week
   ## pulling FPI data
   FPI_df <- espn_ratings_fpi(year = as.integer(year)) %>%
@@ -1137,6 +1139,7 @@ if (as.numeric(week) == 0) {
            yards_per_penalty = penalty_yds / penalties,
            kick_return_avg = kick_return_yds / kick_returns,
            punt_return_avg = punt_return_yds / punt_returns)
+  Stats_PY2[is.na(Stats_PY2)] = 0
   
   ## advanced stats data
   Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
@@ -1181,6 +1184,7 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  Adv_Stats_PY2[is.na(Adv_Stats_PY2)] = 0
   
   ## pulling in SP+ data
   SP_Rankings_PY1 <-cfbd_ratings_sp(year = as.integer(year) - 1) %>%
@@ -1365,6 +1369,7 @@ if (as.numeric(week) == 0) {
            yards_per_penalty = penalty_yds / penalties,
            kick_return_avg = kick_return_yds / kick_returns,
            punt_return_avg = punt_return_yds / punt_returns)
+  Stats[is.na(Stats)] = 0
   
   ## advanced stats data
   Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
@@ -1387,6 +1392,8 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  ## removing NAs
+  Adv_Stats[is.na(Adv_Stats)] = 0
   ## current FPI data as of this week
   ## pulling FPI data
   FPI_df <- espn_ratings_fpi(year = as.integer(year)) %>%
@@ -1608,6 +1615,8 @@ if (as.numeric(week) == 0) {
            yards_per_penalty = penalty_yds / penalties,
            kick_return_avg = kick_return_yds / kick_returns,
            punt_return_avg = punt_return_yds / punt_returns)
+  ## removing NAs
+  Stats[is.na(Stats)] = 0
   
   ## advanced stats data
   Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
@@ -1630,6 +1639,8 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
+  ## removing NAs
+  Adv_Stats[is.na(Adv_Stats)] = 0
   ## current FPI data as of this week
   ## pulling FPI data
   FPI_df <- espn_ratings_fpi(year = as.integer(year)) %>%
@@ -2168,9 +2179,16 @@ if (as.numeric(week) == 0) {
   PY2_df_list <- list(PY2_stats_adv_stats_merge, recruit_PY2, talent_df_PY2, SP_Rankings_PY2, FPI_df_PY2)
   PY2_df <- PY2_df_list %>%
     reduce(full_join, by = "team")
+  PY2_df <- PY2_df %>%
+    filter(team != "Old Dominion" | team != "New Mexico State" | team != "Connecticut")
+  ## making columns numeric
+  PY2_df[,2:ncol(PY2_df)] <- PY2_df[,2:ncol(PY2_df)] %>% mutate_if(is.character, as.numeric)
   ## reading in full csv of opt outs, created in Preseason VoA to hopefully save time
   COVID_Optouts_total <- read_csv(here("Data", "VoA2022", "COVIDOptouts_total.csv"))
+  COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] <- COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] %>% mutate_if(is.character, as.numeric)
   PY2_df <- rbind(PY2_df, COVID_Optouts_total)
+  PY2_df <- PY2_df %>%
+    drop_na()
   
   ## PY1 data frames being merged
   PY1_stats_adv_stats_list <- list(Stats_PY1, Adv_Stats_PY1)
@@ -6583,7 +6601,7 @@ if (as.numeric(week) == 0) {
 } else if (as.numeric(week) <= 4) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,236:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
@@ -6663,7 +6681,7 @@ if (as.numeric(week) == 0) {
 } else if (as.numeric(week) <= 4) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables %>%
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,237:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables %>%
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
@@ -6952,7 +6970,7 @@ if (as.numeric(week) == 2) {
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Week0_VoA, Week1_VoA)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_2Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_2Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 3) {
   Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_2Ratings_Rks.csv", sep = ""))) %>%
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
@@ -7035,26 +7053,26 @@ if (as.numeric(week) >= 2) {
   Indy_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "FBS Independents")
   MAC_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Mid-American")
   MWC_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Mountain West")
-  Pac12_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Pac 12")
+  Pac12_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Pac-12")
   SEC_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "SEC")
   SunBelt_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Sun Belt")
   
   ## Creating Charts
   # charting VoA_Rating and VoA_Ranking for each week from week 2 on
-  AAC_VoA_Rating_Chart <- ggplot(AAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = Team)) +
+  AAC_VoA_Rating_Chart <- ggplot(AAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
     ggtitle("American Conference Vortex of Accuracy Ratings by Week") +
-    expand_limits(y = c(-40,40)) +
-    scale_y_continuous(breaks = c(-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40)) +
+    expand_limits(y = c(floor(floor(min(AAC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(AAC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
+    scale_y_continuous(breaks = seq((floor((floor(min(AAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(AAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   AAC_VoA_Rating_Chart
   ggsave(AAC_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  AAC_VoA_Ranking_Chart <- ggplot(AAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = Team)) +
+  AAC_VoA_Ranking_Chart <- ggplot(AAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7067,20 +7085,20 @@ if (as.numeric(week) >= 2) {
   AAC_VoA_Ranking_Chart
   ggsave(AAC_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  ACC_VoA_Rating_Chart <- ggplot(ACC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = Team)) +
+  ACC_VoA_Rating_Chart <- ggplot(ACC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
     ggtitle("ACC Vortex of Accuracy Ratings by Week") +
-    expand_limits(y = c(-40,40)) +
-    scale_y_continuous(breaks = c(-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40)) +
+    expand_limits(y = c(floor(floor(min(ACC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(ACC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
+    scale_y_continuous(breaks = seq((floor((floor(min(ACC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(ACC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   ACC_VoA_Rating_Chart
   ggsave(ACC_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  ACC_VoA_Ranking_Chart <- ggplot(ACC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = Team)) +
+  ACC_VoA_Ranking_Chart <- ggplot(ACC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7093,20 +7111,20 @@ if (as.numeric(week) >= 2) {
   ACC_VoA_Ranking_Chart
   ggsave(ACC_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Big12_VoA_Rating_Chart <- ggplot(Big12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = Team)) +
+  Big12_VoA_Rating_Chart <- ggplot(Big12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
     ggtitle("Big 12 Vortex of Accuracy Ratings by Week") +
-    expand_limits(y = c(-40,40)) +
-    scale_y_continuous(breaks = c(-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40)) +
+    expand_limits(y = c(floor(floor(min(Big12_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Big12_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
+    scale_y_continuous(breaks = seq((floor((floor(min(Big12_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Big12_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Big12_VoA_Rating_Chart
   ggsave(Big12_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Big12_VoA_Ranking_Chart <- ggplot(Big12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = Team)) +
+  Big12_VoA_Ranking_Chart <- ggplot(Big12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7119,20 +7137,20 @@ if (as.numeric(week) >= 2) {
   Big12_VoA_Ranking_Chart
   ggsave(Big12_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Big10_VoA_Rating_Chart <- ggplot(Big10_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = Team)) +
+  Big10_VoA_Rating_Chart <- ggplot(Big10_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
     ggtitle("Big 10 Vortex of Accuracy Ratings by Week") +
-    expand_limits(y = c(-40,40)) +
-    scale_y_continuous(breaks = c(-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40)) +
+    expand_limits(y = c(floor(floor(min(Big10_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Big10_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
+    scale_y_continuous(breaks = seq((floor((floor(min(Big10_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Big10_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Big10_VoA_Rating_Chart
   ggsave(Big10_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Big10_VoA_Ranking_Chart <- ggplot(Big10_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = Team)) +
+  Big10_VoA_Ranking_Chart <- ggplot(Big10_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7145,20 +7163,20 @@ if (as.numeric(week) >= 2) {
   Big10_VoA_Ranking_Chart
   ggsave(Big10_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  CUSA_VoA_Rating_Chart <- ggplot(CUSA_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = Team)) +
+  CUSA_VoA_Rating_Chart <- ggplot(CUSA_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
     ggtitle("CUSA Vortex of Accuracy Ratings by Week") +
-    expand_limits(y = c(-40,40)) +
-    scale_y_continuous(breaks = c(-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40)) +
+    expand_limits(y = c(floor(floor(min(CUSA_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(CUSA_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
+    scale_y_continuous(breaks = seq((floor((floor(min(CUSA_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(CUSA_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   CUSA_VoA_Rating_Chart
   ggsave(CUSA_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  CUSA_VoA_Ranking_Chart <- ggplot(CUSA_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = Team)) +
+  CUSA_VoA_Ranking_Chart <- ggplot(CUSA_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7171,20 +7189,20 @@ if (as.numeric(week) >= 2) {
   CUSA_VoA_Ranking_Chart
   ggsave(CUSA_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Indy_VoA_Rating_Chart <- ggplot(Indy_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = Team)) +
+  Indy_VoA_Rating_Chart <- ggplot(Indy_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
     ggtitle("Independents Vortex of Accuracy Ratings by Week") +
-    expand_limits(y = c(-40,40)) +
-    scale_y_continuous(breaks = c(-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40)) +
+    expand_limits(y = c(floor(floor(min(Indy_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Indy_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
+    scale_y_continuous(breaks = seq((floor((floor(min(Indy_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Indy_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Indy_VoA_Rating_Chart
   ggsave(Indy_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Indy_VoA_Ranking_Chart <- ggplot(Indy_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = Team)) +
+  Indy_VoA_Ranking_Chart <- ggplot(Indy_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7197,20 +7215,20 @@ if (as.numeric(week) >= 2) {
   Indy_VoA_Ranking_Chart
   ggsave(Indy_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  MAC_VoA_Rating_Chart <- ggplot(MAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = Team)) +
+  MAC_VoA_Rating_Chart <- ggplot(MAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
     ggtitle("MAC Vortex of Accuracy Ratings by Week") +
-    expand_limits(y = c(-40,40)) +
-    scale_y_continuous(breaks = c(-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40)) +
+    expand_limits(y = c(floor(floor(min(MAC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(MAC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
+    scale_y_continuous(breaks = seq((floor((floor(min(MAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(MAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   MAC_VoA_Rating_Chart
   ggsave(MAC_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  MAC_VoA_Ranking_Chart <- ggplot(MAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = Team)) +
+  MAC_VoA_Ranking_Chart <- ggplot(MAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7223,20 +7241,20 @@ if (as.numeric(week) >= 2) {
   MAC_VoA_Ranking_Chart
   ggsave(MAC_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  MWC_VoA_Rating_Chart <- ggplot(MWC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = Team)) +
+  MWC_VoA_Rating_Chart <- ggplot(MWC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
     ggtitle("Mountain West Vortex of Accuracy Ratings by Week") +
-    expand_limits(y = c(-40,40)) +
-    scale_y_continuous(breaks = c(-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40)) +
+    expand_limits(y = c(floor(floor(min(MWC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(MWC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
+    scale_y_continuous(breaks = seq((floor((floor(min(MWC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(MWC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   MWC_VoA_Rating_Chart
   ggsave(MWC_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  MWC_VoA_Ranking_Chart <- ggplot(MWC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = Team)) +
+  MWC_VoA_Ranking_Chart <- ggplot(MWC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7249,20 +7267,20 @@ if (as.numeric(week) >= 2) {
   MWC_VoA_Ranking_Chart
   ggsave(MWC_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Pac12_VoA_Rating_Chart <- ggplot(Pac12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = Team)) +
+  Pac12_VoA_Rating_Chart <- ggplot(Pac12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
     ggtitle("Pac 12 Vortex of Accuracy Ratings by Week") +
-    expand_limits(y = c(-40,40)) +
-    scale_y_continuous(breaks = c(-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40)) +
+    expand_limits(y = c(floor(floor(min(Pac12_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Pac12_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
+    scale_y_continuous(breaks = seq((floor((floor(min(Pac12_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Pac12_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Pac12_VoA_Rating_Chart
   ggsave(Pac12_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Pac12_VoA_Ranking_Chart <- ggplot(Pac12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = Team)) +
+  Pac12_VoA_Ranking_Chart <- ggplot(Pac12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7275,20 +7293,20 @@ if (as.numeric(week) >= 2) {
   Pac12_VoA_Ranking_Chart
   ggsave(Pac12_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  SEC_VoA_Rating_Chart <- ggplot(SEC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = Team)) +
+  SEC_VoA_Rating_Chart <- ggplot(SEC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
     ggtitle("SEC Vortex of Accuracy Ratings by Week") +
-    expand_limits(y = c(-40,40)) +
-    scale_y_continuous(breaks = c(-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40)) +
+    expand_limits(y = c(floor(floor(min(SEC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(SEC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
+    scale_y_continuous(breaks = seq((floor((floor(min(SEC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(SEC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   SEC_VoA_Rating_Chart
   ggsave(SEC_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  SEC_VoA_Ranking_Chart <- ggplot(SEC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = Team)) +
+  SEC_VoA_Ranking_Chart <- ggplot(SEC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7301,20 +7319,20 @@ if (as.numeric(week) >= 2) {
   SEC_VoA_Ranking_Chart
   ggsave(SEC_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  SunBelt_VoA_Rating_Chart <- ggplot(SunBelt_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = Team)) +
+  SunBelt_VoA_Rating_Chart <- ggplot(SunBelt_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
     ggtitle("Sun Belt Vortex of Accuracy Ratings by Week") +
-    expand_limits(y = c(-40,40)) +
-    scale_y_continuous(breaks = c(-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40)) +
+    expand_limits(y = c(floor(floor(min(SunBelt_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(SunBelt_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
+    scale_y_continuous(breaks = seq((floor((floor(min(SunBelt_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(SunBelt_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   SunBelt_VoA_Rating_Chart
   ggsave(SunBelt_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  SunBelt_VoA_Ranking_Chart <- ggplot(SunBelt_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = Team)) +
+  SunBelt_VoA_Ranking_Chart <- ggplot(SunBelt_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +

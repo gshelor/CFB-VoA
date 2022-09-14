@@ -3,10 +3,10 @@
 ### It will take the VoA Ratings from that csv and use them to project scoring margins for upcoming FBS games
 ## loading packages
 library(pacman)
-pacman::p_load(tidyverse, gt, cfbfastR, here, gtExtras)
+pacman::p_load(tidyverse, gt, cfbfastR, here, gtExtras, viridis,ggsci, RColorBrewer)
 ## testing taking packages out to see which ones I'm actually using in this script
-# openxlsx, writexl, rvest, webshot, RColorBrewer, tidymodels, ranger, grid, gridExtra,
-# matrixStats, viridis,ggsci, ggpubr, 
+# openxlsx, writexl, rvest, webshot, tidymodels, ranger, grid, gridExtra,
+# matrixStats, ggpubr, 
 ## Inputting year
 year <- readline(prompt = "What Year is it? ")
 ## Inputting upcoming week number
@@ -67,7 +67,7 @@ if (as.numeric(upcoming) == 1) {
 
 ## creating random distribution to create artificial VoA rating to be used for FCS teams
 set.seed(69)
-FCS_random <- rnorm(130, mean = mean(min(PrevWeek_VoA$VoA_Rating) + 10, median(PrevWeek_VoA$VoA_Rating) + 10, mean(PrevWeek_VoA$VoA_Rating) + 10), sd = sd(PrevWeek_VoA$VoA_Rating))
+FCS_random <- rnorm(130, mean = mean(min(PrevWeek_VoA$VoA_Rating) + 5, median(PrevWeek_VoA$VoA_Rating), mean(PrevWeek_VoA$VoA_Rating)), sd = sd(PrevWeek_VoA$VoA_Rating))
 ## reading in upcoming games to create df of games and VoA projected margins
 upcoming_games_df <- cfbd_game_info(2022, week = as.numeric(upcoming)) %>%
   filter(home_team %in% PrevWeek_VoA$team | away_team %in% PrevWeek_VoA$team) %>%
@@ -160,7 +160,7 @@ upcoming_games_df <- upcoming_games_df[!duplicated(upcoming_games_df),]
 ## Creating Vortex of Projection Spread column
 cfbdata_contest_df <- upcoming_games_df %>%
   mutate(predicted = case_when(neutral_site == FALSE ~ away_VoA_Rating - (home_VoA_Rating + 2),
-                               TRUE ~ away_VoA_Rating - (home_VoA_Rating - 2))) %>%
+                               TRUE ~ away_VoA_Rating - home_VoA_Rating)) %>%
   select(game_id, home_team, away_team, predicted)
 colnames(cfbdata_contest_df) <- c("id", "home", "away", "predicted")
 
@@ -180,9 +180,12 @@ write_csv(cfbdata_contest_df, here("Data", paste("VoA", year, sep = ""), "Projec
 upcoming_games_df <- upcoming_games_df %>%
   mutate(Proj_Winner = case_when((neutral_site == FALSE & (home_VoA_Rating + 2) > away_VoA_Rating) ~ home_team,
                                  (neutral_site == FALSE & away_VoA_Rating > (home_VoA_Rating + 2)) ~ away_team,
+                                 (neutral_site == TRUE & home_VoA_Rating > away_VoA_Rating) ~ home_team,
+                                 (neutral_site == TRUE & away_VoA_Rating > home_VoA_Rating) ~ away_team,
                                  TRUE ~ "TIE"),
-         Proj_Margin = case_when(neutral_site == FALSE ~ abs(away_VoA_Rating - (home_VoA_Rating)) + 2,
+         Proj_Margin = case_when(neutral_site == FALSE ~ abs(away_VoA_Rating - (home_VoA_Rating + 2)),
                                  TRUE ~ abs(away_VoA_Rating - home_VoA_Rating))) %>%
+  select(game_id, season, week, neutral_site, home_team, home_VoA_Rating, away_team, away_VoA_Rating, Proj_Winner, Proj_Margin) %>%
   arrange(desc(Proj_Margin))
 ## Creating gt table
 # adding title and subtitle
@@ -190,7 +193,7 @@ upcoming_games_gt <- upcoming_games_df %>%
   gt() %>% # use 'gt' to make an awesome table...
   gt_theme_espn() %>%
   tab_header(
-    title = paste(year, week_text, week, "Vortex of Projection Game Projections"), # ...with this title
+    title = paste(year, week_text, upcoming, "Vortex of Projection Game Projections"), # ...with this title
     subtitle = "The Unquestionably Puzzling Yet Impeccibly Perceptive Vortex of Projection")  %>%  # and this subtitle
   fmt_number( # A column (numeric data)
     columns = c(Proj_Margin), # What column variable? FinalVoATop25$VoA_Rating
@@ -212,7 +215,7 @@ upcoming_games_gt <- upcoming_games_df %>%
       reverse = FALSE
     )
   ) %>%
-  cols_label(home_VoA_Rating = "Home VoA Rating", away_VoA_Rating = "Away VoA Rating", Proj_Winner = "Projected Winner", Proj_Margin = "Projected Margin") %>% # Update labels
+  cols_label(home_team = "Home", away_team = "Away", home_VoA_Rating = "Home VoA Rating", away_VoA_Rating = "Away VoA Rating", Proj_Winner = "Projected Winner", Proj_Margin = "Projected Margin") %>% # Update labels
   cols_move_to_end(columns = "Proj_Margin") %>%
   cols_hide(c(game_id, season, week, neutral_site)) %>%
   tab_footnote(
