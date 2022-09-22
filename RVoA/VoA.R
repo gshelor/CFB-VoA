@@ -12,7 +12,7 @@
 start_time <- Sys.time()
 library(pacman)
 pacman::p_load(tidyverse, gt, viridis, webshot, cfbfastR,  here, ggsci, RColorBrewer, 
-               ggpubr, gtExtras)
+               ggpubr, gtExtras, cfbplotR)
 ## testing to see if script runs without certain packeges I don't think are being used
 # writexl, rvest, openxlsx, tidymodels, ranger, grid, gridExtra, matrixStats, espnscrapeR,
 
@@ -90,8 +90,8 @@ file_pathway <- paste(data_dir, "/", year, week_text, week,"_", VoAString, sep =
 if (as.numeric(week) == 0) {
   ## reading in data for 3 previous years
   JMU_AllYears <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_AllYears.csv"))
-  Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -112,8 +112,8 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   ## removing NAs
   Stats_PY1[is.na(Stats_PY1)] = 0
-  Stats_PY2 <- cfbd_stats_season_team(year = as.integer(year) - 2, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Stats_PY2 <- cfbd_stats_season_team(year = as.integer(year) - 2, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -134,8 +134,8 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   ## removing NAs
   Stats_PY2[is.na(Stats_PY2)] = 0
-  Stats_PY3 <- cfbd_stats_season_team(year = as.integer(year) - 3, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Stats_PY3 <- cfbd_stats_season_team(year = as.integer(year) - 3, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -157,13 +157,13 @@ if (as.numeric(week) == 0) {
   ## removing NAs
   Stats_PY3[is.na(Stats_PY3)] = 0
   ## filtering out COVID opt-outs from 2019 (PY3) data, will be merged into 2020 (PY2) data
-  COVID_Optouts <- Stats_PY3 %>%
+  COVID_Optouts <- Stats_PY3 |>
     filter(team == "New Mexico State" | team == "Connecticut" | team == "Old Dominion")
   Stats_PY2 <- rbind(Stats_PY2, COVID_Optouts)
   
   ## advanced stats data
-  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -185,8 +185,8 @@ if (as.numeric(week) == 0) {
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
   ## removing NAs
   Adv_Stats_PY1[is.na(Adv_Stats_PY1)] = 0
-  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = FALSE, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -208,8 +208,8 @@ if (as.numeric(week) == 0) {
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
   ## removing NAs
   Adv_Stats_PY2[is.na(Adv_Stats_PY2)] = 0
-  Adv_Stats_PY3 <- cfbd_stats_season_advanced(year = as.integer(year) - 3, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Adv_Stats_PY3 <- cfbd_stats_season_advanced(year = as.integer(year) - 3, excl_garbage_time = FALSE, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -232,44 +232,44 @@ if (as.numeric(week) == 0) {
   ## removing NAs
   Adv_Stats_PY3[is.na(Adv_Stats_PY3)] = 0
   ## filtering out COVID opt-outs from 2019 (PY3) data, will be merged into 2020 (PY2) data
-  COVID_Optouts_adv <- Adv_Stats_PY3 %>%
+  COVID_Optouts_adv <- Adv_Stats_PY3 |>
     filter(team == "New Mexico State" | team == "Connecticut" | team == "Old Dominion")
   Adv_Stats_PY2 <- rbind(Adv_Stats_PY2, COVID_Optouts_adv)
   
   ## pulling in SP+ data
-  SP_Rankings_PY1 <-cfbd_ratings_sp(year = as.integer(year) - 1) %>%
-    filter(team != "James Madison") %>%
-    filter(team != "nationalAverages") %>%
+  SP_Rankings_PY1 <-cfbd_ratings_sp(year = as.integer(year) - 1) |>
+    filter(team != "James Madison") |>
+    filter(team != "nationalAverages") |>
     select(team, rating, offense_rating, defense_rating, special_teams_rating)
   colnames(SP_Rankings_PY1) <- c("team", "sp_rating_PY1", "sp_offense_rating_PY1", "sp_defense_rating_PY1", "sp_special_teams_rating_PY1")
   ## Eliminating NAs
   SP_Rankings_PY1[is.na(SP_Rankings_PY1)] = 0
-  SP_Rankings_PY2 <-cfbd_ratings_sp(year = as.integer(year) - 2) %>%
-    filter(team != "James Madison") %>%
-    filter(team != "nationalAverages") %>%
+  SP_Rankings_PY2 <-cfbd_ratings_sp(year = as.integer(year) - 2) |>
+    filter(team != "James Madison") |>
+    filter(team != "nationalAverages") |>
     select(team, rating, offense_rating, defense_rating, special_teams_rating)
   colnames(SP_Rankings_PY2) <- c("team", "sp_rating_PY2", "sp_offense_rating_PY2", "sp_defense_rating_PY2", "sp_special_teams_rating_PY2")
   ## Eliminating NAs
   SP_Rankings_PY2[is.na(SP_Rankings_PY2)] = 0
-  SP_Rankings_PY3 <-cfbd_ratings_sp(year = as.integer(year) - 3) %>%
-    filter(team != "James Madison") %>%
-    filter(team != "nationalAverages") %>%
+  SP_Rankings_PY3 <-cfbd_ratings_sp(year = as.integer(year) - 3) |>
+    filter(team != "James Madison") |>
+    filter(team != "nationalAverages") |>
     select(team, rating, offense_rating, defense_rating, special_teams_rating)
   colnames(SP_Rankings_PY3) <- c("team", "sp_rating_PY3", "sp_offense_rating_PY3", "sp_defense_rating_PY3", "sp_special_teams_rating_PY3")
   ## Eliminating NAs
   SP_Rankings_PY3[is.na(SP_Rankings_PY3)] = 0
   
   ## pulling FPI data
-  FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) %>%
-    filter(name != "James Madison") %>%
+  FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) |>
+    filter(name != "James Madison") |>
     select(name, fpi, w, l)
   ## reading in PY2 FPI data
-  FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) %>%
-    filter(name != "James Madison") %>%
+  FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) |>
+    filter(name != "James Madison") |>
     select(name, fpi, w, l)
   ## reading in PY3 FPI data
-  FPI_df_PY3 <- espn_ratings_fpi(year = as.integer(year) - 3) %>%
-    filter(name != "James Madison") %>%
+  FPI_df_PY3 <- espn_ratings_fpi(year = as.integer(year) - 3) |>
+    filter(name != "James Madison") |>
     select(name, fpi, w, l)
   
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
@@ -280,9 +280,9 @@ if (as.numeric(week) == 0) {
   colnames(FPI_df_PY2) <- FPI_PY2_colnames
   colnames(FPI_df_PY3) <- FPI_PY3_colnames
   ## converting character columns to numeric
-  FPI_df_PY1[,2:ncol(FPI_df_PY1)] <- FPI_df_PY1[,2:ncol(FPI_df_PY1)] %>% mutate_if(is.character,as.numeric)
-  FPI_df_PY2[,2:ncol(FPI_df_PY2)] <- FPI_df_PY2[,2:ncol(FPI_df_PY2)] %>% mutate_if(is.character,as.numeric)
-  FPI_df_PY3[,2:ncol(FPI_df_PY3)] <- FPI_df_PY3[,2:ncol(FPI_df_PY3)] %>% mutate_if(is.character,as.numeric)
+  FPI_df_PY1[,2:ncol(FPI_df_PY1)] <- FPI_df_PY1[,2:ncol(FPI_df_PY1)] |> mutate_if(is.character,as.numeric)
+  FPI_df_PY2[,2:ncol(FPI_df_PY2)] <- FPI_df_PY2[,2:ncol(FPI_df_PY2)] |> mutate_if(is.character,as.numeric)
+  FPI_df_PY3[,2:ncol(FPI_df_PY3)] <- FPI_df_PY3[,2:ncol(FPI_df_PY3)] |> mutate_if(is.character,as.numeric)
   ## removing NAs
   FPI_df_PY1[is.na(FPI_df_PY1)] = 0
   ## removing NAs
@@ -292,7 +292,7 @@ if (as.numeric(week) == 0) {
   
   ## Changing FPI team names to match up with outputs of cfbdata functions
   ## Changing team names in FPI df to match what appears in cfbfastR stats function
-  FPI_df_PY1 <- FPI_df_PY1 %>%
+  FPI_df_PY1 <- FPI_df_PY1 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -331,9 +331,9 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI_PY1, Wins_PY1, Losses_PY1)
-  FPI_df_PY2 <- FPI_df_PY2 %>%
+  FPI_df_PY2 <- FPI_df_PY2 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -372,9 +372,9 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI_PY2, Wins_PY2, Losses_PY2)
-  FPI_df_PY3 <- FPI_df_PY3 %>%
+  FPI_df_PY3 <- FPI_df_PY3 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -413,71 +413,71 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI_PY3, Wins_PY3, Losses_PY3)
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
   colnames(FPI_df_PY2) <- FPI_PY2_colnames
   colnames(FPI_df_PY3) <- FPI_PY3_colnames
   
   ## filtering out COVID opt-outs from 2019 (PY3) data, will be merged into 2020 (PY2) data
-  COVID_Optouts_fpi <- FPI_df_PY3 %>%
+  COVID_Optouts_fpi <- FPI_df_PY3 |>
     filter(team == "Connecticut" | team == "New Mexico State" | team == "Old Dominion")
   colnames(COVID_Optouts_fpi) <- FPI_PY2_colnames
   FPI_df_PY2 <- rbind(FPI_df_PY2, COVID_Optouts_fpi)
   
   ## pulling in recruiting rankings
-  recruit_PY1 <- cfbd_recruiting_team(year = as.numeric(year) - 1) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY1$team) %>%
+  recruit_PY1 <- cfbd_recruiting_team(year = as.numeric(year) - 1) |>
+    filter(team != "James Madison") |>
+    filter(team %in% Stats_PY1$team) |>
     select(team, points)
   colnames(recruit_PY1) <- c("team", "recruit_pts_PY1")
   
   ## pulling in talent rankings
-  talent_df_PY1 <- cfbd_team_talent(year = as.numeric(year) - 1) %>%
-    filter(school != "James Madison") %>%
-    filter(school %in% Stats_PY1$team) %>%
+  talent_df_PY1 <- cfbd_team_talent(year = as.numeric(year) - 1) |>
+    filter(school != "James Madison") |>
+    filter(school %in% Stats_PY1$team) |>
     select(school, talent)
   colnames(talent_df_PY1) <- c("team", "talent_PY1")
   
   ## pulling in recruiting rankings
-  recruit_PY2 <- cfbd_recruiting_team(year = as.numeric(year) - 2) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY2$team) %>%
+  recruit_PY2 <- cfbd_recruiting_team(year = as.numeric(year) - 2) |>
+    filter(team != "James Madison") |>
+    filter(team %in% Stats_PY2$team) |>
     select(team, points)
   colnames(recruit_PY2) <- c("team", "recruit_pts_PY2")
   
   ## pulling in talent rankings
-  talent_df_PY2 <- cfbd_team_talent(year = as.numeric(year) - 2) %>%
-    filter(school != "James Madison") %>%
-    filter(school %in% Stats_PY2$team) %>%
+  talent_df_PY2 <- cfbd_team_talent(year = as.numeric(year) - 2) |>
+    filter(school != "James Madison") |>
+    filter(school %in% Stats_PY2$team) |>
     select(school, talent)
   colnames(talent_df_PY2) <- c("team", "talent_PY2")
   
   ## pulling in recruiting rankings
-  recruit_PY3 <- cfbd_recruiting_team(year = as.numeric(year) - 3) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY3$team) %>%
+  recruit_PY3 <- cfbd_recruiting_team(year = as.numeric(year) - 3) |>
+    filter(team != "James Madison") |>
+    filter(team %in% Stats_PY3$team) |>
     select(team, points)
   colnames(recruit_PY3) <- c("team", "recruit_pts_PY3")
   
   ## pulling in talent rankings
-  talent_df_PY3 <- cfbd_team_talent(year = as.numeric(year) - 3) %>%
-    filter(school != "James Madison") %>%
-    filter(school %in% Stats_PY3$team) %>%
+  talent_df_PY3 <- cfbd_team_talent(year = as.numeric(year) - 3) |>
+    filter(school != "James Madison") |>
+    filter(school %in% Stats_PY3$team) |>
     select(school, talent)
   colnames(talent_df_PY3) <- c("team", "talent_PY3")
   
   ## incoming recruiting class rankings
-  recruit <- cfbd_recruiting_team(year = as.numeric(year)) %>%
+  recruit <- cfbd_recruiting_team(year = as.numeric(year)) |>
     select(team, points)
-  recruit <- recruit %>%
+  recruit <- recruit |>
     mutate(school = case_when(team == "Florida Intl" ~ "Florida International",
-                              TRUE ~ team)) %>%
-    filter(school %in% Stats_PY1$team) %>%
+                              TRUE ~ team)) |>
+    filter(school %in% Stats_PY1$team) |>
     select(school, points)
-  recruit[,2] <- recruit[,2] %>% mutate_if(is.character, as.numeric)
+  recruit[,2] <- recruit[,2] |> mutate_if(is.character, as.numeric)
   colnames(recruit) <- c("team", "recruit_pts")
-  JMU_recruit <- recruit %>%
+  JMU_recruit <- recruit |>
     filter(team == "Ohio")
   JMU_recruit[1,1] = "James Madison"
   JMU_recruit[1,2] = median(recruit$recruit_pts)
@@ -485,9 +485,9 @@ if (as.numeric(week) == 0) {
 } else if (as.numeric(week) == 1) {
   ## reading in data for 3 previous years
   JMU_AllYears <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_AllYears.csv"))
-  JMU_AllYears[,4:ncol(JMU_AllYears)] <- JMU_AllYears[,4:ncol(JMU_AllYears)] %>% mutate_if(is.character, as.numeric)
+  JMU_AllYears[,4:ncol(JMU_AllYears)] <- JMU_AllYears[,4:ncol(JMU_AllYears)] |> mutate_if(is.character, as.numeric)
   ### CURRENT SEASON STATS
-  Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) %>%
+  Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -509,7 +509,7 @@ if (as.numeric(week) == 0) {
   Stats[is.na(Stats)] = 0
   
   ## advanced stats data
-  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
+  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -533,17 +533,17 @@ if (as.numeric(week) == 0) {
   
   ## current FPI data as of this week
   ## pulling FPI data
-  FPI_df <- espn_ratings_fpi(year = as.integer(year)) %>%
+  FPI_df <- espn_ratings_fpi(year = as.integer(year)) |>
     select(name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_colnames <- c("team", "FPI", "Wins", "Losses")
   colnames(FPI_df) <- FPI_colnames
   ## converting character columns to numeric
-  FPI_df[,2:ncol(FPI_df)] <- FPI_df[,2:ncol(FPI_df)] %>% mutate_if(is.character,as.numeric)
+  FPI_df[,2:ncol(FPI_df)] <- FPI_df[,2:ncol(FPI_df)] |> mutate_if(is.character,as.numeric)
   
   ## Changing FPI team names to match up with outputs of cfbdata functions
   ## Changing team names in FPI df to match what appears in cfbfastR stats function
-  FPI_df <- FPI_df %>%
+  FPI_df <- FPI_df |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -582,20 +582,20 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI, Wins, Losses)
   colnames(FPI_df) <- FPI_colnames
   ## Current SP+ data
-  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
-  #   filter(team != "nationalAverages") %>%
+  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) |>
+  #   filter(team != "nationalAverages") |>
   #   select(team, rating, offense_rating, defense_rating, special_teams_rating)
   # colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
   # ## Eliminating NAs
   # SP_Rankings[is.na(SP_Rankings)] = 0
   
   ### Previous Years
-  Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -616,9 +616,9 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   ## removing NAs
   Stats_PY1[is.na(Stats_PY1)] = 0
-  Stats_PY2 <- cfbd_stats_season_team(year = as.integer(year) - 2, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
-    filter(team != "New Mexico State") %>%
+  Stats_PY2 <- cfbd_stats_season_team(year = as.integer(year) - 2, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
+    filter(team != "New Mexico State") |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -639,8 +639,8 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   ## removing NAs
   Stats_PY2[is.na(Stats_PY2)] = 0
-  Stats_PY3 <- cfbd_stats_season_team(year = as.integer(year) - 3, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Stats_PY3 <- cfbd_stats_season_team(year = as.integer(year) - 3, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -663,8 +663,8 @@ if (as.numeric(week) == 0) {
   Stats_PY3[is.na(Stats_PY3)] = 0
   
   ## advanced stats data
-  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -690,7 +690,7 @@ if (as.numeric(week) == 0) {
   ## IFF advanced stats data for current year is missing due to data issues
   missing_adv_teams <- anti_join(Stats, Adv_Stats)
   if (nrow(missing_adv_teams) > 0) {
-    missing_adv_teams_adv_stats <- Adv_Stats_PY1 %>%
+    missing_adv_teams_adv_stats <- Adv_Stats_PY1 |>
       filter(team %in% missing_adv_teams$team) 
     Adv_Stats <- rbind(Adv_Stats, missing_adv_teams_adv_stats)
   } else {
@@ -698,8 +698,8 @@ if (as.numeric(week) == 0) {
   }
   
   ## pulling in PY2 advanced stats
-  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = FALSE, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -722,8 +722,8 @@ if (as.numeric(week) == 0) {
   ## removing NAs
   Adv_Stats_PY2[is.na(Adv_Stats_PY2)] = 0
   ## pulling in PY3 advanced stats
-  Adv_Stats_PY3 <- cfbd_stats_season_advanced(year = as.integer(year) - 3, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Adv_Stats_PY3 <- cfbd_stats_season_advanced(year = as.integer(year) - 3, excl_garbage_time = FALSE, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -747,39 +747,39 @@ if (as.numeric(week) == 0) {
   Adv_Stats_PY3[is.na(Adv_Stats_PY3)] = 0
   
   ## pulling in SP+ data
-  SP_Rankings_PY1 <-cfbd_ratings_sp(year = as.integer(year) - 1) %>%
-    filter(team != "James Madison") %>%
-    filter(team != "nationalAverages") %>%
+  SP_Rankings_PY1 <-cfbd_ratings_sp(year = as.integer(year) - 1) |>
+    filter(team != "James Madison") |>
+    filter(team != "nationalAverages") |>
     select(team, rating, offense_rating, defense_rating, special_teams_rating)
   colnames(SP_Rankings_PY1) <- c("team", "sp_rating_PY1", "sp_offense_rating_PY1", "sp_defense_rating_PY1", "sp_special_teams_rating_PY1")
   ## Eliminating NAs
   SP_Rankings_PY1[is.na(SP_Rankings_PY1)] = 0
-  SP_Rankings_PY2 <-cfbd_ratings_sp(year = as.integer(year) - 2) %>%
-    filter(team != "James Madison") %>%
-    filter(team != "nationalAverages") %>%
+  SP_Rankings_PY2 <-cfbd_ratings_sp(year = as.integer(year) - 2) |>
+    filter(team != "James Madison") |>
+    filter(team != "nationalAverages") |>
     select(team, rating, offense_rating, defense_rating, special_teams_rating)
   colnames(SP_Rankings_PY2) <- c("team", "sp_rating_PY2", "sp_offense_rating_PY2", "sp_defense_rating_PY2", "sp_special_teams_rating_PY2")
   ## Eliminating NAs
   SP_Rankings_PY2[is.na(SP_Rankings_PY2)] = 0
-  SP_Rankings_PY3 <-cfbd_ratings_sp(year = as.integer(year) - 3) %>%
-    filter(team != "James Madison") %>%
-    filter(team != "nationalAverages") %>%
+  SP_Rankings_PY3 <-cfbd_ratings_sp(year = as.integer(year) - 3) |>
+    filter(team != "James Madison") |>
+    filter(team != "nationalAverages") |>
     select(team, rating, offense_rating, defense_rating, special_teams_rating)
   colnames(SP_Rankings_PY3) <- c("team", "sp_rating_PY3", "sp_offense_rating_PY3", "sp_defense_rating_PY3", "sp_special_teams_rating_PY3")
   ## Eliminating NAs
   SP_Rankings_PY3[is.na(SP_Rankings_PY3)] = 0
   
   ## pulling FPI data
-  FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) %>%
-    filter(name != "James Madison") %>%
+  FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) |>
+    filter(name != "James Madison") |>
     select(name, fpi, w, l)
   ## pulling in PY2 FPI data
-  FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) %>%
-    filter(name != "James Madison") %>%
+  FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) |>
+    filter(name != "James Madison") |>
     select(name, fpi, w, l)
   ## pulling in PY3 FPI data
-  FPI_df_PY3 <- espn_ratings_fpi(year = as.integer(year) - 3) %>%
-    filter(name != "James Madison") %>%
+  FPI_df_PY3 <- espn_ratings_fpi(year = as.integer(year) - 3) |>
+    filter(name != "James Madison") |>
     select(name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_PY1_colnames <- c("team", "FPI_PY1", "Wins_PY1", "Losses_PY1")
@@ -789,9 +789,9 @@ if (as.numeric(week) == 0) {
   colnames(FPI_df_PY2) <- FPI_PY2_colnames
   colnames(FPI_df_PY3) <- FPI_PY3_colnames
   ## converting character columns to numeric
-  FPI_df_PY1[,2:ncol(FPI_df_PY1)] <- FPI_df_PY1[,2:ncol(FPI_df_PY1)] %>% mutate_if(is.character,as.numeric)
-  FPI_df_PY2[,2:ncol(FPI_df_PY2)] <- FPI_df_PY2[,2:ncol(FPI_df_PY2)] %>% mutate_if(is.character,as.numeric)
-  FPI_df_PY3[,2:ncol(FPI_df_PY3)] <- FPI_df_PY3[,2:ncol(FPI_df_PY3)] %>% mutate_if(is.character,as.numeric)
+  FPI_df_PY1[,2:ncol(FPI_df_PY1)] <- FPI_df_PY1[,2:ncol(FPI_df_PY1)] |> mutate_if(is.character,as.numeric)
+  FPI_df_PY2[,2:ncol(FPI_df_PY2)] <- FPI_df_PY2[,2:ncol(FPI_df_PY2)] |> mutate_if(is.character,as.numeric)
+  FPI_df_PY3[,2:ncol(FPI_df_PY3)] <- FPI_df_PY3[,2:ncol(FPI_df_PY3)] |> mutate_if(is.character,as.numeric)
   ## removing NAs
   FPI_df_PY1[is.na(FPI_df_PY1)] = 0
   ## removing NAs
@@ -801,7 +801,7 @@ if (as.numeric(week) == 0) {
   
   ## Changing FPI team names to match up with outputs of cfbdata functions
   ## Changing team names in FPI df to match what appears in cfbfastR stats function
-  FPI_df_PY1 <- FPI_df_PY1 %>%
+  FPI_df_PY1 <- FPI_df_PY1 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -840,9 +840,9 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI_PY1, Wins_PY1, Losses_PY1)
-  FPI_df_PY2 <- FPI_df_PY2 %>%
+  FPI_df_PY2 <- FPI_df_PY2 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -881,9 +881,9 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI_PY2, Wins_PY2, Losses_PY2)
-  FPI_df_PY3 <- FPI_df_PY3 %>%
+  FPI_df_PY3 <- FPI_df_PY3 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -922,75 +922,75 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI_PY3, Wins_PY3, Losses_PY3)
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
   colnames(FPI_df_PY2) <- FPI_PY2_colnames
   colnames(FPI_df_PY3) <- FPI_PY3_colnames
   
   ## pulling in recruiting rankings
-  recruit_PY1 <- cfbd_recruiting_team(year = as.numeric(year) - 1) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY1$team) %>%
+  recruit_PY1 <- cfbd_recruiting_team(year = as.numeric(year) - 1) |>
+    filter(team != "James Madison") |>
+    filter(team %in% Stats_PY1$team) |>
     select(team, points)
-  recruit_PY1[,2] <- recruit_PY1[,2] %>% mutate_if(is.character, as.numeric)
+  recruit_PY1[,2] <- recruit_PY1[,2] |> mutate_if(is.character, as.numeric)
   colnames(recruit_PY1) <- c("team", "recruit_pts_PY1")
   
   ## pulling in talent rankings
-  talent_df_PY1 <- cfbd_team_talent(year = as.numeric(year) - 1) %>%
-    filter(school != "James Madison") %>%
-    filter(school %in% Stats_PY1$team) %>%
+  talent_df_PY1 <- cfbd_team_talent(year = as.numeric(year) - 1) |>
+    filter(school != "James Madison") |>
+    filter(school %in% Stats_PY1$team) |>
     select(school, talent)
   colnames(talent_df_PY1) <- c("team", "talent_PY1")
   
   ## pulling in recruiting rankings
-  recruit_PY2 <- cfbd_recruiting_team(year = as.numeric(year) - 2) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY2$team) %>%
+  recruit_PY2 <- cfbd_recruiting_team(year = as.numeric(year) - 2) |>
+    filter(team != "James Madison") |>
+    filter(team %in% Stats_PY2$team) |>
     select(team, points)
-  recruit_PY2[,2] <- recruit_PY2[,2] %>% mutate_if(is.character, as.numeric)
+  recruit_PY2[,2] <- recruit_PY2[,2] |> mutate_if(is.character, as.numeric)
   colnames(recruit_PY2) <- c("team", "recruit_pts_PY2")
   
   ## pulling in talent rankings
-  talent_df_PY2 <- cfbd_team_talent(year = as.numeric(year) - 2) %>%
-    filter(school != "James Madison") %>%
-    filter(school %in% Stats_PY2$team) %>%
+  talent_df_PY2 <- cfbd_team_talent(year = as.numeric(year) - 2) |>
+    filter(school != "James Madison") |>
+    filter(school %in% Stats_PY2$team) |>
     select(school, talent)
   colnames(talent_df_PY2) <- c("team", "talent_PY2")
   
   ## pulling in recruiting rankings
-  recruit_PY3 <- cfbd_recruiting_team(year = as.numeric(year) - 3) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY3$team) %>%
+  recruit_PY3 <- cfbd_recruiting_team(year = as.numeric(year) - 3) |>
+    filter(team != "James Madison") |>
+    filter(team %in% Stats_PY3$team) |>
     select(team, points)
-  recruit_PY3[,2] <- recruit_PY3[,2] %>% mutate_if(is.character, as.numeric)
+  recruit_PY3[,2] <- recruit_PY3[,2] |> mutate_if(is.character, as.numeric)
   colnames(recruit_PY3) <- c("team", "recruit_pts_PY3")
   
   ## pulling in talent rankings
-  talent_df_PY3 <- cfbd_team_talent(year = as.numeric(year) - 3) %>%
-    filter(school != "James Madison") %>%
-    filter(school %in% Stats_PY3$team) %>%
+  talent_df_PY3 <- cfbd_team_talent(year = as.numeric(year) - 3) |>
+    filter(school != "James Madison") |>
+    filter(school %in% Stats_PY3$team) |>
     select(school, talent)
   colnames(talent_df_PY3) <- c("team", "talent_PY3")
   
   ## incoming recruiting class rankings
-  recruit <- cfbd_recruiting_team(year = as.numeric(year)) %>%
+  recruit <- cfbd_recruiting_team(year = as.numeric(year)) |>
     select(team, points)
-  recruit <- recruit %>%
+  recruit <- recruit |>
     mutate(school = case_when(team == "Florida Intl" ~ "Florida International",
-                              TRUE ~ team)) %>%
-    filter(school %in% Stats_PY1$team) %>%
+                              TRUE ~ team)) |>
+    filter(school %in% Stats_PY1$team) |>
     select(school, points)
-  recruit[,2] <- recruit[,2] %>% mutate_if(is.character, as.numeric)
+  recruit[,2] <- recruit[,2] |> mutate_if(is.character, as.numeric)
   colnames(recruit) <- c("team", "recruit_pts")
-  JMU_recruit <- recruit %>%
+  JMU_recruit <- recruit |>
     filter(team == "Ohio")
   JMU_recruit[1,1] = "James Madison"
   JMU_recruit[1,2] = median(recruit$recruit_pts)
   recruit <- rbind(recruit, JMU_recruit)
 } else if (as.numeric(week) <= 4) {
   ### CURRENT SEASON STATS
-  Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) %>%
+  Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -1012,7 +1012,7 @@ if (as.numeric(week) == 0) {
   Stats[is.na(Stats)] = 0
   
   ## advanced stats data
-  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
+  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -1035,17 +1035,17 @@ if (as.numeric(week) == 0) {
   Adv_Stats[is.na(Adv_Stats)] = 0
   ## current FPI data as of this week
   ## pulling FPI data
-  FPI_df <- espn_ratings_fpi(year = as.integer(year)) %>%
+  FPI_df <- espn_ratings_fpi(year = as.integer(year)) |>
     select(name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_colnames <- c("team", "FPI", "Wins", "Losses")
   colnames(FPI_df) <- FPI_colnames
   ## converting character columns to numeric
-  FPI_df[,2:ncol(FPI_df)] <- FPI_df[,2:ncol(FPI_df)] %>% mutate_if(is.character,as.numeric)
+  FPI_df[,2:ncol(FPI_df)] <- FPI_df[,2:ncol(FPI_df)] |> mutate_if(is.character,as.numeric)
   
   ## Changing FPI team names to match up with outputs of cfbdata functions
   ## Changing team names in FPI df to match what appears in cfbfastR stats function
-  FPI_df <- FPI_df %>%
+  FPI_df <- FPI_df |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -1084,12 +1084,12 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI, Wins, Losses)
   colnames(FPI_df) <- FPI_colnames
   ## Current SP+ data
-  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
-  #   filter(team != "nationalAverages") %>%
+  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) |>
+  #   filter(team != "nationalAverages") |>
   #   select(team, rating, offense_rating, defense_rating, special_teams_rating)
   # colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
   # ## Eliminating NAs
@@ -1098,9 +1098,9 @@ if (as.numeric(week) == 0) {
   ########## WEEKS 2-4
   ## reading in data for 2 previous years
   JMU_2Years <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_2Years.csv"))
-  JMU_2Years[,2:ncol(JMU_2Years)] <- JMU_2Years[,2:ncol(JMU_2Years)] %>% mutate_if(is.character, as.numeric)
-  Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  JMU_2Years[,2:ncol(JMU_2Years)] <- JMU_2Years[,2:ncol(JMU_2Years)] |> mutate_if(is.character, as.numeric)
+  Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -1119,8 +1119,8 @@ if (as.numeric(week) == 0) {
            yards_per_penalty = penalty_yds / penalties,
            kick_return_avg = kick_return_yds / kick_returns,
            punt_return_avg = punt_return_yds / punt_returns)
-  Stats_PY2 <- cfbd_stats_season_team(year = as.integer(year) - 2, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Stats_PY2 <- cfbd_stats_season_team(year = as.integer(year) - 2, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -1142,8 +1142,8 @@ if (as.numeric(week) == 0) {
   Stats_PY2[is.na(Stats_PY2)] = 0
   
   ## advanced stats data
-  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -1163,8 +1163,8 @@ if (as.numeric(week) == 0) {
            def_rushing_plays_ppa, def_rushing_plays_success_rate,
            def_rushing_plays_explosiveness, def_passing_plays_ppa,
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
-  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Adv_Stats_PY2 <- cfbd_stats_season_advanced(year = as.integer(year) - 2, excl_garbage_time = FALSE, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -1187,27 +1187,27 @@ if (as.numeric(week) == 0) {
   Adv_Stats_PY2[is.na(Adv_Stats_PY2)] = 0
   
   ## pulling in SP+ data
-  SP_Rankings_PY1 <-cfbd_ratings_sp(year = as.integer(year) - 1) %>%
-    filter(team != "James Madison") %>%
-    filter(team != "nationalAverages") %>%
+  SP_Rankings_PY1 <-cfbd_ratings_sp(year = as.integer(year) - 1) |>
+    filter(team != "James Madison") |>
+    filter(team != "nationalAverages") |>
     select(team, rating, offense_rating, defense_rating, special_teams_rating)
   colnames(SP_Rankings_PY1) <- c("team", "sp_rating_PY1", "sp_offense_rating_PY1", "sp_defense_rating_PY1", "sp_special_teams_rating_PY1")
   ## Eliminating NAs
   SP_Rankings_PY1[is.na(SP_Rankings_PY1)] = 0
-  SP_Rankings_PY2 <-cfbd_ratings_sp(year = as.integer(year) - 2) %>%
-    filter(team != "James Madison") %>%
-    filter(team != "nationalAverages") %>%
+  SP_Rankings_PY2 <-cfbd_ratings_sp(year = as.integer(year) - 2) |>
+    filter(team != "James Madison") |>
+    filter(team != "nationalAverages") |>
     select(team, rating, offense_rating, defense_rating, special_teams_rating)
   colnames(SP_Rankings_PY2) <- c("team", "sp_rating_PY2", "sp_offense_rating_PY2", "sp_defense_rating_PY2", "sp_special_teams_rating_PY2")
   ## Eliminating NAs
   SP_Rankings_PY2[is.na(SP_Rankings_PY2)] = 0
   
   ## pulling FPI data
-  FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) %>%
-    filter(name != "James Madison") %>%
+  FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) |>
+    filter(name != "James Madison") |>
     select(name, fpi, w, l)
-  FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) %>%
-    filter(name != "James Madison") %>%
+  FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) |>
+    filter(name != "James Madison") |>
     select(name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_PY1_colnames <- c("team", "FPI_PY1", "Wins_PY1", "Losses_PY1")
@@ -1215,12 +1215,12 @@ if (as.numeric(week) == 0) {
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
   colnames(FPI_df_PY2) <- FPI_PY2_colnames
   ## converting character columns to numeric
-  FPI_df_PY1[,2:ncol(FPI_df_PY1)] <- FPI_df_PY1[,2:ncol(FPI_df_PY1)] %>% mutate_if(is.character,as.numeric)
-  FPI_df_PY2[,2:ncol(FPI_df_PY2)] <- FPI_df_PY2[,2:ncol(FPI_df_PY2)] %>% mutate_if(is.character,as.numeric)
+  FPI_df_PY1[,2:ncol(FPI_df_PY1)] <- FPI_df_PY1[,2:ncol(FPI_df_PY1)] |> mutate_if(is.character,as.numeric)
+  FPI_df_PY2[,2:ncol(FPI_df_PY2)] <- FPI_df_PY2[,2:ncol(FPI_df_PY2)] |> mutate_if(is.character,as.numeric)
   
   ## Changing FPI team names to match up with outputs of cfbdata functions
   ## Changing team names in FPI df to match what appears in cfbfastR stats function
-  FPI_df_PY1 <- FPI_df_PY1 %>%
+  FPI_df_PY1 <- FPI_df_PY1 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -1259,9 +1259,9 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI_PY1, Wins_PY1, Losses_PY1)
-  FPI_df_PY2 <- FPI_df_PY2 %>%
+  FPI_df_PY2 <- FPI_df_PY2 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -1300,57 +1300,57 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI_PY2, Wins_PY2, Losses_PY2)
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
   colnames(FPI_df_PY2) <- FPI_PY2_colnames
   
   ## pulling in recruiting rankings
-  recruit_PY1 <- cfbd_recruiting_team(year = as.numeric(year) - 1) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY1$team) %>%
+  recruit_PY1 <- cfbd_recruiting_team(year = as.numeric(year) - 1) |>
+    filter(team != "James Madison") |>
+    filter(team %in% Stats_PY1$team) |>
     select(team, points)
   colnames(recruit_PY1) <- c("team", "recruit_pts_PY1")
   
   ## pulling in talent rankings
-  talent_df_PY1 <- cfbd_team_talent(year = as.numeric(year) - 1) %>%
-    filter(school != "James Madison") %>%
-    filter(school %in% Stats_PY1$team) %>%
+  talent_df_PY1 <- cfbd_team_talent(year = as.numeric(year) - 1) |>
+    filter(school != "James Madison") |>
+    filter(school %in% Stats_PY1$team) |>
     select(school, talent)
   colnames(talent_df_PY1) <- c("team", "talent_PY1")
   
   ## pulling in recruiting rankings
-  recruit_PY2 <- cfbd_recruiting_team(year = as.numeric(year) - 2) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY2$team) %>%
+  recruit_PY2 <- cfbd_recruiting_team(year = as.numeric(year) - 2) |>
+    filter(team != "James Madison") |>
+    filter(team %in% Stats_PY2$team) |>
     select(team, points)
   colnames(recruit_PY2) <- c("team", "recruit_pts_PY2")
   
   ## pulling in talent rankings
-  talent_df_PY2 <- cfbd_team_talent(year = as.numeric(year) - 2) %>%
-    filter(school != "James Madison") %>%
-    filter(school %in% Stats_PY2$team) %>%
+  talent_df_PY2 <- cfbd_team_talent(year = as.numeric(year) - 2) |>
+    filter(school != "James Madison") |>
+    filter(school %in% Stats_PY2$team) |>
     select(school, talent)
   colnames(talent_df_PY2) <- c("team", "talent_PY2")
   
   ## incoming recruiting class rankings
-  recruit <- cfbd_recruiting_team(year = as.numeric(year)) %>%
+  recruit <- cfbd_recruiting_team(year = as.numeric(year)) |>
     select(team, points)
-  recruit <- recruit %>%
+  recruit <- recruit |>
     mutate(school = case_when(team == "Florida Intl" ~ "Florida International",
-                              TRUE ~ team)) %>%
-    filter(school %in% Stats_PY1$team) %>%
+                              TRUE ~ team)) |>
+    filter(school %in% Stats_PY1$team) |>
     select(school, points)
-  recruit[,2] <- recruit[,2] %>% mutate_if(is.character, as.numeric)
+  recruit[,2] <- recruit[,2] |> mutate_if(is.character, as.numeric)
   colnames(recruit) <- c("team", "recruit_pts")
-  JMU_recruit <- recruit %>%
+  JMU_recruit <- recruit |>
     filter(team == "Ohio")
   JMU_recruit[1,1] = "James Madison"
   JMU_recruit[1,2] = median(recruit$recruit_pts)
   recruit <- rbind(recruit, JMU_recruit)
 } else if (as.numeric(week) == 5) {
   ### CURRENT SEASON STATS
-  Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) %>%
+  Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -1372,7 +1372,7 @@ if (as.numeric(week) == 0) {
   Stats[is.na(Stats)] = 0
   
   ## advanced stats data
-  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
+  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -1396,17 +1396,17 @@ if (as.numeric(week) == 0) {
   Adv_Stats[is.na(Adv_Stats)] = 0
   ## current FPI data as of this week
   ## pulling FPI data
-  FPI_df <- espn_ratings_fpi(year = as.integer(year)) %>%
+  FPI_df <- espn_ratings_fpi(year = as.integer(year)) |>
     select(name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_colnames <- c("team", "FPI", "Wins", "Losses")
   colnames(FPI_df) <- FPI_colnames
   ## converting character columns to numeric
-  FPI_df[,2:ncol(FPI_df)] <- FPI_df[,2:ncol(FPI_df)] %>% mutate_if(is.character,as.numeric)
+  FPI_df[,2:ncol(FPI_df)] <- FPI_df[,2:ncol(FPI_df)] |> mutate_if(is.character,as.numeric)
   
   ## Changing FPI team names to match up with outputs of cfbdata functions
   ## Changing team names in FPI df to match what appears in cfbfastR stats function
-  FPI_df <- FPI_df %>%
+  FPI_df <- FPI_df |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -1445,20 +1445,20 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI, Wins, Losses)
   colnames(FPI_df) <- FPI_colnames
   ## Current SP+ data
-  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
-  #   filter(team != "nationalAverages") %>%
+  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) |>
+  #   filter(team != "nationalAverages") |>
   #   select(team, rating, offense_rating, defense_rating, special_teams_rating)
   # colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
   # ## Eliminating NAs
   # SP_Rankings[is.na(SP_Rankings)] = 0
   ## reading in data for previous year
   JMU_PrevYear <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_PreYear.csv"))
-  Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -1479,8 +1479,8 @@ if (as.numeric(week) == 0) {
            punt_return_avg = punt_return_yds / punt_returns)
   
   ## advanced stats data
-  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) %>%
-    filter(team != "James Madison") %>%
+  Adv_Stats_PY1 <- cfbd_stats_season_advanced(year = as.integer(year) - 1, excl_garbage_time = FALSE, start_week = 1, end_week = 15) |>
+    filter(team != "James Madison") |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -1502,27 +1502,27 @@ if (as.numeric(week) == 0) {
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
   
   ## pulling in SP+ data
-  SP_Rankings_PY1 <-cfbd_ratings_sp(year = as.integer(year) - 1) %>%
-    filter(team != "James Madison") %>%
-    filter(team != "nationalAverages") %>%
+  SP_Rankings_PY1 <-cfbd_ratings_sp(year = as.integer(year) - 1) |>
+    filter(team != "James Madison") |>
+    filter(team != "nationalAverages") |>
     select(team, rating, offense_rating, defense_rating, special_teams_rating)
   colnames(SP_Rankings_PY1) <- c("team", "sp_rating_PY1", "sp_offense_rating_PY1", "sp_defense_rating_PY1", "sp_special_teams_rating_PY1")
   ## Eliminating NAs
   SP_Rankings_PY1[is.na(SP_Rankings_PY1)] = 0
   
   ## pulling FPI data
-  FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) %>%
-    filter(name != "James Madison") %>%
+  FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) |>
+    filter(name != "James Madison") |>
     select(name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_PY1_colnames <- c("team", "FPI_PY1", "Wins_PY1", "Losses_PY1")
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
   ## converting character columns to numeric
-  FPI_df_PY1[,2:ncol(FPI_df_PY1)] <- FPI_df_PY1[,2:ncol(FPI_df_PY1)] %>% mutate_if(is.character,as.numeric)
+  FPI_df_PY1[,2:ncol(FPI_df_PY1)] <- FPI_df_PY1[,2:ncol(FPI_df_PY1)] |> mutate_if(is.character,as.numeric)
   
   ## Changing FPI team names to match up with outputs of cfbdata functions
   ## Changing team names in FPI df to match what appears in cfbfastR stats function
-  FPI_df_PY1 <- FPI_df_PY1 %>%
+  FPI_df_PY1 <- FPI_df_PY1 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -1561,42 +1561,42 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI_PY1, Wins_PY1, Losses_PY1)
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
   
   ## pulling in recruiting rankings
-  recruit_PY1 <- cfbd_recruiting_team(year = as.numeric(year) - 1) %>%
-    filter(team != "James Madison") %>%
-    filter(team %in% Stats_PY1$team) %>%
+  recruit_PY1 <- cfbd_recruiting_team(year = as.numeric(year) - 1) |>
+    filter(team != "James Madison") |>
+    filter(team %in% Stats_PY1$team) |>
     select(team, points)
   colnames(recruit_PY1) <- c("team", "recruit_pts_PY1")
   
   ## pulling in talent rankings
-  talent_df_PY1 <- cfbd_team_talent(year = as.numeric(year) - 1) %>%
-    filter(school != "James Madison") %>%
-    filter(school %in% Stats_PY1$team) %>%
+  talent_df_PY1 <- cfbd_team_talent(year = as.numeric(year) - 1) |>
+    filter(school != "James Madison") |>
+    filter(school %in% Stats_PY1$team) |>
     select(school, talent)
   colnames(talent_df_PY1) <- c("team", "talent_PY1")
   
   ## incoming recruiting class rankings
-  recruit <- cfbd_recruiting_team(year = as.numeric(year)) %>%
+  recruit <- cfbd_recruiting_team(year = as.numeric(year)) |>
     select(team, points)
-  recruit <- recruit %>%
+  recruit <- recruit |>
     mutate(school = case_when(team == "Florida Intl" ~ "Florida International",
-                              TRUE ~ team)) %>%
-    filter(school %in% Stats_PY1$team) %>%
+                              TRUE ~ team)) |>
+    filter(school %in% Stats_PY1$team) |>
     select(school, points)
-  recruit[,2] <- recruit[,2] %>% mutate_if(is.character, as.numeric)
+  recruit[,2] <- recruit[,2] |> mutate_if(is.character, as.numeric)
   colnames(recruit) <- c("team", "recruit_pts")
-  JMU_recruit <- recruit %>%
+  JMU_recruit <- recruit |>
     filter(team == "Ohio")
   JMU_recruit[1,1] = "James Madison"
   JMU_recruit[1,2] = median(recruit$recruit_pts)
   recruit <- rbind(recruit, JMU_recruit)
 } else {
   ### CURRENT SEASON STATS
-  Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) %>%
+  Stats <- cfbd_stats_season_team(year = as.integer(year), start_week = 1, end_week = as.numeric(week)) |>
     mutate(total_yds_pg = total_yds/games,
            pass_yds_pg = net_pass_yds/games,
            rush_yds_pg = rush_yds/games,
@@ -1619,7 +1619,7 @@ if (as.numeric(week) == 0) {
   Stats[is.na(Stats)] = 0
   
   ## advanced stats data
-  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) %>%
+  Adv_Stats <- cfbd_stats_season_advanced(year = as.integer(year), excl_garbage_time = FALSE, start_week = 1, end_week = as.numeric(week)) |>
     select(team, off_ppa, off_success_rate, off_explosiveness, off_power_success,
            off_stuff_rate, off_line_yds, off_second_lvl_yds, off_open_field_yds,
            off_pts_per_opp, off_field_pos_avg_predicted_points, off_havoc_total, 
@@ -1643,17 +1643,17 @@ if (as.numeric(week) == 0) {
   Adv_Stats[is.na(Adv_Stats)] = 0
   ## current FPI data as of this week
   ## pulling FPI data
-  FPI_df <- espn_ratings_fpi(year = as.integer(year)) %>%
+  FPI_df <- espn_ratings_fpi(year = as.integer(year)) |>
     select(name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_colnames <- c("team", "FPI", "Wins", "Losses")
   colnames(FPI_df) <- FPI_colnames
   ## converting character columns to numeric
-  FPI_df[,2:ncol(FPI_df)] <- FPI_df[,2:ncol(FPI_df)] %>% mutate_if(is.character,as.numeric)
+  FPI_df[,2:ncol(FPI_df)] <- FPI_df[,2:ncol(FPI_df)] |> mutate_if(is.character,as.numeric)
   
   ## Changing FPI team names to match up with outputs of cfbdata functions
   ## Changing team names in FPI df to match what appears in cfbfastR stats function
-  FPI_df <- FPI_df %>%
+  FPI_df <- FPI_df |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
@@ -1692,43 +1692,43 @@ if (as.numeric(week) == 0) {
                               team == 'San Diego St' ~ 'San Diego State',
                               team == 'San José St' ~ 'San José State',
                               team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) %>%
+                              TRUE ~ team)) |>
     select(school, FPI, Wins, Losses)
   colnames(FPI_df) <- FPI_colnames
   ## Current SP+ data
-  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) %>%
-  #   filter(team != "nationalAverages") %>%
+  # SP_Rankings <-cfbd_ratings_sp(year = as.integer(year)) |>
+  #   filter(team != "nationalAverages") |>
   #   select(team, rating, offense_rating, defense_rating, special_teams_rating)
   # colnames(SP_Rankings) <- c("team", "sp_rating", "sp_offense_rating", "sp_defense_rating", "sp_special_teams_rating")
   # ## Eliminating NAs
   # SP_Rankings[is.na(SP_Rankings)] = 0
   
   ## incoming recruiting class rankings
-  recruit <- cfbd_recruiting_team(year = as.numeric(year)) %>%
+  recruit <- cfbd_recruiting_team(year = as.numeric(year)) |>
     select(team, points)
-  recruit <- recruit %>%
+  recruit <- recruit |>
     mutate(school = case_when(team == "Florida Intl" ~ "Florida International",
-                              TRUE ~ team)) %>%
-    filter(school %in% Stats_PY1$team) %>%
+                              TRUE ~ team)) |>
+    filter(school %in% Stats_PY1$team) |>
     select(school, points)
-  recruit[,2] <- recruit[,2] %>% mutate_if(is.character, as.numeric)
+  recruit[,2] <- recruit[,2] |> mutate_if(is.character, as.numeric)
   colnames(recruit) <- c("team", "recruit_pts")
-  JMU_recruit <- recruit %>%
+  JMU_recruit <- recruit |>
     filter(team == "Ohio")
   JMU_recruit[1,1] = "James Madison"
   JMU_recruit[1,2] = median(recruit$recruit_pts)
   recruit <- rbind(recruit, JMU_recruit)
 }
 
-## merging data frames together
+##### merging data frames together #####
 if (as.numeric(week) == 0) {
   ## merging data frames together, arranging columns
   ## need to merge stats and advanced stats together first so I can change column names to avoid duplicate column names later on
   # then I will be merging data frames for the same year together
   # then I will merge years together by team
   PY3_stats_adv_stats_list <- list(Stats_PY3, Adv_Stats_PY3)
-  PY3_stats_adv_stats_merge <- PY3_stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  PY3_stats_adv_stats_merge <- PY3_stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(season, team, conference, games, completion_pct, 
            pass_ypa, pass_ypr, int_pct, rush_ypc, turnovers_pg, 
            third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
@@ -1776,12 +1776,12 @@ if (as.numeric(week) == 0) {
                                            "def_rushing_plays_explosiveness_PY3", "def_passing_plays_ppa_PY3",
                                            "def_passing_plays_success_rate_PY3", "def_passing_plays_explosiveness_PY3")
   PY3_df_list <- list(PY3_stats_adv_stats_merge, recruit_PY3, talent_df_PY3, SP_Rankings_PY3, FPI_df_PY3)
-  PY3_df <- PY3_df_list %>%
+  PY3_df <- PY3_df_list |>
     reduce(full_join, by = "team")
   
   PY2_stats_adv_stats_list <- list(Stats_PY2, Adv_Stats_PY2)
-  PY2_stats_adv_stats_merge <- PY2_stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  PY2_stats_adv_stats_merge <- PY2_stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(team, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
            yards_per_penalty, kick_return_avg, punt_return_avg, total_yds_pg, 
@@ -1828,16 +1828,16 @@ if (as.numeric(week) == 0) {
                                            "def_rushing_plays_explosiveness_PY2", "def_passing_plays_ppa_PY2",
                                            "def_passing_plays_success_rate_PY2", "def_passing_plays_explosiveness_PY2")
   PY2_df_list <- list(PY2_stats_adv_stats_merge, recruit_PY2, talent_df_PY2, SP_Rankings_PY2, FPI_df_PY2)
-  PY2_df <- PY2_df_list %>%
+  PY2_df <- PY2_df_list |>
     reduce(full_join, by = "team")
   ## exporting csv of 2020 COVID opt outs here in week 0 so that I don't have to re merge all of it in future weeks
-  COVID_Optouts_total <- PY2_df %>%
+  COVID_Optouts_total <- PY2_df |>
     filter(team == "Old Dominion" | team == "New Mexico State" | team == "Connecticut")
   write_csv(COVID_Optouts_total, here("Data", "VoA2022", "COVIDOptouts_total.csv"))
   
   PY1_stats_adv_stats_list <- list(Stats_PY1, Adv_Stats_PY1)
-  PY1_stats_adv_stats_merge <- PY1_stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  PY1_stats_adv_stats_merge <- PY1_stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(team, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
            yards_per_penalty, kick_return_avg, punt_return_avg, total_yds_pg, 
@@ -1884,16 +1884,16 @@ if (as.numeric(week) == 0) {
                                            "def_rushing_plays_explosiveness_PY1", "def_passing_plays_ppa_PY1",
                                            "def_passing_plays_success_rate_PY1", "def_passing_plays_explosiveness_PY1")
   PY1_df_list <- list(PY1_stats_adv_stats_merge, recruit_PY1, talent_df_PY1, SP_Rankings_PY1, FPI_df_PY1)
-  PY1_df <- PY1_df_list %>%
+  PY1_df <- PY1_df_list |>
     reduce(full_join, by = "team")
   
   ## merging all data frames in order of PY3, PY2, PY1
   all_PY_df_list <- list(PY3_df, PY2_df, PY1_df, recruit)
-  all_PY_df <- all_PY_df_list %>%
+  all_PY_df <- all_PY_df_list |>
     reduce(full_join, by = "team")
   
   ## after binding JMU csv as new row to PY df
-  VoA_Variables <- rbind(all_PY_df, JMU_AllYears) %>%
+  VoA_Variables <- rbind(all_PY_df, JMU_AllYears) |>
     mutate(FPI_SP_PY3_mean = (sp_rating_PY3 + FPI_PY3) / 2,
            FPI_SP_PY2_mean = (sp_rating_PY2 + FPI_PY2) / 2,
            FPI_SP_PY1_mean = (sp_rating_PY1 + FPI_PY1) / 2,
@@ -1904,8 +1904,8 @@ if (as.numeric(week) == 0) {
   # then I will be merging data frames for the same year together
   # then I will merge years together by team
   PY3_stats_adv_stats_list <- list(Stats_PY3, Adv_Stats_PY3)
-  PY3_stats_adv_stats_merge <- PY3_stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  PY3_stats_adv_stats_merge <- PY3_stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(team, games, completion_pct, 
            pass_ypa, pass_ypr, int_pct, rush_ypc, turnovers_pg, 
            third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
@@ -1953,12 +1953,12 @@ if (as.numeric(week) == 0) {
                                            "def_rushing_plays_explosiveness_PY3", "def_passing_plays_ppa_PY3",
                                            "def_passing_plays_success_rate_PY3", "def_passing_plays_explosiveness_PY3")
   PY3_df_list <- list(PY3_stats_adv_stats_merge, recruit_PY3, talent_df_PY3, SP_Rankings_PY3, FPI_df_PY3)
-  PY3_df <- PY3_df_list %>%
+  PY3_df <- PY3_df_list |>
     reduce(full_join, by = "team")
   
   PY2_stats_adv_stats_list <- list(Stats_PY2, Adv_Stats_PY2)
-  PY2_stats_adv_stats_merge <- PY2_stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  PY2_stats_adv_stats_merge <- PY2_stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(team, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
            yards_per_penalty, kick_return_avg, punt_return_avg, total_yds_pg, 
@@ -2005,22 +2005,22 @@ if (as.numeric(week) == 0) {
                                            "def_rushing_plays_explosiveness_PY2", "def_passing_plays_ppa_PY2",
                                            "def_passing_plays_success_rate_PY2", "def_passing_plays_explosiveness_PY2")
   PY2_df_list <- list(PY2_stats_adv_stats_merge, recruit_PY2, talent_df_PY2, SP_Rankings_PY2, FPI_df_PY2)
-  PY2_df <- PY2_df_list %>%
+  PY2_df <- PY2_df_list |>
     reduce(full_join, by = "team")
-  PY2_df <- PY2_df %>%
+  PY2_df <- PY2_df |>
     filter(team != "Old Dominion" | team != "New Mexico State" | team != "Connecticut")
   ## making columns numeric
-  PY2_df[,2:ncol(PY2_df)] <- PY2_df[,2:ncol(PY2_df)] %>% mutate_if(is.character, as.numeric)
+  PY2_df[,2:ncol(PY2_df)] <- PY2_df[,2:ncol(PY2_df)] |> mutate_if(is.character, as.numeric)
   ## reading in full csv of opt outs, created in Preseason VoA to hopefully save time
   COVID_Optouts_total <- read_csv(here("Data", "VoA2022", "COVIDOptouts_total.csv"))
-  COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] <- COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] %>% mutate_if(is.character, as.numeric)
+  COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] <- COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] |> mutate_if(is.character, as.numeric)
   PY2_df <- rbind(PY2_df, COVID_Optouts_total)
-  PY2_df <- PY2_df %>%
+  PY2_df <- PY2_df |>
     drop_na()
   
   PY1_stats_adv_stats_list <- list(Stats_PY1, Adv_Stats_PY1)
-  PY1_stats_adv_stats_merge <- PY1_stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  PY1_stats_adv_stats_merge <- PY1_stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(team, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
            yards_per_penalty, kick_return_avg, punt_return_avg, total_yds_pg, 
@@ -2067,13 +2067,13 @@ if (as.numeric(week) == 0) {
                                            "def_rushing_plays_explosiveness_PY1", "def_passing_plays_ppa_PY1",
                                            "def_passing_plays_success_rate_PY1", "def_passing_plays_explosiveness_PY1")
   PY1_df_list <- list(PY1_stats_adv_stats_merge, recruit_PY1, talent_df_PY1, SP_Rankings_PY1, FPI_df_PY1)
-  PY1_df <- PY1_df_list %>%
+  PY1_df <- PY1_df_list |>
     reduce(full_join, by = "team")
   
   ## Current Years dataframes
   stats_adv_stats_list <- list(Stats, Adv_Stats)
-  stats_adv_stats_merge <- stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  stats_adv_stats_merge <- stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(season, team, conference, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
            yards_per_penalty, kick_return_avg, punt_return_avg, total_yds_pg, 
@@ -2099,24 +2099,24 @@ if (as.numeric(week) == 0) {
   ## merging all current year data frames
   # due to availability issues, SP_Rankings not included with current data
   Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df)
-  Current_df <- Current_df_list %>%
+  Current_df <- Current_df_list |>
     reduce(full_join, by = "team")
   
   ## merging all data frames in order of PY3, PY2, PY1
   all_PY_df_list <- list(PY3_df, PY2_df, PY1_df)
-  all_PY_df <- all_PY_df_list %>%
+  all_PY_df <- all_PY_df_list |>
     reduce(full_join, by = "team")
   ## dropping season, conference, and recruit_pts columns from JMU_AllYears after Week 1
   # those columns are brought in via the pulling of current season data
-  JMU_AllYears <- JMU_AllYears %>%
+  JMU_AllYears <- JMU_AllYears |>
     select(-season, -conference)
   ## Binding PY data with previously created JMU PY data
   all_PY_df <- rbind(all_PY_df, JMU_AllYears)
   
   ## after binding JMU csv as new row to PY df
   all_df_list <- list(Current_df, all_PY_df)
-  VoA_Variables <- all_df_list %>%
-    reduce(full_join, by = "team") %>%
+  VoA_Variables <- all_df_list |>
+    reduce(full_join, by = "team") |>
     mutate(FPI_SP_PY3_mean = (sp_rating_PY3 + FPI_PY3) / 2,
            FPI_SP_PY2_mean = (sp_rating_PY2 + FPI_PY2) / 2,
            FPI_SP_PY1_mean = (sp_rating_PY1 + FPI_PY1) / 2,
@@ -2129,8 +2129,8 @@ if (as.numeric(week) == 0) {
   # then I will be merging data frames for the same year together
   # then I will merge years together by team
   PY2_stats_adv_stats_list <- list(Stats_PY2, Adv_Stats_PY2)
-  PY2_stats_adv_stats_merge <- PY2_stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  PY2_stats_adv_stats_merge <- PY2_stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(team, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
            yards_per_penalty, kick_return_avg, punt_return_avg, total_yds_pg, 
@@ -2177,23 +2177,23 @@ if (as.numeric(week) == 0) {
                                            "def_rushing_plays_explosiveness_PY2", "def_passing_plays_ppa_PY2",
                                            "def_passing_plays_success_rate_PY2", "def_passing_plays_explosiveness_PY2")
   PY2_df_list <- list(PY2_stats_adv_stats_merge, recruit_PY2, talent_df_PY2, SP_Rankings_PY2, FPI_df_PY2)
-  PY2_df <- PY2_df_list %>%
+  PY2_df <- PY2_df_list |>
     reduce(full_join, by = "team")
-  PY2_df <- PY2_df %>%
+  PY2_df <- PY2_df |>
     filter(team != "Old Dominion" | team != "New Mexico State" | team != "Connecticut")
   ## making columns numeric
-  PY2_df[,2:ncol(PY2_df)] <- PY2_df[,2:ncol(PY2_df)] %>% mutate_if(is.character, as.numeric)
+  PY2_df[,2:ncol(PY2_df)] <- PY2_df[,2:ncol(PY2_df)] |> mutate_if(is.character, as.numeric)
   ## reading in full csv of opt outs, created in Preseason VoA to hopefully save time
   COVID_Optouts_total <- read_csv(here("Data", "VoA2022", "COVIDOptouts_total.csv"))
-  COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] <- COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] %>% mutate_if(is.character, as.numeric)
+  COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] <- COVID_Optouts_total[,2:ncol(COVID_Optouts_total)] |> mutate_if(is.character, as.numeric)
   PY2_df <- rbind(PY2_df, COVID_Optouts_total)
-  PY2_df <- PY2_df %>%
+  PY2_df <- PY2_df |>
     drop_na()
   
   ## PY1 data frames being merged
   PY1_stats_adv_stats_list <- list(Stats_PY1, Adv_Stats_PY1)
-  PY1_stats_adv_stats_merge <- PY1_stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  PY1_stats_adv_stats_merge <- PY1_stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(team, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
            yards_per_penalty, kick_return_avg, punt_return_avg, total_yds_pg, 
@@ -2240,13 +2240,13 @@ if (as.numeric(week) == 0) {
                                            "def_rushing_plays_explosiveness_PY1", "def_passing_plays_ppa_PY1",
                                            "def_passing_plays_success_rate_PY1", "def_passing_plays_explosiveness_PY1")
   PY1_df_list <- list(PY1_stats_adv_stats_merge, recruit_PY1, talent_df_PY1, SP_Rankings_PY1, FPI_df_PY1)
-  PY1_df <- PY1_df_list %>%
+  PY1_df <- PY1_df_list |>
     reduce(full_join, by = "team")
   
   ## Current Years dataframes
   stats_adv_stats_list <- list(Stats, Adv_Stats)
-  stats_adv_stats_merge <- stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  stats_adv_stats_merge <- stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(season, team, conference, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
            yards_per_penalty, kick_return_avg, punt_return_avg, total_yds_pg, 
@@ -2272,19 +2272,19 @@ if (as.numeric(week) == 0) {
   ## merging all current year data frames
   # due to availability issues, SP_Rankings not included with current data
   Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df)
-  Current_df <- Current_df_list %>%
+  Current_df <- Current_df_list |>
     reduce(full_join, by = "team")
   
   ## merging all PY data frames in order of PY2, PY1
   all_PY_df_list <- list(PY2_df, PY1_df)
-  all_PY_df <- all_PY_df_list %>%
+  all_PY_df <- all_PY_df_list |>
     reduce(full_join, by = "team")
   all_PY_df <- rbind(all_PY_df, JMU_2Years)
   
   ## after binding JMU csv as new row to PY df
   all_df_list <- list(Current_df, all_PY_df)
-  VoA_Variables <- all_df_list %>%
-    reduce(full_join, by = "team") %>%
+  VoA_Variables <- all_df_list |>
+    reduce(full_join, by = "team") |>
     mutate(FPI_SP_PY2_mean = (sp_rating_PY2 + FPI_PY2) / 2,
            FPI_SP_PY1_mean = (sp_rating_PY1 + FPI_PY1) / 2,
            AllPY_FPI_SP_mean = (FPI_SP_PY2_mean + FPI_SP_PY1_mean) / 2)
@@ -2297,8 +2297,8 @@ if (as.numeric(week) == 0) {
   # then I will merge years together by team
   ## PY1 data frames being merged
   PY1_stats_adv_stats_list <- list(Stats_PY1, Adv_Stats_PY1)
-  PY1_stats_adv_stats_merge <- PY1_stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  PY1_stats_adv_stats_merge <- PY1_stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(team, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
            yards_per_penalty, kick_return_avg, punt_return_avg, total_yds_pg, 
@@ -2345,15 +2345,15 @@ if (as.numeric(week) == 0) {
                                            "def_rushing_plays_explosiveness_PY1", "def_passing_plays_ppa_PY1",
                                            "def_passing_plays_success_rate_PY1", "def_passing_plays_explosiveness_PY1")
   PY1_df_list <- list(PY1_stats_adv_stats_merge, recruit_PY1, talent_df_PY1, SP_Rankings_PY1, FPI_df_PY1)
-  PY1_df <- PY1_df_list %>%
+  PY1_df <- PY1_df_list |>
     reduce(full_join, by = "team")
   ## binding JMU PY1 csv to PY1_df to avoid row number issue with full df
   PY1_df <- rbind(PY1_df, JMU_PrevYear)
   
   ## Current Years dataframes
   stats_adv_stats_list <- list(Stats, Adv_Stats)
-  stats_adv_stats_merge <- stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  stats_adv_stats_merge <- stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(season, team, conference, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
            yards_per_penalty, kick_return_avg, punt_return_avg, total_yds_pg, 
@@ -2379,21 +2379,21 @@ if (as.numeric(week) == 0) {
   ## merging all current year data frames
   # due to availability issues, SP_Rankings not included with current data
   Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df)
-  Current_df <- Current_df_list %>%
+  Current_df <- Current_df_list |>
     reduce(full_join, by = "team")
   
   ## merging all data frames
   all_df_list <- list(Current_df, PY1_df)
-  VoA_Variables <- all_df_list %>%
-    reduce(full_join, by = "team") %>%
+  VoA_Variables <- all_df_list |>
+    reduce(full_join, by = "team") |>
     mutate(FPI_SP_PY1_mean = (sp_rating_PY1 + FPI_PY1) / 2)
            # FPI_SP_mean = (sp_rating + FPI) / 2)
            # due to availability issues, SP_Rankings not included with current data
 } else {
   ## Current Years data frames
   stats_adv_stats_list <- list(Stats, Adv_Stats)
-  stats_adv_stats_merge <- stats_adv_stats_list %>%
-    reduce(full_join, by = "team") %>%
+  stats_adv_stats_merge <- stats_adv_stats_list |>
+    reduce(full_join, by = "team") |>
     select(season, team, conference, games, completion_pct, pass_ypa, pass_ypr, int_pct, rush_ypc, 
            turnovers_pg, third_conv_rate, fourth_conv_rate, penalty_yds_pg, 
            yards_per_penalty, kick_return_avg, punt_return_avg, total_yds_pg, 
@@ -2419,8 +2419,8 @@ if (as.numeric(week) == 0) {
   ## merging all current year data frames
   # due to availability issues, SP_Rankings not included with current data
   Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df)
-  VoA_Variables <- Current_df_list %>%
-    reduce(full_join, by = "team") ## %>%
+  VoA_Variables <- Current_df_list |>
+    reduce(full_join, by = "team") ## |>
     ## mutate(FPI_SP_mean = (sp_rating + FPI) / 2)
   # due to availability issues, SP_Rankings not included with current data
 } 
@@ -2431,19 +2431,21 @@ if (as.numeric(week) == 0) {
 # currently commented out because I added this fix to each individual stat pull in function
 ## VoA_Variables[is.na(VoA_Variables)] = 0
 ## above code useful for Week 0, not necessary now that current season data is available
+##### Fixing conference errors for Week 0 (Preseason) #####
 if (as.numeric(week) == 0) {
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
       mutate(conference_temp = case_when(team == "Old Dominion" ~ "Sun Belt",
                                          team == "Marshall" ~ "Sun Belt",
                                          team == "Southern Mississippi" ~ "Sun Belt",
                                          team == "Connecticut" ~ "FBS Independents",
-                                         TRUE ~ conference), .before = 3) %>%
+                                         TRUE ~ conference), .before = 3) |>
       select(-conference)
     colnames(VoA_Variables)[colnames(VoA_Variables) == "conference_temp"] <- "conference"
 } else {
   print("current season conferences should be in use!")
 }
-## Adding Rank Columns
+
+##### Adding Rank Columns #####
 ### if Week = 0
 # PY3 weighted 1x, PY2 weighted 2x, PY1 weighted 3x
 ### if Week = 1
@@ -2467,7 +2469,7 @@ if (as.numeric(week) == 0) {
 if (as.numeric(week) == 0) {
   # PY3 weighted 1x, PY2 weighted 2x, PY1 weighted 3x
   ## PY3 ranks added first, weighted once
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(Rank_Wins_PY3 = dense_rank(desc(Wins_PY3)),
            Rank_Losses_PY3 = dense_rank(Losses_PY3),
            Rank_Comp_Pct_PY3 = dense_rank(desc(completion_pct_PY3)),
@@ -3212,7 +3214,7 @@ if (as.numeric(week) == 0) {
 } else if (as.numeric(week) == 1) {
   # PY3 weighted 1x, PY2 weighted 2x, PY1 weighted 3x, current weighted 1x
   ## PY3 ranks added first, weighted once
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(Rank_Wins_PY3 = dense_rank(desc(Wins_PY3)),
            Rank_Losses_PY3 = dense_rank(Losses_PY3),
            Rank_Comp_Pct_PY3 = dense_rank(desc(completion_pct_PY3)),
@@ -4080,7 +4082,7 @@ if (as.numeric(week) == 0) {
            Rank_Def_Pass_Play_Explosiveness_col2 = dense_rank(def_passing_plays_explosiveness))
 } else if (as.numeric(week) == 2) {
   # PY2 weighted 2x, PY1 weighted 3x, current weighted 1x
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(## PY2 ranks
       Rank_Wins_PY2 = dense_rank(desc(Wins_PY2)),
       Rank_Losses_PY2 = dense_rank(Losses_PY2),
@@ -4823,7 +4825,7 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_Explosiveness_col2 = dense_rank(def_passing_plays_explosiveness))
 } else if (as.numeric(week) == 3) {
   # PY2 weighted 2x, PY1 weighted 2x, current weighted 1x
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(## PY2 ranks
       Rank_Wins_PY2 = dense_rank(desc(Wins_PY2)),
       Rank_Losses_PY2 = dense_rank(Losses_PY2),
@@ -5445,7 +5447,7 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_Explosiveness_col2 = dense_rank(def_passing_plays_explosiveness))
 } else if (as.numeric(week) == 4) {
   # PY2 weighted 1x, PY1 weighted 2x, current weighted 2x
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(## PY2 ranks
       Rank_Wins_PY2 = dense_rank(desc(Wins_PY2)),
       Rank_Losses_PY2 = dense_rank(Losses_PY2),
@@ -6068,7 +6070,7 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_Explosiveness_col4 = dense_rank(def_passing_plays_explosiveness))
 } else if (as.numeric(week) == 5) {
   # PY1 weighted 1x, current weighted 2x
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(## PY1 ranks
       Rank_Wins_PY1 = dense_rank(desc(Wins_PY1)),
       Rank_Losses_PY1 = dense_rank(Losses_PY1),
@@ -6444,7 +6446,7 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_Explosiveness_col4 = dense_rank(def_passing_plays_explosiveness))
 } else {
   # current will be only data source used, everything weighted "1x" (aside from special variables, and recruiting)
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(## Ranking current stats
       Rank_Wins = dense_rank(desc(Wins)),
       Rank_Losses = dense_rank(Losses),
@@ -6576,7 +6578,7 @@ if (as.numeric(week) == 0) {
 
 
 
-## calculating the mean stat ranking, VoA_Output
+##### calculating the mean stat ranking, VoA_Output #####
 ## Rank variables start at 243 for Week 0
 ## Rank variables start at 315 for Week 1
 ## it will be a different number for the other weeks (except maybe week 2?)
@@ -6586,58 +6588,58 @@ if (as.numeric(week) == 0) {
   ## correcting "season" column to reflect the season for which these rankings are being produced
   VoA_Variables$season = rep(as.numeric(year), nrow(VoA_Variables))
   ## Append new column of Model output, which is the mean of all variables in VoARanks
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,243:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
-  # VoA_Variables <- VoA_Variables %>%
+  # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) == 1) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,315:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
-  # VoA_Variables <- VoA_Variables %>%
+  # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) <= 4) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,236:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
-  # VoA_Variables <- VoA_Variables %>%
+  # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) == 5) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
-  # VoA_Variables <- VoA_Variables %>%
+  # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
-  # VoA_Variables <- VoA_Variables %>%
+  # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 }
 ## End of if statement
 
 ## Adding Column with CFB Week number
 # same number for each team, numeric version of number input in readline function at beginning of script
-VoA_Variables <- VoA_Variables %>%
+VoA_Variables <- VoA_Variables |>
   mutate(CFB_Week = rep(as.numeric(week), nrow(VoA_Variables)), .before = 2)
 
-# VoA_NAs_why <- VoA_Variables %>%
+# VoA_NAs_why <- VoA_Variables |>
 # filter(is.na(VoA_Output))
 
 ## Using Intial VoA Rankings to add in conference strength metric
-Conference_Outputs <- VoA_Variables %>%
-  group_by(conference) %>%
-  summarize(Rk_mean = mean(VoA_Output), Rk_median = median(VoA_Output)) %>%
+Conference_Outputs <- VoA_Variables |>
+  group_by(conference) |>
+  summarize(Rk_mean = mean(VoA_Output), Rk_median = median(VoA_Output)) |>
   mutate(Conf_Rk = dense_rank(Rk_mean))
 
-VoA_Variables <- VoA_Variables %>%
-  select(-VoA_Output) %>%
+VoA_Variables <- VoA_Variables |>
+  select(-VoA_Output) |>
   mutate(Conference_Strength = case_when(conference == "ACC" ~ Conference_Outputs$Rk_mean[Conference_Outputs$conference == "ACC"],
                                          conference == "American Athletic" ~ Conference_Outputs$Rk_mean[Conference_Outputs$conference == "American Athletic"],
                                          conference == "Big 12" ~ Conference_Outputs$Rk_mean[Conference_Outputs$conference == "Big 12"],
@@ -6648,7 +6650,7 @@ VoA_Variables <- VoA_Variables %>%
                                          conference == "Mountain West" ~ Conference_Outputs$Rk_mean[Conference_Outputs$conference == "Mountain West"],
                                          conference == "Pac-12" ~ Conference_Outputs$Rk_mean[Conference_Outputs$conference == "Pac-12"],
                                          conference == "SEC" ~ Conference_Outputs$Rk_mean[Conference_Outputs$conference == "SEC"],
-                                         conference == "Sun Belt" ~ Conference_Outputs$Rk_mean[Conference_Outputs$conference == "Sun Belt"],)) %>%
+                                         conference == "Sun Belt" ~ Conference_Outputs$Rk_mean[Conference_Outputs$conference == "Sun Belt"],)) |>
   mutate(Conference_Strength_col2 = Conference_Strength,
          Conference_Strength_col3 = Conference_Strength,
          Conference_Strength_col4 = Conference_Strength,
@@ -6659,50 +6661,50 @@ VoA_Variables <- VoA_Variables %>%
          Conference_Strength_col9 = Conference_Strength,
          Conference_Strength_col10 = Conference_Strength)
 
-## Re running rowMeans function to get VoA Output
+##### Re running rowMeans function to get VoA Output #####
 ## Rank variables start at 1 column further than previous VoA Output calculation due to addition of CFB_Week column in between
 ## it will be a different number for the other weeks
 ## script wouldn't run properly without a real number in the later weeks so I'll have to come back
 # and edit the number in during the season as I figure out how big VoA_Variables gets
 if (as.numeric(week) == 0) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
-  # VoA_Variables <- VoA_Variables %>%
+  # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) == 1) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,316:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
-  # VoA_Variables <- VoA_Variables %>%
+  # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) <= 4) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,237:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
-  # VoA_Variables <- VoA_Variables %>%
+  # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) == 5) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
-  # VoA_Variables <- VoA_Variables %>%
+  # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
-  # VoA_Variables <- VoA_Variables %>%
+  # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 }
 ## End of if statement
 
-## using R's linear model function to create FPI/SP+ like metric
+##### using R's linear model function to create FPI/SP+ like metric #####
 # includes PPA, success rate, explosiveness, VoA_Output, VoA's Conference_Strength, and pts_per_opp (offense and defense where applicable)
 ## For current season starting in week 1 and beyond, I would have preferred to use
 # a mean of FPI and SP+ as the "predicted" variable in the lm() model
@@ -6712,31 +6714,31 @@ set.seed(386)
 if (as.numeric(week) == 0) {
   model <- lm(AllPY_FPI_SP_mean ~ off_ppa_PY1 + off_ppa_PY2 + def_ppa_PY1 + def_ppa_PY2 + off_ppa_PY3 + def_ppa_PY3 + VoA_Output + Conference_Strength + off_ypp_PY3 + off_ypp_PY2 + off_ypp_PY1 + off_success_rate_PY3 + off_success_rate_PY2 + off_success_rate_PY1 + def_success_rate_PY3 + def_success_rate_PY2 + def_success_rate_PY1 + off_explosiveness_PY3 + off_explosiveness_PY2 + off_explosiveness_PY1 + def_explosiveness_PY3 + def_explosiveness_PY2 + def_explosiveness_PY1 + off_pts_per_opp_PY3 + off_pts_per_opp_PY2 + off_pts_per_opp_PY1 + def_pts_per_opp_PY3 + def_pts_per_opp_PY2 + def_pts_per_opp_PY1, data = VoA_Variables)
   ## summary(model)
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating))) 
 } else if (as.numeric(week) == 1) {
   model <- lm(FPI ~ off_ppa + off_ppa_PY1 + off_ppa_PY2 + def_ppa + def_ppa_PY1 + def_ppa_PY2 + off_ppa_PY3 + def_ppa_PY3 + VoA_Output + Conference_Strength + off_ypp_PY3 + off_ypp_PY2 + off_ypp_PY1 + off_ypp + off_success_rate_PY3 + off_success_rate + off_success_rate_PY2 + off_success_rate_PY1 + def_success_rate_PY3 + def_success_rate_PY2 + def_success_rate_PY1 + def_success_rate + off_explosiveness_PY3 + off_explosiveness_PY2 + off_explosiveness_PY1 + off_explosiveness + def_explosiveness_PY3 + def_explosiveness_PY2 + def_explosiveness_PY1 + def_explosiveness + off_pts_per_opp_PY3 + off_pts_per_opp_PY2 + off_pts_per_opp_PY1 + off_pts_per_opp + def_pts_per_opp_PY3 + def_pts_per_opp_PY2 + def_pts_per_opp_PY1 + def_pts_per_opp, data = VoA_Variables)
   ## summary(model)
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 } else if (as.numeric(week) <= 4) {
   model <- lm(FPI ~ off_ppa + off_ppa_PY1 + off_ppa_PY2 + def_ppa + def_ppa_PY1 + def_ppa_PY2 + VoA_Output + Conference_Strength + off_ypp_PY2 + off_ypp_PY1 + off_ypp + off_success_rate + off_success_rate_PY2 + off_success_rate_PY1 + def_success_rate_PY2 + def_success_rate_PY1 + def_success_rate + off_explosiveness_PY2 + off_explosiveness_PY1 + off_explosiveness + def_explosiveness_PY2 + def_explosiveness_PY1 + def_explosiveness + off_pts_per_opp_PY2 + off_pts_per_opp_PY1 + off_pts_per_opp + def_pts_per_opp_PY2 + def_pts_per_opp_PY1 + def_pts_per_opp, data = VoA_Variables)
   ## summary(model)
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 } else if (as.numeric(week) == 5) {
   model <- lm(FPI ~ off_ppa + off_ppa_PY1 + def_ppa + def_ppa_PY1 + VoA_Output + Conference_Strength + off_ypp_PY1 + off_ypp + off_success_rate + off_success_rate_PY1 + def_success_rate_PY1 + def_success_rate + off_explosiveness_PY1 + off_explosiveness + def_explosiveness_PY1 + def_explosiveness + off_pts_per_opp_PY1 + off_pts_per_opp + def_pts_per_opp_PY1 + def_pts_per_opp, data = VoA_Variables)
   ## summary(model)
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 } else {
   model <- lm(FPI ~ off_ppa + def_ppa + VoA_Output + Conference_Strength + off_ypp + off_success_rate + def_success_rate + off_explosiveness + def_explosiveness + off_pts_per_opp + def_pts_per_opp, data = VoA_Variables)
   ## summary(model)
-  VoA_Variables <- VoA_Variables %>%
+  VoA_Variables <- VoA_Variables |>
     mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 }
@@ -6744,37 +6746,38 @@ if (as.numeric(week) == 0) {
 
 ## creating data frame with just team, VoA ranking, and VoA output
 ## Create Vector of teamname, VoA Ranking
-FinalTable <- VoA_Variables %>%
-  select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating) %>%
+FinalTable <- VoA_Variables |>
+  select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating) |>
   arrange(VoA_Ranking)
-FinalVoATop25 <- FinalTable %>% filter(VoA_Ranking < 26)
+FinalVoATop25 <- FinalTable |> filter(VoA_Ranking < 26)
 ## tail(FinalVoATop25)
 ## cols_hide() appears to be working
 # 2 dfs created below originally created to avoid excess columns in gt tables
-# Final_gt_table <- FinalTable %>%
+# Final_gt_table <- FinalTable |>
 #   select(team, VoA_Ranking, VoA_Rating)
-# Final_gt_Top25 <- FinalVoATop25 %>%
+# Final_gt_Top25 <- FinalVoATop25 |>
 #   select(team, VoA_Ranking, VoA_Rating)
 
+##### Creating Top 25 and Full Tables Arranged by VoA Rating #####
 if (as.numeric(week) == 0) {
   ## Top 25 Table
   # adding title and subtitle
-  VoATop25Table <- FinalVoATop25 %>%
-    gt() %>% # use 'gt' to make an awesome table...
-    gt_theme_espn() %>%
+  VoATop25Table <- FinalVoATop25 |>
+    gt() |> # use 'gt' to make an awesome table...
+    gt_theme_espn() |>
     tab_header(
       title = paste(year, preseason_text, VoA_Top25_text), # ...with this title
-      subtitle = "Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy")  %>%  # and this subtitle
+      subtitle = "Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy")  |>  # and this subtitle
     ## tab_style(style = cell_fill("bisque"),
-    ##           locations = cells_body()) %>%  # add fill color to table
+    ##           locations = cells_body()) |>  # add fill color to table
     fmt_number( # A column (numeric data)
       columns = c(VoA_Rating), # What column variable? FinalVoATop25$VoA_Rating
       decimals = 5 # With four decimal places
-    ) %>% 
+    ) |> 
     fmt_number( # Another column (also numeric data)
       columns = c(VoA_Ranking), # What column variable? FinalVoATop25$VoA_Ranking
       decimals = 0 # I want this column to have zero decimal places
-    ) %>%
+    ) |>
     data_color( # Update cell colors, testing different color palettes
       columns = c(VoA_Rating), # ...for dose column
       colors = scales::col_numeric( # <- bc it's numeric
@@ -6782,32 +6785,32 @@ if (as.numeric(week) == 0) {
         domain = c(), # Column scale endpoints
         reverse = FALSE
       )
-    ) %>%
-    cols_label(VoA_Rating = "VoA Rating", VoA_Ranking = "VoA Ranking") %>% # Update labels
-    cols_move_to_end(columns = "VoA_Rating") %>%
-    cols_hide(c(conference, CFB_Week, VoA_Output)) %>%
+    ) |>
+    cols_label(VoA_Rating = "VoA Rating", VoA_Ranking = "VoA Ranking") |> # Update labels
+    cols_move_to_end(columns = "VoA_Rating") |>
+    cols_hide(c(conference, CFB_Week, VoA_Output)) |>
     tab_footnote(
       footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
     )
   
   ## Full 130 teams table
   # adding title and subtitle
-  VoA_Full_Table <- FinalTable %>%
-    gt() %>% # use 'gt' to make an awesome table...
-    gt_theme_538() %>%
+  VoA_Full_Table <- FinalTable |>
+    gt() |> # use 'gt' to make an awesome table...
+    gt_theme_538() |>
     tab_header(
       title = paste(year, preseason_text, VoA_text), # ...with this title
-      subtitle = "Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy")  %>%  # and this subtitle
+      subtitle = "Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy")  |>  # and this subtitle
     ##tab_style(style = cell_fill("bisque"),
-    ##        locations = cells_body()) %>%  # add fill color to table
+    ##        locations = cells_body()) |>  # add fill color to table
     fmt_number( # A column (numeric data)
       columns = c(VoA_Rating), # What column variable? FinalVoATop25$VoA_Rating
       decimals = 5 # With four decimal places
-    ) %>% 
+    ) |> 
     fmt_number( # Another column (also numeric data)
       columns = c(VoA_Ranking), # What column variable? FinalVoATop25$VoA_Ranking
       decimals = 0 # I want this column to have zero decimal places
-    ) %>% 
+    ) |> 
     data_color( # Update cell colors, testing different color palettes
       columns = c(VoA_Rating), # ...for dose column
       colors = scales::col_numeric( # <- bc it's numeric
@@ -6815,32 +6818,32 @@ if (as.numeric(week) == 0) {
         domain = c(), # Column scale endpoints
         reverse = TRUE
       )
-    ) %>%
-    cols_label(VoA_Rating = "VoA Rating", VoA_Ranking = "VoA Ranking") %>% # Update labels
-    cols_move_to_end(columns = "VoA_Rating") %>%
-    cols_hide(c(conference, CFB_Week, VoA_Output)) %>%
+    ) |>
+    cols_label(VoA_Rating = "VoA Rating", VoA_Ranking = "VoA Ranking") |> # Update labels
+    cols_move_to_end(columns = "VoA_Rating") |>
+    cols_hide(c(conference, CFB_Week, VoA_Output)) |>
     tab_footnote(
       footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
     )
 } else {
   ## Top 25 Table
   # adding title and subtitle
-  VoATop25Table <- FinalVoATop25 %>%
-    gt() %>% # use 'gt' to make an awesome table...
-    gt_theme_espn() %>%
+  VoATop25Table <- FinalVoATop25 |>
+    gt() |> # use 'gt' to make an awesome table...
+    gt_theme_espn() |>
     tab_header(
       title = paste(year, week_text, week, VoA_Top25_text), # ...with this title
-      subtitle = "Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy")  %>%  # and this subtitle
+      subtitle = "Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy")  |>  # and this subtitle
     ## tab_style(style = cell_fill("bisque"),
-    ##           locations = cells_body()) %>%  # add fill color to table
+    ##           locations = cells_body()) |>  # add fill color to table
     fmt_number( # A column (numeric data)
       columns = c(VoA_Rating), # What column variable? FinalVoATop25$VoA_Rating
       decimals = 5 # With four decimal places
-    ) %>% 
+    ) |> 
     fmt_number( # Another column (also numeric data)
       columns = c(VoA_Ranking), # What column variable? FinalVoATop25$VoA_Ranking
       decimals = 0 # I want this column to have zero decimal places
-    ) %>%
+    ) |>
     data_color( # Update cell colors, testing different color palettes
       columns = c(VoA_Rating), # ...for dose column
       colors = scales::col_numeric( # <- bc it's numeric
@@ -6848,32 +6851,32 @@ if (as.numeric(week) == 0) {
         domain = c(), # Column scale endpoints
         reverse = FALSE
       )
-    ) %>%
-    cols_label(VoA_Rating = "VoA Rating", VoA_Ranking = "VoA Ranking") %>% # Update labels
-    cols_move_to_end(columns = "VoA_Rating") %>%
-    cols_hide(c(conference, CFB_Week, VoA_Output)) %>%
+    ) |>
+    cols_label(VoA_Rating = "VoA Rating", VoA_Ranking = "VoA Ranking") |> # Update labels
+    cols_move_to_end(columns = "VoA_Rating") |>
+    cols_hide(c(conference, CFB_Week, VoA_Output)) |>
     tab_footnote(
       footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
     )
   
   ## Full 130 teams table
   # adding title and subtitle
-  VoA_Full_Table <- FinalTable %>%
-    gt() %>% # use 'gt' to make an awesome table...
-    gt_theme_538() %>%
+  VoA_Full_Table <- FinalTable |>
+    gt() |> # use 'gt' to make an awesome table...
+    gt_theme_538() |>
     tab_header(
       title = paste(year, week_text, week, VoA_text), # ...with this title
-      subtitle = "Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy")  %>%  # and this subtitle
+      subtitle = "Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy")  |>  # and this subtitle
     ##tab_style(style = cell_fill("bisque"),
-    ##        locations = cells_body()) %>%  # add fill color to table
+    ##        locations = cells_body()) |>  # add fill color to table
     fmt_number( # A column (numeric data)
       columns = c(VoA_Rating), # What column variable? FinalVoATop25$VoA_Rating
       decimals = 5 # With four decimal places
-    ) %>% 
+    ) |> 
     fmt_number( # Another column (also numeric data)
       columns = c(VoA_Ranking), # What column variable? FinalVoATop25$VoA_Ranking
       decimals = 0 # I want this column to have zero decimal places
-    ) %>% 
+    ) |> 
     data_color( # Update cell colors, testing different color palettes
       columns = c(VoA_Rating), # ...for dose column
       colors = scales::col_numeric( # <- bc it's numeric
@@ -6881,10 +6884,10 @@ if (as.numeric(week) == 0) {
         domain = c(), # Column scale endpoints
         reverse = TRUE
       )
-    ) %>%
-    cols_label(VoA_Rating = "VoA Rating", VoA_Ranking = "VoA Ranking") %>% # Update labels
-    cols_move_to_end(columns = "VoA_Rating") %>%
-    cols_hide(c(conference, CFB_Week, VoA_Output)) %>%
+    ) |>
+    cols_label(VoA_Rating = "VoA Rating", VoA_Ranking = "VoA Ranking") |> # Update labels
+    cols_move_to_end(columns = "VoA_Rating") |>
+    cols_hide(c(conference, CFB_Week, VoA_Output)) |>
     tab_footnote(
       footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
     )
@@ -6892,13 +6895,13 @@ if (as.numeric(week) == 0) {
 
 ## viewing and saving the gt tables outside the if statement so that I can see them in the RStudio viewer
 VoATop25Table
-VoATop25Table %>%
+VoATop25Table |>
   gtsave(
     top25_file_pathway, expand = 5,
     path = here("RVoA", "Outputs")
   )
 VoA_Full_Table
-VoA_Full_Table %>%
+VoA_Full_Table |>
   gtsave(
     fulltable_file_pathway, expand = 5,
     path = here("RVoA", "Outputs")
@@ -6909,25 +6912,25 @@ write_csv(VoA_Variables, file_pathway)
 
 #### possible future code for trying out different formats for top 25 tables
 ## testing adding column colors
-# VoATableColors <- Final_gt_Top25 %>%
-#   gt() %>% # Make a gt table with it
-#   gt_theme_538() %>%
-#   ## gt_color_rows(VoA_Output, palette = "ggsci::blue_material") %>%
+# VoATableColors <- Final_gt_Top25 |>
+#   gt() |> # Make a gt table with it
+#   gt_theme_538() |>
+#   ## gt_color_rows(VoA_Output, palette = "ggsci::blue_material") |>
 #   tab_header(
 #     title = paste(year, week_text, week, VoA_Top25_text), # Add a title
 #     subtitle = "it's a brand new upgraded version of a table! Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy" # And a subtitle
-#   ) %>%
+#   ) |>
 #   fmt_passthrough( # Not sure about this but it works...
 #     columns = c(Team) # First column: team (character)
-#   ) %>%
+#   ) |>
 #   fmt_number(
 #     columns = c(VoA_Output), # Second column: VoA_Output (numeric)
 #     decimals = 5 # With 5 decimal places
-#   ) %>%
+#   ) |>
 #   fmt_number(
 #     columns = c(VoA_Ranking), # Third column: VoA_Ranking (numeric)
 #     decimals = 0 # With 0 decimal places
-#   ) %>%
+#   ) |>
 #   #  data_color( # Update cell colors...
 #   #    columns = c(VoA_Output), # ...for dose column
 #   #    colors = scales::col_numeric( # <- bc it's numeric
@@ -6935,26 +6938,26 @@ write_csv(VoA_Variables, file_pathway)
 #   #        "dodgerblue4","cadetblue1"), # A color scheme (gradient)
 #   #      domain = c() # Column scale endpoints
 #   #    )
-#   # ) %>%
+#   # ) |>
 #   data_color( # Update cell colors, testing different color palettes
 #     columns = c(VoA_Output), # ...for VoA_Output column
 #     colors = scales::col_numeric( # <- bc it's numeric
 #       palette = brewer.pal(9, "Reds"), # A color scheme (gradient)
 #       domain = c() # Column scale endpoints
 #     )
-#   ) %>%
-#   cols_label(team= "Team", VoA_Output = "Final VoA Output", VoA_Ranking = "VoA Ranking") %>% # Make the column headers
+#   ) |>
+#   cols_label(team= "Team", VoA_Output = "Final VoA Output", VoA_Ranking = "VoA Ranking") |> # Make the column headers
 #   tab_footnote(
 #     footnote = "rounded to 5 decimals", # Another line of footnote text
 #     locations = cells_column_labels(
 #       columns = c(VoA_Output) # Associated with column 'VoA_Output'
 #     )
-#   ) %>%
+#   ) |>
 #   cols_move_to_end(columns = "VoA_Output")
 # VoATableColors
 # 
 # ## Save GT table with colors in columns
-# VoATableColors %>%
+# VoATableColors |>
 #   gtsave(
 #    "VoAGTwithColors.png", expand = 5,
 #    path = here("RVoA", "Outputs")
@@ -6964,78 +6967,78 @@ write_csv(VoA_Variables, file_pathway)
 ## Tracks VoA Ratings and Rankings by week
 ## now reading in and merging VoA rating and ranking data up to current week
 if (as.numeric(week) == 2) {
-  Week0_VoA <- read_csv(here("Data", "VoA2022", "2022Week0_VoA.csv")) %>%
+  Week0_VoA <- read_csv(here("Data", "VoA2022", "2022Week0_VoA.csv")) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
-  Week1_VoA <- read_csv(here("Data", "VoA2022", "2022Week1_VoA.csv")) %>%
+  Week1_VoA <- read_csv(here("Data", "VoA2022", "2022Week1_VoA.csv")) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Week0_VoA, Week1_VoA)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
   write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_2Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 3) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_2Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_2Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_3Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_3Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 4) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_3Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_3Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_4Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_4Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 5) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_4Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_4Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_5Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_5Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 6) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_5Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_5Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_6Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_6Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 7) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_6Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_6Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_7Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_7Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 8) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_7Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_7Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_8Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_8Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 9) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_8Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_8Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_9Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_9Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 10) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_9Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_9Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_10Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_10Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 11) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_10Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_10Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_11Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_11Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 12) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_11Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_11Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_12Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_12Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 13) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_12Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_12Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_13Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_13Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 14) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_13Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_13Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_14Ratings_Rks.csv", sep = ""))
+  write_csv(Full_Ratings_Rks, paste(data_dir, "/TrackingChartCSVs", "/", year, week_text, "0_14Ratings_Rks.csv", sep = ""))
 } else if (as.numeric(week) == 15) {
-  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_14Ratings_Rks.csv", sep = ""))) %>%
+  Full_Ratings_Rks <- read_csv(here("Data", "VoA2022", "TrackingChartCSVs", paste(year, week_text, "0_14Ratings_Rks.csv", sep = ""))) |>
     select(team, conference, CFB_Week, VoA_Output, VoA_Ranking, VoA_Rating)
   Full_Ratings_Rks <- rbind(Full_Ratings_Rks, FinalTable)
-  ## no need to write out a new csv since week 15 is the last week of the season
+  ## no need to write out a new tracking csv since week 15 is the last week of the season
   ## write_csv(Full_Ratings_Rks, paste(data_dir, "TrackingChartCSVs", "/", year, week_text, "0_15Ratings_Rks.csv", sep = ""))
 } else {
   print("No charts until Week 2!")
@@ -7045,21 +7048,21 @@ if (as.numeric(week) == 2) {
 ## Filtering by conference for unintelligible charts
 if (as.numeric(week) >= 2) {
   ## Subsetting by team, each conference (including independents) gets separate charts
-  AAC_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "American Athletic")
-  ACC_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "ACC")
-  Big12_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Big 12")
-  Big10_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Big Ten")
-  CUSA_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Conference USA")
-  Indy_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "FBS Independents")
-  MAC_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Mid-American")
-  MWC_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Mountain West")
-  Pac12_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Pac-12")
-  SEC_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "SEC")
-  SunBelt_Ratings_Rks <- Full_Ratings_Rks %>% filter(conference == "Sun Belt")
+  AAC_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "American Athletic")
+  ACC_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "ACC")
+  Big12_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "Big 12")
+  Big10_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "Big Ten")
+  CUSA_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "Conference USA")
+  Indy_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "FBS Independents")
+  MAC_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "Mid-American")
+  MWC_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "Mountain West")
+  Pac12_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "Pac-12")
+  SEC_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "SEC")
+  SunBelt_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "Sun Belt")
   
   ## Creating Charts
   # charting VoA_Rating and VoA_Ranking for each week from week 2 on
-  AAC_VoA_Rating_Chart <- ggplot(AAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
+  AAC_VoA_Rating_Chart <- ggplot(AAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7068,11 +7071,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(floor(floor(min(AAC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(AAC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(AAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(AAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   AAC_VoA_Rating_Chart
   ggsave(AAC_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  AAC_VoA_Ranking_Chart <- ggplot(AAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
+  AAC_VoA_Ranking_Chart <- ggplot(AAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7081,11 +7085,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   AAC_VoA_Ranking_Chart
   ggsave(AAC_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  ACC_VoA_Rating_Chart <- ggplot(ACC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
+  ACC_VoA_Rating_Chart <- ggplot(ACC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7094,11 +7099,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(floor(floor(min(ACC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(ACC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(ACC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(ACC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   ACC_VoA_Rating_Chart
   ggsave(ACC_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  ACC_VoA_Ranking_Chart <- ggplot(ACC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
+  ACC_VoA_Ranking_Chart <- ggplot(ACC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7107,11 +7113,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   ACC_VoA_Ranking_Chart
   ggsave(ACC_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Big12_VoA_Rating_Chart <- ggplot(Big12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
+  Big12_VoA_Rating_Chart <- ggplot(Big12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7120,11 +7127,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(floor(floor(min(Big12_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Big12_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(Big12_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Big12_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Big12_VoA_Rating_Chart
   ggsave(Big12_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Big12_VoA_Ranking_Chart <- ggplot(Big12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
+  Big12_VoA_Ranking_Chart <- ggplot(Big12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7133,11 +7141,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Big12_VoA_Ranking_Chart
   ggsave(Big12_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Big10_VoA_Rating_Chart <- ggplot(Big10_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
+  Big10_VoA_Rating_Chart <- ggplot(Big10_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7146,11 +7155,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(floor(floor(min(Big10_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Big10_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(Big10_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Big10_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Big10_VoA_Rating_Chart
   ggsave(Big10_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Big10_VoA_Ranking_Chart <- ggplot(Big10_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
+  Big10_VoA_Ranking_Chart <- ggplot(Big10_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7159,11 +7169,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Big10_VoA_Ranking_Chart
   ggsave(Big10_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  CUSA_VoA_Rating_Chart <- ggplot(CUSA_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
+  CUSA_VoA_Rating_Chart <- ggplot(CUSA_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7172,11 +7183,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(floor(floor(min(CUSA_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(CUSA_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(CUSA_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(CUSA_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   CUSA_VoA_Rating_Chart
   ggsave(CUSA_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  CUSA_VoA_Ranking_Chart <- ggplot(CUSA_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
+  CUSA_VoA_Ranking_Chart <- ggplot(CUSA_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7185,11 +7197,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   CUSA_VoA_Ranking_Chart
   ggsave(CUSA_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Indy_VoA_Rating_Chart <- ggplot(Indy_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
+  Indy_VoA_Rating_Chart <- ggplot(Indy_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7198,11 +7211,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(floor(floor(min(Indy_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Indy_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(Indy_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Indy_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Indy_VoA_Rating_Chart
   ggsave(Indy_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Indy_VoA_Ranking_Chart <- ggplot(Indy_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
+  Indy_VoA_Ranking_Chart <- ggplot(Indy_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7211,11 +7225,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Indy_VoA_Ranking_Chart
   ggsave(Indy_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  MAC_VoA_Rating_Chart <- ggplot(MAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
+  MAC_VoA_Rating_Chart <- ggplot(MAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7224,11 +7239,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(floor(floor(min(MAC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(MAC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(MAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(MAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   MAC_VoA_Rating_Chart
   ggsave(MAC_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  MAC_VoA_Ranking_Chart <- ggplot(MAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
+  MAC_VoA_Ranking_Chart <- ggplot(MAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7237,11 +7253,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   MAC_VoA_Ranking_Chart
   ggsave(MAC_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  MWC_VoA_Rating_Chart <- ggplot(MWC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
+  MWC_VoA_Rating_Chart <- ggplot(MWC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7250,11 +7267,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(floor(floor(min(MWC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(MWC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(MWC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(MWC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   MWC_VoA_Rating_Chart
   ggsave(MWC_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  MWC_VoA_Ranking_Chart <- ggplot(MWC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
+  MWC_VoA_Ranking_Chart <- ggplot(MWC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7263,11 +7281,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   MWC_VoA_Ranking_Chart
   ggsave(MWC_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Pac12_VoA_Rating_Chart <- ggplot(Pac12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
+  Pac12_VoA_Rating_Chart <- ggplot(Pac12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7276,11 +7295,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(floor(floor(min(Pac12_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Pac12_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(Pac12_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Pac12_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Pac12_VoA_Rating_Chart
   ggsave(Pac12_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  Pac12_VoA_Ranking_Chart <- ggplot(Pac12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
+  Pac12_VoA_Ranking_Chart <- ggplot(Pac12_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7289,11 +7309,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   Pac12_VoA_Ranking_Chart
   ggsave(Pac12_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  SEC_VoA_Rating_Chart <- ggplot(SEC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
+  SEC_VoA_Rating_Chart <- ggplot(SEC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7302,11 +7323,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(floor(floor(min(SEC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(SEC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(SEC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(SEC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   SEC_VoA_Rating_Chart
   ggsave(SEC_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  SEC_VoA_Ranking_Chart <- ggplot(SEC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
+  SEC_VoA_Ranking_Chart <- ggplot(SEC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7315,11 +7337,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   SEC_VoA_Ranking_Chart
   ggsave(SEC_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  SunBelt_VoA_Rating_Chart <- ggplot(SunBelt_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, colour = team, group = team)) +
+  SunBelt_VoA_Rating_Chart <- ggplot(SunBelt_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7328,11 +7351,12 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(floor(floor(min(SunBelt_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(SunBelt_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(SunBelt_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(SunBelt_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   SunBelt_VoA_Rating_Chart
   ggsave(SunBelt_Output_filename, path = output_dir, width = 50, height = 40, units = 'cm')
   
-  SunBelt_VoA_Ranking_Chart <- ggplot(SunBelt_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, colour = team, group = team)) +
+  SunBelt_VoA_Ranking_Chart <- ggplot(SunBelt_Ratings_Rks, aes(x = CFB_Week, y = VoA_Ranking, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
@@ -7341,6 +7365,7 @@ if (as.numeric(week) >= 2) {
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
     scale_x_continuous(breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) +
+    geom_cfb_logos(aes(team = team, width = 0.035)) +
     theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
   SunBelt_VoA_Ranking_Chart
   ggsave(SunBelt_Ranking_filename, path = output_dir, width = 50, height = 40, units = 'cm')
@@ -7351,12 +7376,12 @@ if (as.numeric(week) >= 2) {
 ## Creating Histograms of VoA Output for all teams, and separate plots for power 5 and group of 5 teams subsetted out
 # plots will be made for each week, not just after week 2 like Unintelligble Charts will
 ## subsetting teams
-Power5_VoA <- VoA_Variables %>%
-  filter(conference == "ACC" | conference == "Big 12" | conference == "Big Ten" | conference == "FBS Independents" | conference == "Pac-12" | conference == "SEC") %>%
+Power5_VoA <- VoA_Variables |>
+  filter(conference == "ACC" | conference == "Big 12" | conference == "Big Ten" | conference == "FBS Independents" | conference == "Pac-12" | conference == "SEC") |>
   filter(team != "Connecticut" & team != "New Mexico State" & team != "BYU" & team != "Army" & team != "Liberty" & team != "UMass")
 
-Group5_VoA <- VoA_Variables %>%
-  filter(conference == "American Athletic" | conference == "Conference USA" | conference == "FBS Independents" | conference == "Mid-American" | conference == "Mountain West" | conference == "Sun Belt") %>%
+Group5_VoA <- VoA_Variables |>
+  filter(conference == "American Athletic" | conference == "Conference USA" | conference == "FBS Independents" | conference == "Mid-American" | conference == "Mountain West" | conference == "Sun Belt") |>
   filter(team != "Notre Dame")
 FBS_Rating_histogram <- ggplot(VoA_Variables, aes(VoA_Rating)) +
   geom_histogram(binwidth = 5,
@@ -7409,7 +7434,6 @@ VoA_Output_Rating_plot <- ggplot(VoA_Variables, aes(x = VoA_Output, y = VoA_Rati
   theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
 VoA_Output_Rating_plot
 ggsave(Output_Rating_Plot_filename, path = output_dir, width = 50, height = 40, units = 'cm')
-
 
 ## End of Script
 end_time <- Sys.time()

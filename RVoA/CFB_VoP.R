@@ -19,49 +19,49 @@ gameprojections_filename <- paste(year, week_text, upcoming, gameprojections_png
 
 ## reading in appropriate csv based on upcoming week
 if (as.numeric(upcoming) == 1) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week0_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week0_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 2) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week1_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week1_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 3) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week2_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week2_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 4) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week3_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week3_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 5) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week4_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week4_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 6) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week5_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week5_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 7) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week6_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week6_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 8) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week7_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week7_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 9) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week8_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week8_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 10) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week9_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week9_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 11) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week10_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week10_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 12) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week11_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week11_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 13) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week12_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week12_VoA.csv")) |>
     select(team, VoA_Rating)
 } else if (as.numeric(upcoming) == 14) {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week13_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week13_VoA.csv")) |>
     select(team, VoA_Rating)
 } else {
-  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week14_VoA.csv")) %>%
+  PrevWeek_VoA <- read_csv(here("Data", "VoA2022", "2022Week14_VoA.csv")) |>
     select(team, VoA_Rating)
 }
 
@@ -69,8 +69,8 @@ if (as.numeric(upcoming) == 1) {
 set.seed(69)
 FCS_random <- rnorm(130, mean = mean(min(PrevWeek_VoA$VoA_Rating) + 5, median(PrevWeek_VoA$VoA_Rating), mean(PrevWeek_VoA$VoA_Rating)), sd = sd(PrevWeek_VoA$VoA_Rating))
 ## reading in upcoming games to create df of games and VoA projected margins
-upcoming_games_df <- cfbd_game_info(2022, week = as.numeric(upcoming)) %>%
-  filter(home_team %in% PrevWeek_VoA$team | away_team %in% PrevWeek_VoA$team) %>%
+upcoming_games_df <- cfbd_game_info(2022, week = as.numeric(upcoming)) |>
+  filter(home_team %in% PrevWeek_VoA$team | away_team %in% PrevWeek_VoA$team) |>
   select(game_id, season, week, neutral_site, home_team, away_team)
 
 ## making separate home and away team dfs to do anti_joins to find teams with no VoA_Rating
@@ -90,16 +90,16 @@ missing_away_ratings <- anti_join(upcoming_games_away_teams, PrevWeek_VoA, by = 
 
 ## assigning random VoA_Ratings to missing home teams who are not part of VoA
 if (nrow(missing_home_ratings) > 0) {
-  missing_home_ratings <- missing_home_ratings %>%
-    mutate(VoA_Rating = sample(FCS_random, nrow(missing_home_ratings), replace = TRUE)) %>%
+  missing_home_ratings <- missing_home_ratings |>
+    mutate(VoA_Rating = sample(FCS_random, nrow(missing_home_ratings), replace = TRUE)) |>
     select(team, VoA_Rating)
 } else {
   print("No FCS teams play FBS teams at home this week.")
 }
 ## assigning random VoA_Ratings to missing away teams who are not part of VoA
 if (nrow(missing_away_ratings) > 0) {
-  missing_away_ratings <- missing_away_ratings %>%
-    mutate(VoA_Rating = sample(FCS_random, nrow(missing_away_ratings), replace = TRUE)) %>%
+  missing_away_ratings <- missing_away_ratings |>
+    mutate(VoA_Rating = sample(FCS_random, nrow(missing_away_ratings), replace = TRUE)) |>
     select(team, VoA_Rating)
 } else {
   print("No FCS teams play FBS teams on the road this week.")
@@ -118,20 +118,20 @@ if (nrow(missing_away_ratings) > 0) {
 }
 
 ## filtering out home teams
-home_VoA_Ratings <- PrevWeek_VoA %>%
+home_VoA_Ratings <- PrevWeek_VoA |>
   filter(team %in% upcoming_games_df$home_team)
 ## might be duplicates
-home_duplicates <- PrevWeek_VoA %>%
+home_duplicates <- PrevWeek_VoA |>
   filter(team %in% upcoming_games_df$home_team[duplicated(upcoming_games_df$home_team)])
 home_VoA_Ratings <- rbind(home_VoA_Ratings, home_duplicates)
 
 ## changing col names before doing full_join
 colnames(home_VoA_Ratings) <- c("home_team", "home_VoA_Rating")
 ## filtering out away teams
-away_VoA_Ratings <- PrevWeek_VoA %>%
+away_VoA_Ratings <- PrevWeek_VoA |>
   filter(team %in% upcoming_games_df$away_team)
 ## might be duplicates
-away_duplicates <- PrevWeek_VoA %>%
+away_duplicates <- PrevWeek_VoA |>
   filter(team %in% upcoming_games_df$away_team[duplicated(upcoming_games_df$away_team)])
 away_VoA_Ratings <- rbind(away_VoA_Ratings, away_duplicates)
 ## changing col names before doing full_join
@@ -139,28 +139,28 @@ colnames(away_VoA_Ratings) <- c("away_team", "away_VoA_Rating")
 
 ## joining home_VoA_Ratings, then away
 home_list <- list(upcoming_games_df, home_VoA_Ratings)
-upcoming_games_df <- home_list %>%
+upcoming_games_df <- home_list |>
   reduce(full_join, by = "home_team")
 ## removing duplicates
 upcoming_games_df <- upcoming_games_df[!duplicated(upcoming_games_df),]
 away_list <- list(upcoming_games_df, away_VoA_Ratings)
-upcoming_games_df <- away_list %>%
+upcoming_games_df <- away_list |>
   reduce(full_join, by = "away_team")
 ## removing duplicates
 upcoming_games_df <- upcoming_games_df[!duplicated(upcoming_games_df),]
 
 ## for some reason the above part led to duplicates
-# duplicate_games <- upcoming_games_df %>%
-#   filter(game_id %in% upcoming_games_df$game_id[duplicated(upcoming_games_df$game_id)]) %>%
+# duplicate_games <- upcoming_games_df |>
+#   filter(game_id %in% upcoming_games_df$game_id[duplicated(upcoming_games_df$game_id)]) |>
 #   distinct(.keep_all = TRUE)
-# upcoming_games_df <- upcoming_games_df %>%
+# upcoming_games_df <- upcoming_games_df |>
 #   filter(game_id != duplicate_games$game_id)
 
 
 ## Creating Vortex of Projection Spread column
-cfbdata_contest_df <- upcoming_games_df %>%
+cfbdata_contest_df <- upcoming_games_df |>
   mutate(predicted = case_when(neutral_site == FALSE ~ away_VoA_Rating - (home_VoA_Rating + 2),
-                               TRUE ~ away_VoA_Rating - home_VoA_Rating)) %>%
+                               TRUE ~ away_VoA_Rating - home_VoA_Rating)) |>
   select(game_id, home_team, away_team, predicted)
 colnames(cfbdata_contest_df) <- c("id", "home", "away", "predicted")
 
@@ -177,36 +177,36 @@ write_csv(cfbdata_contest_df, here("Data", paste("VoA", year, sep = ""), "Projec
 # }
 
 ## making gt table of upcoming games df to display games with close spreads
-upcoming_games_df <- upcoming_games_df %>%
+upcoming_games_df <- upcoming_games_df |>
   mutate(Proj_Winner = case_when((neutral_site == FALSE & (home_VoA_Rating + 2) > away_VoA_Rating) ~ home_team,
                                  (neutral_site == FALSE & away_VoA_Rating > (home_VoA_Rating + 2)) ~ away_team,
                                  (neutral_site == TRUE & home_VoA_Rating > away_VoA_Rating) ~ home_team,
                                  (neutral_site == TRUE & away_VoA_Rating > home_VoA_Rating) ~ away_team,
                                  TRUE ~ "TIE"),
          Proj_Margin = case_when(neutral_site == FALSE ~ abs(away_VoA_Rating - (home_VoA_Rating + 2)),
-                                 TRUE ~ abs(away_VoA_Rating - home_VoA_Rating))) %>%
-  select(game_id, season, week, neutral_site, home_team, home_VoA_Rating, away_team, away_VoA_Rating, Proj_Winner, Proj_Margin) %>%
+                                 TRUE ~ abs(away_VoA_Rating - home_VoA_Rating))) |>
+  select(game_id, season, week, neutral_site, home_team, home_VoA_Rating, away_team, away_VoA_Rating, Proj_Winner, Proj_Margin) |>
   arrange(desc(Proj_Margin))
 ## Creating gt table
 # adding title and subtitle
-upcoming_games_gt <- upcoming_games_df %>%
-  gt() %>% # use 'gt' to make an awesome table...
-  gt_theme_espn() %>%
+upcoming_games_gt <- upcoming_games_df |>
+  gt() |> # use 'gt' to make an awesome table...
+  gt_theme_espn() |>
   tab_header(
     title = paste(year, week_text, upcoming, "Vortex of Projection Game Projections"), # ...with this title
-    subtitle = "The Unquestionably Puzzling Yet Impeccibly Perceptive Vortex of Projection")  %>%  # and this subtitle
+    subtitle = "The Unquestionably Puzzling Yet Impeccibly Perceptive Vortex of Projection")  |>  # and this subtitle
   fmt_number( # A column (numeric data)
     columns = c(Proj_Margin), # What column variable? FinalVoATop25$VoA_Rating
     decimals = 5 # With four decimal places
-  ) %>% 
+  ) |> 
   fmt_number( # Another column (also numeric data)
     columns = c(home_VoA_Rating), # What column variable? FinalVoATop25$VoA_Ranking
     decimals = 5 # I want this column to have 5 decimal places
-  ) %>%
+  ) |>
   fmt_number( # Another numeric column
     columns = c(away_VoA_Rating),
     decimals = 5
-  ) %>%
+  ) |>
   data_color( # Update cell colors, testing different color palettes
     columns = c(Proj_Margin), # ...for dose column
     colors = scales::col_numeric( # <- bc it's numeric
@@ -214,17 +214,17 @@ upcoming_games_gt <- upcoming_games_df %>%
       domain = c(), # Column scale endpoints
       reverse = FALSE
     )
-  ) %>%
-  cols_label(home_team = "Home", away_team = "Away", home_VoA_Rating = "Home VoA Rating", away_VoA_Rating = "Away VoA Rating", Proj_Winner = "Projected Winner", Proj_Margin = "Projected Margin") %>% # Update labels
-  cols_move_to_end(columns = "Proj_Margin") %>%
-  cols_hide(c(game_id, season, week, neutral_site)) %>%
+  ) |>
+  cols_label(home_team = "Home", away_team = "Away", home_VoA_Rating = "Home VoA Rating", away_VoA_Rating = "Away VoA Rating", Proj_Winner = "Projected Winner", Proj_Margin = "Projected Margin") |> # Update labels
+  cols_move_to_end(columns = "Proj_Margin") |>
+  cols_hide(c(game_id, season, week, neutral_site)) |>
   tab_footnote(
     footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org,
     VoA Ratings for FCS teams are semi-randomly assigned based on bottom half of VoA Ratings"
   )
 
 upcoming_games_gt
-upcoming_games_gt %>%
+upcoming_games_gt |>
   gtsave(
     gameprojections_filename, expand = 5,
     path = here("RVoA", "Outputs", "VoP")
