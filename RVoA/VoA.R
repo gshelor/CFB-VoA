@@ -7,20 +7,19 @@
 # Vortex of Accuracy. Those sections will be commented out in case this accessibility
 # issue ever changes.
 ## installing packages
-# install.packages(c("devtoools", "tidyverse", "matrixStats", "grid", "gridExtra", "gt", "viridis", "webshot", "writexl", "rvest", "cfbfastR", "espnscrapeR", "openxlsx", "here", "ggsci", "RColorBrewer", "ggpubr", "remotes", "pacman", "gtExtras"))
+# install.packages(c("devtools", "tidyverse", "matrixStats", "gt", "viridis", "webshot", "rvest", "cfbfastR", "here", "ggsci", "RColorBrewer", "ggpubr", "remotes", "pacman", "gtExtras", cfbplotR))
 ## Load Packages for Ranking Variables
 start_time <- Sys.time()
 library(pacman)
-pacman::p_load(tidyverse, gt, viridis, webshot, cfbfastR,  here, ggsci, RColorBrewer, 
-               ggpubr, gtExtras, cfbplotR)
-## testing to see if script runs without certain packeges I don't think are being used
-# writexl, rvest, openxlsx, tidymodels, ranger, grid, gridExtra, matrixStats, espnscrapeR,
+pacman::p_load(tidyverse, gt, cfbfastR, here, RColorBrewer, gtExtras, cfbplotR)
+## testing to see if script runs without certain packages I don't think are being used
+# writexl, rvest, openxlsx, tidymodels, ranger, grid, gridExtra, matrixStats, viridis, webshot, ggpubr, ggsci,
 
 ## Creating Week and Year String for Top 25 Table Title, eventually could be used as part of reading in cfbfastR/cfbdata API data
 year <- readline(prompt = "What year is it? ")
 week <- readline(prompt = "What week is it? ")
 
-## setting strings for table titles, file pathways, unintelligible charts
+##### setting strings for table titles, file pathways, unintelligible charts #####
 output_dir <- here("RVoA", "Outputs")
 data_dir <- here("Data", paste("VoA", year, sep = ""))
 preseason_text <- "Preseason"
@@ -6575,6 +6574,10 @@ if (as.numeric(week) == 0) {
 }
 ## end of if statement
 
+## Adding Column with CFB Week number
+# same number for each team, numeric version of number input in readline function at beginning of script
+VoA_Variables <- VoA_Variables |>
+  mutate(CFB_Week = rep(as.numeric(week), nrow(VoA_Variables)), .before = 2)
 
 
 
@@ -6589,21 +6592,21 @@ if (as.numeric(week) == 0) {
   VoA_Variables$season = rep(as.numeric(year), nrow(VoA_Variables))
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,243:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,244:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) == 1) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,315:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,316:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else if (as.numeric(week) <= 4) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,236:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,237:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
@@ -6624,15 +6627,8 @@ if (as.numeric(week) == 0) {
 }
 ## End of if statement
 
-## Adding Column with CFB Week number
-# same number for each team, numeric version of number input in readline function at beginning of script
-VoA_Variables <- VoA_Variables |>
-  mutate(CFB_Week = rep(as.numeric(week), nrow(VoA_Variables)), .before = 2)
 
-# VoA_NAs_why <- VoA_Variables |>
-# filter(is.na(VoA_Output))
-
-## Using Intial VoA Rankings to add in conference strength metric
+##### Using Intial VoA Rankings to add in conference strength metric #####
 Conference_Outputs <- VoA_Variables |>
   group_by(conference) |>
   summarize(Rk_mean = mean(VoA_Output), Rk_median = median(VoA_Output)) |>
@@ -6662,8 +6658,6 @@ VoA_Variables <- VoA_Variables |>
          Conference_Strength_col10 = Conference_Strength)
 
 ##### Re running rowMeans function to get VoA Output #####
-## Rank variables start at 1 column further than previous VoA Output calculation due to addition of CFB_Week column in between
-## it will be a different number for the other weeks
 ## script wouldn't run properly without a real number in the later weeks so I'll have to come back
 # and edit the number in during the season as I figure out how big VoA_Variables gets
 if (as.numeric(week) == 0) {
@@ -6790,7 +6784,7 @@ if (as.numeric(week) == 0) {
     cols_move_to_end(columns = "VoA_Rating") |>
     cols_hide(c(conference, CFB_Week, VoA_Output)) |>
     tab_footnote(
-      footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
+      footnote = "Table by @gshelor, Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
     )
   
   ## Full 130 teams table
@@ -6823,7 +6817,7 @@ if (as.numeric(week) == 0) {
     cols_move_to_end(columns = "VoA_Rating") |>
     cols_hide(c(conference, CFB_Week, VoA_Output)) |>
     tab_footnote(
-      footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
+      footnote = "Table by @gshelor, Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
     )
 } else {
   ## Top 25 Table
@@ -6856,7 +6850,7 @@ if (as.numeric(week) == 0) {
     cols_move_to_end(columns = "VoA_Rating") |>
     cols_hide(c(conference, CFB_Week, VoA_Output)) |>
     tab_footnote(
-      footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
+      footnote = "Table by @gshelor, Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
     )
   
   ## Full 130 teams table
@@ -6889,10 +6883,11 @@ if (as.numeric(week) == 0) {
     cols_move_to_end(columns = "VoA_Rating") |>
     cols_hide(c(conference, CFB_Week, VoA_Output)) |>
     tab_footnote(
-      footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
+      footnote = "Table by @gshelor, Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org"
     )
 }
 
+##### Saving tables and final VoA_Variables csv #####
 ## viewing and saving the gt tables outside the if statement so that I can see them in the RStudio viewer
 VoATop25Table
 VoATop25Table |>
@@ -6910,60 +6905,7 @@ VoA_Full_Table |>
 ## Exporting final dataframe as csv
 write_csv(VoA_Variables, file_pathway)
 
-#### possible future code for trying out different formats for top 25 tables
-## testing adding column colors
-# VoATableColors <- Final_gt_Top25 |>
-#   gt() |> # Make a gt table with it
-#   gt_theme_538() |>
-#   ## gt_color_rows(VoA_Output, palette = "ggsci::blue_material") |>
-#   tab_header(
-#     title = paste(year, week_text, week, VoA_Top25_text), # Add a title
-#     subtitle = "it's a brand new upgraded version of a table! Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy" # And a subtitle
-#   ) |>
-#   fmt_passthrough( # Not sure about this but it works...
-#     columns = c(Team) # First column: team (character)
-#   ) |>
-#   fmt_number(
-#     columns = c(VoA_Output), # Second column: VoA_Output (numeric)
-#     decimals = 5 # With 5 decimal places
-#   ) |>
-#   fmt_number(
-#     columns = c(VoA_Ranking), # Third column: VoA_Ranking (numeric)
-#     decimals = 0 # With 0 decimal places
-#   ) |>
-#   #  data_color( # Update cell colors...
-#   #    columns = c(VoA_Output), # ...for dose column
-#   #    colors = scales::col_numeric( # <- bc it's numeric
-#   #      palette = c(
-#   #        "dodgerblue4","cadetblue1"), # A color scheme (gradient)
-#   #      domain = c() # Column scale endpoints
-#   #    )
-#   # ) |>
-#   data_color( # Update cell colors, testing different color palettes
-#     columns = c(VoA_Output), # ...for VoA_Output column
-#     colors = scales::col_numeric( # <- bc it's numeric
-#       palette = brewer.pal(9, "Reds"), # A color scheme (gradient)
-#       domain = c() # Column scale endpoints
-#     )
-#   ) |>
-#   cols_label(team= "Team", VoA_Output = "Final VoA Output", VoA_Ranking = "VoA Ranking") |> # Make the column headers
-#   tab_footnote(
-#     footnote = "rounded to 5 decimals", # Another line of footnote text
-#     locations = cells_column_labels(
-#       columns = c(VoA_Output) # Associated with column 'VoA_Output'
-#     )
-#   ) |>
-#   cols_move_to_end(columns = "VoA_Output")
-# VoATableColors
-# 
-# ## Save GT table with colors in columns
-# VoATableColors |>
-#   gtsave(
-#    "VoAGTwithColors.png", expand = 5,
-#    path = here("RVoA", "Outputs")
-#  )
-
-## Making the Unintelligible Chart
+##### Making the Unintelligible Chart #####
 ## Tracks VoA Ratings and Rankings by week
 ## now reading in and merging VoA rating and ranking data up to current week
 if (as.numeric(week) == 2) {
@@ -7060,13 +7002,14 @@ if (as.numeric(week) >= 2) {
   SEC_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "SEC")
   SunBelt_Ratings_Rks <- Full_Ratings_Rks |> filter(conference == "Sun Belt")
   
-  ## Creating Charts
+  ##### Creating Charts #####
   # charting VoA_Rating and VoA_Ranking for each week from week 2 on
   AAC_VoA_Rating_Chart <- ggplot(AAC_Ratings_Rks, aes(x = CFB_Week, y = VoA_Rating, group = team)) +
     geom_line(size = 1.5) +
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("American Conference Vortex of Accuracy Ratings by Week") +
     expand_limits(y = c(floor(floor(min(AAC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(AAC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(AAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(AAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
@@ -7081,6 +7024,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Ranking") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("American Conference Vortex of Accuracy Rankings by Week") +
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
@@ -7095,6 +7039,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("ACC Vortex of Accuracy Ratings by Week") +
     expand_limits(y = c(floor(floor(min(ACC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(ACC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(ACC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(ACC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
@@ -7109,6 +7054,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Ranking") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("ACC Vortex of Accuracy Rankings by Week") +
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
@@ -7123,6 +7069,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Big 12 Vortex of Accuracy Ratings by Week") +
     expand_limits(y = c(floor(floor(min(Big12_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Big12_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(Big12_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Big12_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
@@ -7137,6 +7084,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Ranking") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Big 12 Vortex of Accuracy Rankings by Week") +
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
@@ -7151,6 +7099,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Big 10 Vortex of Accuracy Ratings by Week") +
     expand_limits(y = c(floor(floor(min(Big10_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Big10_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(Big10_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Big10_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
@@ -7165,6 +7114,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Big 10 Vortex of Accuracy Rankings by Week") +
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
@@ -7179,6 +7129,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("CUSA Vortex of Accuracy Ratings by Week") +
     expand_limits(y = c(floor(floor(min(CUSA_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(CUSA_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(CUSA_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(CUSA_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
@@ -7193,6 +7144,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Ranking") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("CUSA Vortex of Accuracy Rankings by Week") +
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
@@ -7207,6 +7159,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Independents Vortex of Accuracy Ratings by Week") +
     expand_limits(y = c(floor(floor(min(Indy_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Indy_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(Indy_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Indy_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
@@ -7221,6 +7174,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Ranking") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Independents Vortex of Accuracy Rankings by Week") +
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
@@ -7235,6 +7189,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("MAC Vortex of Accuracy Ratings by Week") +
     expand_limits(y = c(floor(floor(min(MAC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(MAC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(MAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(MAC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
@@ -7249,6 +7204,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Ranking") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("MAC Vortex of Accuracy Rankings by Week") +
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
@@ -7263,6 +7219,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Mountain West Vortex of Accuracy Ratings by Week") +
     expand_limits(y = c(floor(floor(min(MWC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(MWC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(MWC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(MWC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
@@ -7277,6 +7234,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Ranking") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Mountain West Vortex of Accuracy Rankings by Week") +
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
@@ -7291,6 +7249,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Pac 12 Vortex of Accuracy Ratings by Week") +
     expand_limits(y = c(floor(floor(min(Pac12_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(Pac12_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(Pac12_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(Pac12_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
@@ -7305,6 +7264,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Ranking") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Pac 12 Vortex of Accuracy Rankings by Week") +
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
@@ -7319,6 +7279,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("SEC Vortex of Accuracy Ratings by Week") +
     expand_limits(y = c(floor(floor(min(SEC_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(SEC_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(SEC_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(SEC_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
@@ -7333,6 +7294,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Ranking") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("SEC Vortex of Accuracy Rankings by Week") +
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
@@ -7347,6 +7309,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Sun Belt Vortex of Accuracy Ratings by Week") +
     expand_limits(y = c(floor(floor(min(SunBelt_Ratings_Rks$VoA_Rating)) / 10) * 10, ceiling((ceiling(max(SunBelt_Ratings_Rks$VoA_Rating)) / 10)) * 10)) +
     scale_y_continuous(breaks = seq((floor((floor(min(SunBelt_Ratings_Rks$VoA_Rating)) / 10)) * 10), (ceiling((ceiling(max(SunBelt_Ratings_Rks$VoA_Rating)) / 10)) * 10), by = 5)) +
@@ -7361,6 +7324,7 @@ if (as.numeric(week) >= 2) {
     geom_point(size = 5) +
     xlab("Week") +
     ylab("VoA_Rating") +
+    labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
     ggtitle("Sun Belt Vortex of Accuracy Rankings by Week") +
     expand_limits(y = c(0,130)) +
     scale_y_continuous(breaks = c(0,20,40,60,80,100,130)) +
@@ -7383,6 +7347,7 @@ Power5_VoA <- VoA_Variables |>
 Group5_VoA <- VoA_Variables |>
   filter(conference == "American Athletic" | conference == "Conference USA" | conference == "FBS Independents" | conference == "Mid-American" | conference == "Mountain West" | conference == "Sun Belt") |>
   filter(team != "Notre Dame")
+
 FBS_Rating_histogram <- ggplot(VoA_Variables, aes(VoA_Rating)) +
   geom_histogram(binwidth = 5,
                  col = "black",
@@ -7392,6 +7357,7 @@ FBS_Rating_histogram <- ggplot(VoA_Variables, aes(VoA_Rating)) +
   ggtitle(FBS_hist_title) +
   xlab("VoA Rating") +
   ylab("Frequency") +
+  labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
   theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
 FBS_Rating_histogram
 ggsave(FBS_hist_filename, path = output_dir, width = 50, height = 40, units = 'cm')
@@ -7405,6 +7371,7 @@ Power5_Rating_histogram <- ggplot(Power5_VoA, aes(VoA_Rating)) +
   ggtitle(Power5_hist_title) +
   xlab("VoA Rating") +
   ylab("Frequency") +
+  labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
   theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
 Power5_Rating_histogram
 ggsave(Power5_hist_filename, path = output_dir, width = 50, height = 40, units = 'cm')
@@ -7418,6 +7385,7 @@ Group5_Rating_histogram <- ggplot(Group5_VoA, aes(VoA_Rating)) +
   ggtitle(Group5_hist_title) +
   xlab("VoA Rating") +
   ylab("Frequency") +
+  labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
   theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
 Group5_Rating_histogram
 ggsave(Group5_hist_filename, path = output_dir, width = 50, height = 40, units = 'cm')
@@ -7431,6 +7399,7 @@ VoA_Output_Rating_plot <- ggplot(VoA_Variables, aes(x = VoA_Output, y = VoA_Rati
   ggtitle(Output_Rating_Plot_title) +
   xlab("VoA Output") +
   ylab("VoA Rating") +
+  labs(caption = "chart by @gshelor, data from collegefootballdata.com API via cfbfastR and stats.ncaa.org") +
   theme(plot.title = element_text(size = 35, hjust = 0.5), axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), axis.title.x = element_text(size = 22), axis.title.y = element_text(size = 22), legend.text = element_text(size = 20))
 VoA_Output_Rating_plot
 ggsave(Output_Rating_Plot_filename, path = output_dir, width = 50, height = 40, units = 'cm')
