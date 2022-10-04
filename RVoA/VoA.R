@@ -1455,7 +1455,7 @@ if (as.numeric(week) == 0) {
   # ## Eliminating NAs
   # SP_Rankings[is.na(SP_Rankings)] = 0
   ## reading in data for previous year
-  JMU_PrevYear <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_PreYear.csv"))
+  JMU_PrevYear <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_PrevYear.csv"))
   Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) |>
     filter(team != "James Madison") |>
     mutate(total_yds_pg = total_yds/games,
@@ -2421,7 +2421,9 @@ if (as.numeric(week) == 0) {
   VoA_Variables <- Current_df_list |>
     reduce(full_join, by = "team") ## |>
     ## mutate(FPI_SP_mean = (sp_rating + FPI) / 2)
-  # due to availability issues, SP_Rankings not included with current data
+  
+  ## Making values numeric
+  VoA_Variables[,4:ncol(VoA_Variables)] <- VoA_Variables[,4:ncol(VoA_Variables)] |> mutate_if(is.character,as.numeric)
 } 
 ## end of if statement
 
@@ -6581,6 +6583,7 @@ VoA_Variables <- VoA_Variables |>
 
 
 
+
 ##### calculating the mean stat ranking, VoA_Output #####
 ## Rank variables start at 243 for Week 0
 ## Rank variables start at 315 for Week 1
@@ -6613,7 +6616,7 @@ if (as.numeric(week) == 0) {
 } else if (as.numeric(week) == 5) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,157:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
@@ -6684,7 +6687,7 @@ if (as.numeric(week) == 0) {
 } else if (as.numeric(week) == 5) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,157:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))

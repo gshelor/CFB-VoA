@@ -8,7 +8,7 @@ pacman::p_load(tidyverse, matrixStats, grid, gridExtra, gt, viridis, webshot,
                writexl, rvest, cfbfastR, espnscrapeR, openxlsx, here, ggsci, 
                RColorBrewer, ggpubr, gtExtras, tidymodels, ranger, cfbplotR)
 
-## testing readline function with cfbfastR pkg
+## inputting week and year info using
 week <- readline(prompt = "What week is it? ")
 year <- readline(prompt = "What year is it? ")
 
@@ -6469,6 +6469,60 @@ VoA_Full_Table |>
     fulltable_file_pathway, expand = 5,
     path = here("RVoA", "Outputs", "Test")
   )
+
+
+#### possible future code for trying out different formats for top 25 tables
+## testing adding column colors
+# VoATableColors <- Final_gt_Top25 |>
+#   gt() |> # Make a gt table with it
+#   gt_theme_538() |>
+#   ## gt_color_rows(VoA_Output, palette = "ggsci::blue_material") |>
+#   tab_header(
+#     title = paste(year, week_text, week, VoA_Top25_text), # Add a title
+#     subtitle = "it's a brand new upgraded version of a table! Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy" # And a subtitle
+#   ) |>
+#   fmt_passthrough( # Not sure about this but it works...
+#     columns = c(Team) # First column: team (character)
+#   ) |>
+#   fmt_number(
+#     columns = c(VoA_Output), # Second column: VoA_Output (numeric)
+#     decimals = 5 # With 5 decimal places
+#   ) |>
+#   fmt_number(
+#     columns = c(VoA_Ranking), # Third column: VoA_Ranking (numeric)
+#     decimals = 0 # With 0 decimal places
+#   ) |>
+#   #  data_color( # Update cell colors...
+#   #    columns = c(VoA_Output), # ...for dose column
+#   #    colors = scales::col_numeric( # <- bc it's numeric
+#   #      palette = c(
+#   #        "dodgerblue4","cadetblue1"), # A color scheme (gradient)
+#   #      domain = c() # Column scale endpoints
+#   #    )
+#   # ) |>
+#   data_color( # Update cell colors, testing different color palettes
+#     columns = c(VoA_Output), # ...for VoA_Output column
+#     colors = scales::col_numeric( # <- bc it's numeric
+#       palette = brewer.pal(9, "Reds"), # A color scheme (gradient)
+#       domain = c() # Column scale endpoints
+#     )
+#   ) |>
+#   cols_label(team= "Team", VoA_Output = "Final VoA Output", VoA_Ranking = "VoA Ranking") |> # Make the column headers
+#   tab_footnote(
+#     footnote = "rounded to 5 decimals", # Another line of footnote text
+#     locations = cells_column_labels(
+#       columns = c(VoA_Output) # Associated with column 'VoA_Output'
+#     )
+#   ) |>
+#   cols_move_to_end(columns = "VoA_Output")
+# VoATableColors
+# 
+# ## Save GT table with colors in columns
+# VoATableColors |>
+#   gtsave(
+#    "VoAGTwithColors.png", expand = 5,
+#    path = here("RVoA", "Outputs")
+#  )
 
 
 
