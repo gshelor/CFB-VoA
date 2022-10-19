@@ -1,4 +1,4 @@
-## The Vortex of Accuracy, Version 4.0.1
+## The Vortex of Accuracy, Version 4.0.2
 ## Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy
 ## Created by Griffin Shelor
 ## Initially intended to use SP+ ratings but due to paywall issues they are unlikely to be
@@ -11,9 +11,9 @@
 ## Load Packages for Ranking Variables
 start_time <- Sys.time()
 library(pacman)
-pacman::p_load(tidyverse, gt, cfbfastR, here, RColorBrewer, gtExtras, cfbplotR)
+pacman::p_load(tidyverse, gt, cfbfastR, here, RColorBrewer, gtExtras, cfbplotR, ggpubr)
 ## testing to see if script runs without certain packages I don't think are being used
-# writexl, rvest, openxlsx, tidymodels, ranger, grid, gridExtra, matrixStats, viridis, webshot, ggpubr, ggsci,
+# writexl, rvest, openxlsx, tidymodels, ranger, grid, gridExtra, matrixStats, viridis, webshot, ggsci,
 
 ## Creating Week and Year String for Top 25 Table Title, eventually could be used as part of reading in cfbfastR/cfbdata API data
 year <- readline(prompt = "What year is it? ")
@@ -1708,15 +1708,17 @@ if (as.numeric(week) == 0) {
   recruit <- recruit |>
     mutate(school = case_when(team == "Florida Intl" ~ "Florida International",
                               TRUE ~ team)) |>
-    filter(school %in% Stats_PY1$team) |>
+    filter(school %in% Stats$team) |>
     select(school, points)
   recruit[,2] <- recruit[,2] |> mutate_if(is.character, as.numeric)
   colnames(recruit) <- c("team", "recruit_pts")
-  JMU_recruit <- recruit |>
-    filter(team == "Ohio")
-  JMU_recruit[1,1] = "James Madison"
-  JMU_recruit[1,2] = median(recruit$recruit_pts)
-  recruit <- rbind(recruit, JMU_recruit)
+  ## commenting out below code because it was originally written when I could not find JMU recruiting data
+  # trusting cfbdata has it right, so there's no need for approximation which is likely some ways off from reality
+  # JMU_recruit <- recruit |>
+  #   filter(team == "Ohio")
+  # JMU_recruit[1,1] = "James Madison"
+  # JMU_recruit[1,2] = median(recruit$recruit_pts)
+  # recruit <- rbind(recruit, JMU_recruit)
 }
 
 ##### merging data frames together #####

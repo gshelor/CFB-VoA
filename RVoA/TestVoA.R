@@ -1,18 +1,18 @@
 ##### script includes assortment of testing options for data collection, analysis, visualization, etc
 ## test code for accessing cfb data API
-## as of Aug 29, 2022, script is exact same as Official VoA, with 2 changes
+## as of Aug 29, 2022, script is exact same as Official VoA, with 2 differences
 # In this script, garbage time is excluded from Advanced Stats
 # This script uses tidymodels random forest function to predict SP+/FPI-style metric instead of lm() function that main script uses
 library(pacman)
 pacman::p_load(tidyverse, matrixStats, grid, gridExtra, gt, viridis, webshot, 
-               writexl, rvest, cfbfastR, espnscrapeR, openxlsx, here, ggsci, 
-               RColorBrewer, ggpubr, gtExtras, tidymodels, ranger, cfbplotR)
+               cfbfastR, here, ggsci, RColorBrewer, ggpubr, gtExtras, tidymodels, 
+               ranger, cfbplotR)
 
 ## inputting week and year info using
-week <- readline(prompt = "What week is it? ")
 year <- readline(prompt = "What year is it? ")
+week <- readline(prompt = "What week is it? ")
 
-## setting strings for table titles, file pathways, unintelligible charts
+##### setting strings for table titles, file pathways, unintelligible charts #####
 output_dir <- here("RVoA", "Outputs", "Test")
 data_dir <- here("Data", paste("VoA",year, sep = ""), "Test")
 VoAString <- "VoA_Test1.csv"
@@ -73,8 +73,9 @@ FBS_hist_filename <- paste(year, "_", week_text, week, "_", FBS_text, Histogram_
 Power5_hist_filename <- paste(year, "_", week_text, week, "_", Power_Five_text, Histogram_text, sep = "")
 Group5_hist_filename <- paste(year, "_", week_text, week, "_", Group_Five_text, Histogram_text, sep = "")
 Output_Rk_Plot_filename <- paste(year, "_", week_text, week, "_", Output_Rk_Plot_png, sep = "")
-file_pathway <- paste(output_dir, "/",week_text, week,"_",year, VoAString, sep = "")
+file_pathway <- paste(data_dir, "/",week_text, week,"_",year, VoAString, sep = "")
 
+##### Reading in data #####
 ## pulling in data based on week of the season
 if (as.numeric(week) == 0) {
   ## reading in data for 3 previous years
@@ -1395,7 +1396,7 @@ if (as.numeric(week) == 0) {
   colnames(recruit) <- c("team", "recruit_pts")
 }
 
-## merging data frames together
+##### merging data frames together #####
 if (as.numeric(week) == 0) {
   ## merging data frames together, arranging columns
   ## need to merge stats and advanced stats together first so I can change column names to avoid duplicate column names later on
@@ -2074,6 +2075,7 @@ if (as.numeric(week) == 0) {
 } 
 ## end of if statement
 
+##### Fixing team name and conference errors #####
 VoA_Variables_Test <- VoA_Variables_Test |>
   filter(team != "Boise St" & team != "Michigan St" & team != "San Diego St" & team != "Fresno St" & team != "Miami OH" & team != "Colorado St" & team != "Coastal Car" & team != "Texas St" & team != "Arizona St" & team != "Pitt" & team != "Kansas St" & team != "Florida St" & team != "Georgia St" & team != "Arkansas St")
 
@@ -2089,7 +2091,7 @@ VoA_Variables_Test <- VoA_Variables_Test |>
   select(-conference)
 colnames(VoA_Variables_Test)[colnames(VoA_Variables_Test) == "conference_temp"] <- "conference"
 
-## Adding Rank Columns
+##### Adding Rank Columns #####
 ### if Week = 0
 # PY3 weighted 1x, PY2 weighted 2x, PY1 weighted 3x
 ### if Week = 1

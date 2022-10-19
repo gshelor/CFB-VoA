@@ -1,12 +1,12 @@
-##### Vortex of Projection version 0.3
+##### Vortex of Projection version 0.4
 ### This script will take the most recent csv from the VoA
 ### It will take the VoA Ratings from that csv and use them to project scoring margins for upcoming FBS games
 ## loading packages
 library(pacman)
-pacman::p_load(tidyverse, gt, cfbfastR, here, gtExtras, viridis,ggsci, RColorBrewer)
+pacman::p_load(tidyverse, gt, cfbfastR, here, gtExtras, RColorBrewer, cfbplotR)
 ## testing taking packages out to see which ones I'm actually using in this script
 # openxlsx, writexl, rvest, webshot, tidymodels, ranger, grid, gridExtra,
-# matrixStats, ggpubr, 
+# matrixStats, ggpubr, viridis, ggsci
 ## Inputting year
 year <- readline(prompt = "What Year is it? ")
 ## Inputting upcoming week number
@@ -184,9 +184,16 @@ upcoming_games_df <- upcoming_games_df |>
                                  (neutral_site == TRUE & away_VoA_Rating > home_VoA_Rating) ~ away_team,
                                  TRUE ~ "TIE"),
          Proj_Margin = case_when(neutral_site == FALSE ~ abs(away_VoA_Rating - (home_VoA_Rating + 2)),
-                                 TRUE ~ abs(away_VoA_Rating - home_VoA_Rating))) |>
-  select(game_id, season, week, neutral_site, home_team, home_VoA_Rating, away_team, away_VoA_Rating, Proj_Winner, Proj_Margin) |>
-  arrange(desc(Proj_Margin))
+                                 TRUE ~ abs(away_VoA_Rating - home_VoA_Rating)),
+         Initial_Win_Prob = coefficients[1,1] + (coefficients[2,1] * Proj_Margin) + (coefficients[3,1] * (Proj_Margin^2))) |>
+  select(game_id, season, week, neutral_site, home_team, home_VoA_Rating, away_team, away_VoA_Rating, Proj_Winner, Proj_Margin, Initial_Win_Prob) ## |>
+  ## arrange(desc(Proj_Margin))
+## making sure no game has win probability for projected winner lower than 50 or higher than 100
+upcoming_games_df <- upcoming_games_df |>
+  mutate(Win_Prob = case_when((Initial_Win_Prob < 50) ~ 50.01,
+                              Initial_Win_Prob > 100 ~ 100,
+                              TRUE ~ Initial_Win_Prob)) |>
+  select(game_id, season, week, neutral_site, home_team, home_VoA_Rating, away_team, away_VoA_Rating, Proj_Winner, Proj_Margin, Win_Prob)
 ## Creating gt table
 # adding title and subtitle
 upcoming_games_gt <- upcoming_games_df |>
@@ -207,6 +214,10 @@ upcoming_games_gt <- upcoming_games_df |>
     columns = c(away_VoA_Rating),
     decimals = 5
   ) |>
+  fmt_number( # Another numeric column
+    columns = c(away_VoA_Rating),
+    decimals = 2
+  ) |>  
   data_color( # Update cell colors, testing different color palettes
     columns = c(Proj_Margin), # ...for dose column
     colors = scales::col_numeric( # <- bc it's numeric
@@ -215,8 +226,16 @@ upcoming_games_gt <- upcoming_games_df |>
       reverse = FALSE
     )
   ) |>
-  cols_label(home_team = "Home", away_team = "Away", home_VoA_Rating = "Home VoA Rating", away_VoA_Rating = "Away VoA Rating", Proj_Winner = "Projected Winner", Proj_Margin = "Projected Margin") |> # Update labels
-  cols_move_to_end(columns = "Proj_Margin") |>
+  data_color( # Update cell colors, testing different color palettes
+    columns = c(Win_Prob), # ...for dose column
+    colors = scales::col_numeric( # <- bc it's numeric
+      palette = brewer.pal(9, "RdYlGn"), # A color scheme (gradient)
+      domain = c(), # Column scale endpoints
+      reverse = FALSE
+    )
+  ) |>
+  cols_label(home_team = "Home", away_team = "Away", home_VoA_Rating = "Home VoA Rating", away_VoA_Rating = "Away VoA Rating", Proj_Winner = "Projected Winner", Proj_Margin = "Projected Margin", Win_Prob = "Win Probability") |> # Update labels
+  cols_move_to_end(columns = "Win_Prob") |>
   cols_hide(c(game_id, season, week, neutral_site)) |>
   tab_footnote(
     footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, James Madison data mostly from stats.ncaa.org,
