@@ -6548,7 +6548,7 @@ VoA_Full_Table |>
 
 ############### DEBUGGING WEIRD AND STUPID NA ERRORS #####
 ## Making values numeric
-# VoA_Variables[,4:ncol(VoA_Variables)] <- VoA_Variables[,4:ncol(VoA_Variables)] |> mutate_if(is.character,as.numeric)
+# VoA_Variables[,6:ncol(VoA_Variables)] <- VoA_Variables[,6:ncol(VoA_Variables)] |> mutate_if(is.character,as.numeric)
 # 
 # ## nas why
 # nas_why <- data.frame(apply(VoA_Variables, 2, anyNA))

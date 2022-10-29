@@ -2448,6 +2448,14 @@ if (as.numeric(week) == 0) {
   print("current season conferences should be in use!")
 }
 
+## weird recruit pts fix which is urgently needed in redo of 2022 week 8 rankings
+# Florida International for some reason continually brings up errors in some form or another
+# what I'm saying is that FIU can go fuck itself
+# recruit pts were fine all the other weeks
+# why now????
+# anyway here's wonderwall
+VoA_Variables$recruit_pts[VoA_Variables$team == "Florida International"] = 123.92
+
 ##### Adding Rank Columns #####
 ### if Week = 0
 # PY3 weighted 1x, PY2 weighted 2x, PY1 weighted 3x
@@ -6625,7 +6633,7 @@ if (as.numeric(week) == 0) {
 } else {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,78:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
@@ -6696,7 +6704,7 @@ if (as.numeric(week) == 0) {
 } else {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,24:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,78:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
@@ -6741,6 +6749,24 @@ if (as.numeric(week) == 0) {
     mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 }
+
+
+############### DEBUGGING WEIRD AND STUPID NA ERRORS #####
+## Making values numeric
+VoA_Variables[,6:ncol(VoA_Variables)] <- VoA_Variables[,6:ncol(VoA_Variables)] |> mutate_if(is.character,as.numeric)
+
+## nas why
+nas_why <- data.frame(apply(VoA_Variables, 2, anyNA))
+colnames(nas_why) <- c("containsNAs")
+nas_why <- nas_why |>
+  filter(containsNAs == TRUE)
+recruit_nas_why <- VoA_Variables |>
+  select(team, recruit_pts)
+conference_nas_why <- VoA_Variables |>
+  select(team, recruit_pts, Conference_Strength)
+recruit_nas_teams <- anti_join(VoA_Variables, recruit_nas_why, by = "team")
+
+colnames(VoA_Variables)[apply(VoA_Variables, 2, anyNA)]
 
 
 ## creating data frame with just team, VoA ranking, and VoA output
