@@ -6751,23 +6751,6 @@ if (as.numeric(week) == 0) {
 }
 
 
-############### DEBUGGING WEIRD AND STUPID NA ERRORS #####
-## Making values numeric
-VoA_Variables[,6:ncol(VoA_Variables)] <- VoA_Variables[,6:ncol(VoA_Variables)] |> mutate_if(is.character,as.numeric)
-
-## nas why
-nas_why <- data.frame(apply(VoA_Variables, 2, anyNA))
-colnames(nas_why) <- c("containsNAs")
-nas_why <- nas_why |>
-  filter(containsNAs == TRUE)
-recruit_nas_why <- VoA_Variables |>
-  select(team, recruit_pts)
-conference_nas_why <- VoA_Variables |>
-  select(team, recruit_pts, Conference_Strength)
-recruit_nas_teams <- anti_join(VoA_Variables, recruit_nas_why, by = "team")
-
-colnames(VoA_Variables)[apply(VoA_Variables, 2, anyNA)]
-
 
 ## creating data frame with just team, VoA ranking, and VoA output
 ## Create Vector of teamname, VoA Ranking
