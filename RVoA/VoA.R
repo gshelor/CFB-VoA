@@ -1,4 +1,4 @@
-## The Vortex of Accuracy, Version 4.0.2
+## The Vortex of Accuracy, Version 4.0.3
 ## Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy
 ## Created by Griffin Shelor
 ## Initially intended to use SP+ ratings but due to paywall issues they are unlikely to be
