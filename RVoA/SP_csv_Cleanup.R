@@ -32,22 +32,20 @@ week7_sp <- read_csv(here("Data", "2022SPWeek7FBS.csv")) |>
   select(Game, Proj_winner, Proj_margin, Win_prob)
 week8_sp <- read_csv(here("Data", "2022SPWeek8FBS.csv")) |>
   select(Game, Proj_winner, Proj_margin, Win_prob)
-# week9_sp <- read_csv(here("Data", "2022SPWeek9FBS.csv")) |>
-# select(Game, Proj_winner, Proj_margin, Win_prob)
-# week10_sp <- read_csv(here("Data", "2022SPWeek10FBS.csv")) |>
-# select(Game, Proj_winner, Proj_margin, Win_prob)
-# week11_sp <- read_csv(here("Data", "2022SPWeek11FBS.csv")) |>
-# select(Game, Proj_winner, Proj_margin, Win_prob)
-# week12_sp <- read_csv(here("Data", "2022SPWeek12FBS.csv")) |>
-# select(Game, Proj_winner, Proj_margin, Win_prob)
-# week13_sp <- read_csv(here("Data", "2022SPWeek13FBS.csv")) |>
-# select(Game, Proj_winner, Proj_margin, Win_prob)
-# week14_sp <- read_csv(here("Data", "2022SPWeek14FBS.csv")) |>
-# select(Game, Proj_winner, Proj_margin, Win_prob)
-# week15_sp <- read_csv(here("Data", "2022SPWeek15FBS.csv")) |>
-# select(Game, Proj_winner, Proj_margin, Win_prob)
-# week16_sp <- read_csv(here("Data", "2022SPWeek16FBS.csv")) |>
-# select(Game, Proj_winner, Proj_margin, Win_prob)
+week9_sp <- read_csv(here("Data", "2022SPWeek9FBS.csv")) |>
+  select(Game, Proj_winner, Proj_margin, Win_prob)
+week10_sp <- read_csv(here("Data", "2022SPWeek10FBS.csv")) |>
+  select(Game, Proj_winner, Proj_margin, Win_prob)
+week11_sp <- read_csv(here("Data", "2022SPWeek11FBS.csv")) |>
+  select(Game, Proj_winner, Proj_margin, Win_prob)
+week12_sp <- read_csv(here("Data", "2022SPWeek12FBS.csv")) |>
+  select(Game, Proj_winner, Proj_margin, Win_prob)
+week13_sp <- read_csv(here("Data", "2022SPWeek13FBS.csv")) |>
+  select(Game, Proj_winner, Proj_margin, Win_prob)
+# week14_sp <- read_csv(here("Data", "2022SPWeek14FBS.csv")) |>select(Game, Proj_winner, Proj_margin, Win_prob)
+week15_sp <- read_csv(here("Data", "2022SPWeek15FBS.csv")) |>
+  select(Game, Proj_winner, Proj_margin, Win_prob)
+# week16_sp <- read_csv(here("Data", "2022SPWeek16FBS.csv")) |>select(Game, Proj_winner, Proj_margin, Win_prob)
 
 
 ## combining weekly SP+ data frames to get one df of games and SP+ proj margins and win probabilities
@@ -58,13 +56,13 @@ all_sp <- rbind(all_sp, week5_sp)
 all_sp <- rbind(all_sp, week6_sp)
 all_sp <- rbind(all_sp, week7_sp)
 all_sp <- rbind(all_sp, week8_sp)
-# all_sp <- rbind(all_sp, week9_sp)
-# all_sp <- rbind(all_sp, week10_sp)
-# all_sp <- rbind(all_sp, week11_sp)
-# all_sp <- rbind(all_sp, week12_sp)
-# all_sp <- rbind(all_sp, week13_sp)
+all_sp <- rbind(all_sp, week9_sp)
+all_sp <- rbind(all_sp, week10_sp)
+all_sp <- rbind(all_sp, week11_sp)
+all_sp <- rbind(all_sp, week12_sp)
+all_sp <- rbind(all_sp, week13_sp)
 # all_sp <- rbind(all_sp, week14_sp)
-# all_sp <- rbind(all_sp, week15_sp)
+all_sp <- rbind(all_sp, week15_sp)
 # all_sp <- rbind(all_sp, week16_sp)
 
 ## removing nas

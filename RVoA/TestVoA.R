@@ -4,9 +4,8 @@
 # In this script, garbage time is excluded from Advanced Stats
 # This script uses tidymodels random forest function to predict SP+/FPI-style metric instead of lm() function that main script uses
 library(pacman)
-pacman::p_load(tidyverse, matrixStats, grid, gridExtra, gt, viridis, webshot, 
-               cfbfastR, here, ggsci, RColorBrewer, ggpubr, gtExtras, tidymodels, 
-               ranger, cfbplotR)
+pacman::p_load(tidyverse, gt, cfbfastR, here, RColorBrewer, gtExtras, cfbplotR, ggpubr, 
+               tidymodels)
 
 ## inputting week and year info using
 year <- readline(prompt = "What year is it? ")
@@ -15,12 +14,15 @@ week <- readline(prompt = "What week is it? ")
 ##### setting strings for table titles, file pathways, unintelligible charts #####
 output_dir <- here("RVoA", "Outputs", "Test")
 data_dir <- here("Data", paste("VoA",year, sep = ""), "Test")
-VoAString <- "VoA_Test1.csv"
+preseason_text <- "Preseason"
+resume_text <- "Resume"
+VoAString <- "VoA.csv"
 week_text <- "Week"
 VoA_Top25_text <- "Vortex of Accuracy Top 25"
-top25_png <- "VoATop25_Test.png"
-fulltable_png <- "VoAFullTable_Test.png"
-VoA_text <- "TEST 1 Vortex of Accuracy"
+top25_png <- "VoATop25.png"
+fulltable_png <- "VoAFullTable.png"
+VoA_text <- "Vortex of Accuracy"
+Postseason_text <- "Postseason"
 AAC_text <- "AAC"
 ACC_text <- "ACC"
 Big12_text <- "Big12"
@@ -35,48 +37,52 @@ SunBelt_text <- "SunBelt"
 FBS_text <- "FBS"
 Power_Five_text <- "Power 5"
 Group_Five_text <- "Group of 5"
-Output_text <- "_Outputs_Chart.png"
+Rating_text <- "_Ratings_Chart.png"
 Ranking_text <- "_Rankings_Chart.png"
-Histogram_text <- "_OutputHist.png"
-Output_Rk_Plot_text <- "VoA Outputs vs VoA Rankings"
-Output_Rk_Plot_png <- "Output_Rk.png"
+Histogram_text <- "_RatingHist.png"
+Output_Rating_Plot_text <- "VoA Outputs vs VoA Ratings"
+Output_Rating_Plot_png <- "Output_Rating.png"
 
-FBS_hist_title <- paste(year, week_text, week, FBS_text, VoA_text, "Outputs")
-Power5_hist_title <- paste(year, week_text, week, Power_Five_text, VoA_text, "Outputs")
-Group5_hist_title <- paste(year, week_text, week, Group_Five_text, VoA_text, "Outputs")
-Output_Rk_Plot_title <- paste(year, week_text, week, Output_Rk_Plot_text)
-top25_file_pathway <- paste(week_text,week,"_",year,top25_png, sep = "")
-fulltable_file_pathway <- paste(week_text,week,"_",year,fulltable_png, sep = "")
-AAC_Output_filename <- paste(week_text, week, AAC_text, Output_text, sep = "")
-AAC_Ranking_filename <- paste(week_text, week, AAC_text, Ranking_text, sep = "")
-ACC_Output_filename <- paste(week_text, week, ACC_text, Output_text, sep = "")
-ACC_Ranking_filename <- paste(week_text, week, ACC_text, Ranking_text, sep = "")
-Big12_Output_filename <- paste(week_text, week, Big12_text, Output_text, sep = "")
-Big12_Ranking_filename <- paste(week_text, week, Big12_text, Ranking_text, sep = "")
-Big10_Output_filename <- paste(week_text, week, Big10_text, Output_text, sep = "")
-Big10_Ranking_filename <- paste(week_text, week, Big10_text, Ranking_text, sep = "")
-CUSA_Output_filename <- paste(week_text, week, CUSA_text, Output_text, sep = "")
-CUSA_Ranking_filename <- paste(week_text, week, CUSA_text, Ranking_text, sep = "")
-Indy_Output_filename <- paste(week_text, week, Indy_text, Output_text, sep = "")
-Indy_Ranking_filename <- paste(week_text, week, Indy_text, Ranking_text, sep = "")
-MAC_Output_filename <- paste(week_text, week, MAC_text, Output_text, sep = "")
-MAC_Ranking_filename <- paste(week_text, week, MAC_text, Ranking_text, sep = "")
-MWC_Output_filename <- paste(week_text, week, MWC_text, Output_text, sep = "")
-MWC_Ranking_filename <- paste(week_text, week, MWC_text, Ranking_text, sep = "")
-Pac12_Output_filename <- paste(week_text, week, Pac12_text, Output_text, sep = "")
-Pac12_Ranking_filename <- paste(week_text, week, Pac12_text, Ranking_text, sep = "")
-SEC_Output_filename <- paste(week_text, week, SEC_text, Output_text, sep = "")
-SEC_Ranking_filename <- paste(week_text, week, SEC_text, Ranking_text, sep = "")
-SunBelt_Output_filename <- paste(week_text, week, SunBelt_text, Output_text, sep = "")
-SunBelt_Ranking_filename <- paste(week_text, week, SunBelt_text, Ranking_text, sep = "")
-FBS_hist_filename <- paste(year, "_", week_text, week, "_", FBS_text, Histogram_text, sep = "")
-Power5_hist_filename <- paste(year, "_", week_text, week, "_", Power_Five_text, Histogram_text, sep = "")
-Group5_hist_filename <- paste(year, "_", week_text, week, "_", Group_Five_text, Histogram_text, sep = "")
-Output_Rk_Plot_filename <- paste(year, "_", week_text, week, "_", Output_Rk_Plot_png, sep = "")
-file_pathway <- paste(data_dir, "/",week_text, week,"_",year, VoAString, sep = "")
+FBS_hist_title <- paste(year, week_text, week, FBS_text, VoA_text, "Ratings")
+Power5_hist_title <- paste(year, week_text, week, Power_Five_text, VoA_text, "Ratings")
+Group5_hist_title <- paste(year, week_text, week, Group_Five_text, VoA_text, "Ratings")
+Output_Rating_Plot_title <- paste(year, week_text, week, Output_Rating_Plot_text)
+top25_file_pathway <- paste(year,week_text,week,"_",top25_png, sep = "")
+resumetop25_file_pathway <- paste(year,week_text,week,resume_text,"_",top25_png, sep = "")
+fulltable_file_pathway <- paste(year,week_text,week,"_",fulltable_png, sep = "")
+resumefulltable_file_pathway <- paste(year,week_text,week,resume_text,"_",fulltable_png, sep = "")
+AAC_Output_filename <- paste(year,week_text, week, AAC_text, Rating_text, sep = "")
+AAC_Ranking_filename <- paste(year,week_text, week, AAC_text, Ranking_text, sep = "")
+ACC_Output_filename <- paste(year,week_text, week, ACC_text, Rating_text, sep = "")
+ACC_Ranking_filename <- paste(year,week_text, week, ACC_text, Ranking_text, sep = "")
+Big12_Output_filename <- paste(year,week_text, week, Big12_text, Rating_text, sep = "")
+Big12_Ranking_filename <- paste(year,week_text, week, Big12_text, Ranking_text, sep = "")
+Big10_Output_filename <- paste(year,week_text, week, Big10_text, Rating_text, sep = "")
+Big10_Ranking_filename <- paste(year,week_text, week, Big10_text, Ranking_text, sep = "")
+CUSA_Output_filename <- paste(year,week_text, week, CUSA_text, Rating_text, sep = "")
+CUSA_Ranking_filename <- paste(year,week_text, week, CUSA_text, Ranking_text, sep = "")
+Indy_Output_filename <- paste(year,week_text, week, Indy_text, Rating_text, sep = "")
+Indy_Ranking_filename <- paste(year,week_text, week, Indy_text, Ranking_text, sep = "")
+MAC_Output_filename <- paste(year,week_text, week, MAC_text, Rating_text, sep = "")
+MAC_Ranking_filename <- paste(year,week_text, week, MAC_text, Ranking_text, sep = "")
+MWC_Output_filename <- paste(year,week_text, week, MWC_text, Rating_text, sep = "")
+MWC_Ranking_filename <- paste(year,week_text, week, MWC_text, Ranking_text, sep = "")
+Pac12_Output_filename <- paste(year,week_text, week, Pac12_text, Rating_text, sep = "")
+Pac12_Ranking_filename <- paste(year,week_text, week, Pac12_text, Ranking_text, sep = "")
+SEC_Output_filename <- paste(year,week_text, week, SEC_text, Rating_text, sep = "")
+SEC_Ranking_filename <- paste(year,week_text, week, SEC_text, Ranking_text, sep = "")
+SunBelt_Output_filename <- paste(year,week_text, week, SunBelt_text, Rating_text, sep = "")
+SunBelt_Ranking_filename <- paste(year,week_text, week, SunBelt_text, Ranking_text, sep = "")
+FBS_hist_filename <- paste(year, week_text, week, "_", FBS_text, Histogram_text, sep = "")
+Power5_hist_filename <- paste(year, week_text, week, "_", Power_Five_text, Histogram_text, sep = "")
+Group5_hist_filename <- paste(year, week_text, week, "_", Group_Five_text, Histogram_text, sep = "")
+Output_Rating_Plot_filename <- paste(year, week_text, week, "_", Output_Rating_Plot_png, sep = "")
+## creating string for excel spreadsheet pathway
+file_pathway <- paste(data_dir, "/", year, week_text, week,"_", VoAString, sep = "")
 
 ##### Reading in data #####
 ## pulling in data based on week of the season
+##### Reading in Preseason Data TEST #####
 if (as.numeric(week) == 0) {
   ## reading in data for 3 previous years
   JMU_AllYears <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_AllYears.csv"))
@@ -239,14 +245,14 @@ if (as.numeric(week) == 0) {
   
   ## pulling FPI data
   FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) |>
-    filter(name != "James Madison") |>
-    select(name, fpi, w, l)
+    filter(team_name != "James Madison") |>
+    select(team_name, fpi, w, l)
   FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) |>
-    filter(name != "James Madison") |>
-    select(name, fpi, w, l)
+    filter(team_name != "James Madison") |>
+    select(team_name, fpi, w, l)
   FPI_df_PY3 <- espn_ratings_fpi(year = as.integer(year) - 3) |>
-    filter(name != "James Madison") |>
-    select(name, fpi, w, l)
+    filter(team_name != "James Madison") |>
+    select(team_name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_PY1_colnames <- c("team", "FPI_PY1", "Wins_PY1", "Losses_PY1")
   FPI_PY2_colnames <- c("team", "FPI_PY2", "Wins_PY2", "Losses_PY2")
@@ -265,6 +271,7 @@ if (as.numeric(week) == 0) {
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -285,12 +292,27 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) |>
     select(school, FPI_PY1, Wins_PY1, Losses_PY1)
   FPI_df_PY2 <- FPI_df_PY2 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -311,12 +333,27 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) |>
     select(school, FPI_PY2, Wins_PY2, Losses_PY2)
   FPI_df_PY3 <- FPI_df_PY3 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -337,6 +374,20 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) |>
     select(school, FPI_PY3, Wins_PY3, Losses_PY3)
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
@@ -398,6 +449,7 @@ if (as.numeric(week) == 0) {
     select(team, points)
   colnames(recruit) <- c("team", "recruit_pts")
 } else if (as.numeric(week) == 1) {
+  ##### Week 1 Reading in Data #####
   ## reading in data for 3 previous years
   JMU_AllYears <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_AllYears.csv"))
   Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) |>
@@ -551,14 +603,14 @@ if (as.numeric(week) == 0) {
   
   ## pulling FPI data
   FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) |>
-    filter(name != "James Madison") |>
-    select(name, fpi, w, l)
+    filter(team_name != "James Madison") |>
+    select(team_name, fpi, w, l)
   FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) |>
-    filter(name != "James Madison") |>
-    select(name, fpi, w, l)
+    filter(team_name != "James Madison") |>
+    select(team_name, fpi, w, l)
   FPI_df_PY3 <- espn_ratings_fpi(year = as.integer(year) - 3) |>
-    filter(name != "James Madison") |>
-    select(name, fpi, w, l)
+    filter(team_name != "James Madison") |>
+    select(team_name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_PY1_colnames <- c("team", "FPI_PY1", "Wins_PY1", "Losses_PY1")
   FPI_PY2_colnames <- c("team", "FPI_PY2", "Wins_PY2", "Losses_PY2")
@@ -577,6 +629,7 @@ if (as.numeric(week) == 0) {
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -597,12 +650,27 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) |>
     select(school, FPI_PY1, Wins_PY1, Losses_PY1)
   FPI_df_PY2 <- FPI_df_PY2 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -623,12 +691,27 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) |>
     select(school, FPI_PY2, Wins_PY2, Losses_PY2)
   FPI_df_PY3 <- FPI_df_PY3 |>
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -649,6 +732,20 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) |>
     select(school, FPI_PY3, Wins_PY3, Losses_PY3)
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
@@ -749,7 +846,7 @@ if (as.numeric(week) == 0) {
   ## current FPI data as of this week
   ## pulling FPI data
   FPI_df <- espn_ratings_fpi(year = as.integer(year)) |>
-    select(name, fpi, w, l)
+    select(team_name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_colnames <- c("team", "FPI", "Wins", "Losses")
   colnames(FPI_df) <- FPI_colnames
@@ -762,6 +859,7 @@ if (as.numeric(week) == 0) {
     mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
                               team == 'C Michigan' ~ 'Central Michigan',
                               team == 'Coast Carolina' ~ 'Coastal Carolina',
+                              team == 'Coastal Car' ~ 'Coastal Carolina',
                               team == 'UConn' ~ 'Connecticut',
                               team == 'E Michigan' ~ 'Eastern Michigan',
                               team == 'FAU' ~ 'Florida Atlantic',
@@ -782,6 +880,20 @@ if (as.numeric(week) == 0) {
                               team == 'Washington St' ~ 'Washington State',
                               team == 'Western KY' ~ 'Western Kentucky',
                               team == 'W Michigan' ~ 'Western Michigan',
+                              team == 'Arizona St' ~ 'Arizona State',
+                              team == 'Arkansas St' ~ 'Arkansas State',
+                              team == 'Boise St' ~ 'Boise State',
+                              team == 'Colorado St' ~ 'Colorado State',
+                              team == 'Florida St' ~ 'Florida State',
+                              team == 'Fresno St' ~ 'Fresno State',
+                              team == 'Georgia St' ~ 'Georgia State',
+                              team == 'Kansas St' ~ 'Kansas State',
+                              team == 'Miami OH' ~ 'Miami (OH)',
+                              team == 'Michigan St' ~ 'Michigan State',
+                              team == 'Pitt' ~ 'Pittsburgh',
+                              team == 'San Diego St' ~ 'San Diego State',
+                              team == 'San José St' ~ 'San José State',
+                              team == 'Texas St' ~ 'Texas State',
                               TRUE ~ team)) |>
     select(school, FPI, Wins, Losses)
   colnames(FPI_df) <- FPI_colnames
@@ -793,7 +905,7 @@ if (as.numeric(week) == 0) {
   ## Eliminating NAs
   SP_Rankings[is.na(SP_Rankings)] = 0
 } else if (as.numeric(week) <= 4) {
-  ########## WEEKS 2-4
+  ##### Reading in Weeks 2-4 data #####
   ## reading in data for 2 previous years
   JMU_2Years <- read_csv(here("Data", "VoA2022", "JamesMadisonPrevYears", "JMU_2Years.csv"))
   Stats_PY1 <- cfbd_stats_season_team(year = as.integer(year) - 1, start_week = 1, end_week = 15) |>
@@ -899,11 +1011,11 @@ if (as.numeric(week) == 0) {
   
   ## pulling FPI data
   FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) |>
-    filter(name != "James Madison") |>
-    select(name, fpi, w, l)
+    filter(team_name != "James Madison") |>
+    select(team_name, fpi, w, l)
   FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) |>
-    filter(name != "James Madison") |>
-    select(name, fpi, w, l)
+    filter(team_name != "James Madison") |>
+    select(team_name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_PY1_colnames <- c("team", "FPI_PY1", "Wins_PY1", "Losses_PY1")
   FPI_PY2_colnames <- c("team", "FPI_PY2", "Wins_PY2", "Losses_PY2")
@@ -1050,7 +1162,7 @@ if (as.numeric(week) == 0) {
   ## current FPI data as of this week
   ## pulling FPI data
   FPI_df <- espn_ratings_fpi(year = as.integer(year)) |>
-    select(name, fpi, w, l)
+    select(team_name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_colnames <- c("team", "FPI", "Wins", "Losses")
   colnames(FPI_df) <- FPI_colnames
@@ -1151,8 +1263,8 @@ if (as.numeric(week) == 0) {
   
   ## pulling FPI data
   FPI_df_PY1 <- espn_ratings_fpi(year = as.integer(year) - 1) |>
-    filter(name != "James Madison") |>
-    select(name, fpi, w, l)
+    filter(team_name != "James Madison") |>
+    select(team_name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_PY1_colnames <- c("team", "FPI_PY1", "Wins_PY1", "Losses_PY1")
   colnames(FPI_df_PY1) <- FPI_PY1_colnames
@@ -1255,7 +1367,7 @@ if (as.numeric(week) == 0) {
   ## current FPI data as of this week
   ## pulling FPI data
   FPI_df <- espn_ratings_fpi(year = as.integer(year)) |>
-    select(name, fpi, w, l)
+    select(team_name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_colnames <- c("team", "FPI", "Wins", "Losses")
   colnames(FPI_df) <- FPI_colnames
@@ -1344,7 +1456,7 @@ if (as.numeric(week) == 0) {
   ## current FPI data as of this week
   ## pulling FPI data
   FPI_df <- espn_ratings_fpi(year = as.integer(year)) |>
-    select(name, fpi, w, l)
+    select(team_name, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_colnames <- c("team", "FPI", "Wins", "Losses")
   colnames(FPI_df) <- FPI_colnames
@@ -1774,6 +1886,10 @@ if (as.numeric(week) == 0) {
   all_PY_df_list <- list(PY3_df, PY2_df, PY1_df)
   all_PY_df <- all_PY_df_list |>
     reduce(full_join, by = "team")
+  ## dropping season, conference, and recruit_pts columns from JMU_AllYears after Week 1
+  # those columns are brought in via the pulling of current season data
+  JMU_AllYears <- JMU_AllYears |>
+    select(-season, -conference)
   all_PY_df <- rbind(all_PY_df, JMU_AllYears)
   
   ## after binding JMU csv as new row to PY df
