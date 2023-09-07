@@ -1,12 +1,9 @@
-##### Vortex of Projection version 0.4
+##### Vortex of Projection version 1.0.1
 ### This script will take the most recent csv from the VoA
 ### It will take the VoA Ratings from that csv and use them to project scoring margins for upcoming FBS games
 ## loading packages
 library(pacman)
-pacman::p_load(tidyverse, gt, cfbfastR, here, gtExtras, RColorBrewer, cfbplotR)
-## testing taking packages out to see which ones I'm actually using in this script
-# openxlsx, writexl, rvest, webshot, tidymodels, ranger, grid, gridExtra,
-# matrixStats, ggpubr, viridis, ggsci
+pacman::p_load(tidyverse, gt, cfbfastR, here, gtExtras, RColorBrewer, cfbplotR, webshot2)
 ## Inputting year
 year <- readline(prompt = "What Year is it? ")
 ## Inputting upcoming week number
@@ -68,9 +65,11 @@ if (as.numeric(upcoming) == 1) {
     select(team, VoA_Rating)
 }
 
-## creating random distribution to create artificial VoA rating to be used for FCS teams
+## pulling out SRS ratings for just FCS teams since I don't have VoA ratings for them
+# using last year's until SRS ratings are available for current season
+# expectation is that this will be sometime between weeks 5 and 7, based on 2022 season
 set.seed(69)
-FCS_ratings <- cfbd_ratings_srs(2022) |>
+FCS_ratings <- cfbd_ratings_srs(as.numeric(year) - 1) |>
   filter(conference != "ACC" & conference != "American Athletic" & conference != "Big 12" & conference != "Big Ten" & conference != "Conference USA" & conference != "FBS Independents" & conference != "Mid-American" & conference != "Mountain West" & conference != "Pac-12" & conference != "SEC" & conference != "Sun Belt") |>
   filter(team != "Jacksonville State" & team != "Sam Houston State" & team != "James Madison") |>
   select(team, rating)
@@ -195,14 +194,14 @@ margin_projection <- function(away, home, neutral) {
 # srs <- cfbd_ratings_srs(year = as.numeric(year))
 ## above line produces an error message "Error: The API returned an error"
 ## below line is exactly the same, but works for some reason
-srs <- cfbd_ratings_srs(as.numeric(year))
-fcs_margin_projection <- function(away, home, neutral) {
-  margin_proj = srs$rating[srs$team == away] -  srs$rating[srs$team == home]
-  if (neutral == FALSE) {
-    margin_proj = margin_proj - 2
-  }
-  return(margin_proj)
-}
+# srs <- cfbd_ratings_srs(as.numeric(year))
+# fcs_margin_projection <- function(away, home, neutral) {
+#   margin_proj = srs$rating[srs$team == away] -  srs$rating[srs$team == home]
+#   if (neutral == FALSE) {
+#     margin_proj = margin_proj - 2
+#   }
+#   return(margin_proj)
+# }
 
 ## making gt table of upcoming games df to display games with close spreads
 upcoming_games_df <- upcoming_games_df |>
@@ -213,13 +212,14 @@ upcoming_games_df <- upcoming_games_df |>
                                  TRUE ~ "TIE"),
          Proj_Margin = case_when(neutral_site == FALSE ~ abs(away_VoA_Rating - (home_VoA_Rating + 2)),
                                  TRUE ~ abs(away_VoA_Rating - home_VoA_Rating)),
-         Initial_Win_Prob = coefficients[1,1] + (coefficients[2,1] * Proj_Margin) + (coefficients[3,1] * (Proj_Margin^2))) |>
+         Initial_Win_Prob = 50.37036489 + (2.38892221 * Proj_Margin) + (-0.02809534 * (Proj_Margin^2))) |>
   select(game_id, season, week, neutral_site, home_team, home_VoA_Rating, away_team, away_VoA_Rating, Proj_Winner, Proj_Margin, Initial_Win_Prob) ## |>
   ## arrange(desc(Proj_Margin))
 ## making sure no game has win probability for projected winner lower than 50 or higher than 100
 upcoming_games_df <- upcoming_games_df |>
   mutate(Win_Prob = case_when((Initial_Win_Prob < 50) ~ 50.01,
                               Initial_Win_Prob > 100 ~ 100,
+                              Proj_Margin > 45 ~ 100,
                               TRUE ~ Initial_Win_Prob)) |>
   select(game_id, season, week, neutral_site, home_team, home_VoA_Rating, away_team, away_VoA_Rating, Proj_Winner, Proj_Margin, Win_Prob)
 ## Creating gt table
@@ -248,7 +248,7 @@ upcoming_games_gt <- upcoming_games_df |>
   ) |>  
   data_color( # Update cell colors, testing different color palettes
     columns = c(Proj_Margin), # ...for dose column
-    colors = scales::col_numeric( # <- bc it's numeric
+    fn = scales::col_numeric( # <- bc it's numeric
       palette = brewer.pal(9, "RdBu"), # A color scheme (gradient)
       domain = c(), # Column scale endpoints
       reverse = FALSE
@@ -256,7 +256,7 @@ upcoming_games_gt <- upcoming_games_df |>
   ) |>
   data_color( # Update cell colors, testing different color palettes
     columns = c(Win_Prob), # ...for dose column
-    colors = scales::col_numeric( # <- bc it's numeric
+    fn = scales::col_numeric( # <- bc it's numeric
       palette = brewer.pal(9, "RdYlGn"), # A color scheme (gradient)
       domain = c(), # Column scale endpoints
       reverse = FALSE
@@ -309,7 +309,7 @@ if (as.numeric(upcoming) == 16) {
     ) |>  
     data_color( # Update cell colors, testing different color palettes
       columns = c(Proj_Margin), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "RdBu"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = FALSE
@@ -317,7 +317,7 @@ if (as.numeric(upcoming) == 16) {
     ) |>
     data_color( # Update cell colors, testing different color palettes
       columns = c(Win_Prob), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "RdYlGn"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = FALSE

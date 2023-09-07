@@ -1,4 +1,4 @@
-## The Vortex of Accuracy, Version 4.0.4
+## The Vortex of Accuracy, Version 4.1.1
 ## Supremely Excellent Yet Salaciously Godlike And Infallibly Magnificent Vortex of Accuracy
 ## Created by Griffin Shelor
 ## Initially intended to use SP+ ratings but due to paywall issues they are unlikely to be
@@ -11,7 +11,7 @@
 ## Load Packages for Ranking Variables
 start_time <- Sys.time()
 library(pacman)
-pacman::p_load(tidyverse, gt, cfbfastR, here, RColorBrewer, gtExtras, cfbplotR, ggpubr)
+pacman::p_load(tidyverse, gt, cfbfastR, here, RColorBrewer, gtExtras, cfbplotR, ggpubr, webshot2)
 ## testing to see if script runs without certain packages I don't think are being used
 # writexl, rvest, openxlsx, tidymodels, ranger, grid, gridExtra, matrixStats, viridis, webshot, ggsci,
 
@@ -157,6 +157,7 @@ if (as.numeric(week) <= 1) {
     filter(team == "Connecticut" | team == "New Mexico State" | team == "Old Dominion") |>
     select(team, fpi, w, l)
   colnames(FPI_covid) <- c("team", "FPI_PY3", "Wins_PY3", "Losses_PY3")
+  FPI_covid[,2:ncol(FPI_covid)] <- FPI_covid[,2:ncol(FPI_covid)] |> mutate_if(is.character, as.numeric)
   
   ## pulling in recruiting rankings
   recruit_covid <- cfbd_recruiting_team(year = 2019) |>
@@ -478,6 +479,8 @@ if (as.numeric(week) == 0) {
                             team_name == 'Texas St' ~ 'Texas State',
                             team_name == 'Sam Houston' ~ 'Sam Houston State',
                             team_name == 'GA Southern' ~ 'Georgia Southern',
+                            team_name == 'Massachusetts' ~ 'UMass',
+                            team_name == "J'Ville St" ~ 'Jacksonville State',
                             TRUE ~ team_name)) |>
     select(team, fpi, w, l)
   FPI_df_PY2 <- FPI_df_PY2 |>
@@ -521,6 +524,8 @@ if (as.numeric(week) == 0) {
                             team_name == 'Texas St' ~ 'Texas State',
                             team_name == 'Sam Houston' ~ 'Sam Houston State',
                             team_name == 'GA Southern' ~ 'Georgia Southern',
+                            team_name == 'Massachusetts' ~ 'UMass',
+                            team_name == "J'Ville St" ~ 'Jacksonville State',
                             TRUE ~ team_name)) |>
     select(team, fpi, w, l)
   FPI_df_PY3 <- FPI_df_PY3 |>
@@ -564,6 +569,8 @@ if (as.numeric(week) == 0) {
                             team_name == 'Texas St' ~ 'Texas State',
                             team_name == 'Sam Houston' ~ 'Sam Houston State',
                             team_name == 'GA Southern' ~ 'Georgia Southern',
+                            team_name == 'Massachusetts' ~ 'UMass',
+                            team_name == "J'Ville St" ~ 'Jacksonville State',
                             TRUE ~ team_name)) |>
     select(team, fpi, w, l)
   
@@ -744,46 +751,50 @@ if (as.numeric(week) == 0) {
   ## Changing FPI team names to match up with outputs of cfbdata functions
   ## Changing team names in FPI df to match what appears in cfbfastR stats function
   FPI_df <- FPI_df |>
-    mutate(school = case_when(team == 'Appalachian St' ~ 'Appalachian State',
-                              team == 'C Michigan' ~ 'Central Michigan',
-                              team == 'Coast Carolina' ~ 'Coastal Carolina',
-                              team == 'Coastal Car' ~ 'Coastal Carolina',
-                              team == 'UConn' ~ 'Connecticut',
-                              team == 'E Michigan' ~ 'Eastern Michigan',
-                              team == 'FAU' ~ 'Florida Atlantic',
-                              team == 'Florida Intl' ~ 'Florida International',
-                              team == 'FIU' ~ 'Florida International',
-                              team == 'Georgia So' ~ 'Georgia Southern',
-                              team == 'UL Monroe' ~ 'Louisiana Monroe',
-                              team == 'LA Tech' ~ 'Louisiana Tech',
-                              team == 'MTSU' ~ 'Middle Tennessee',
-                              team == 'Mississippi St' ~ 'Mississippi State',
-                              team == 'New Mexico St' ~ 'New Mexico State',
-                              team == 'N Illinois' ~ 'Northern Illinois',
-                              team == 'Oklahoma St' ~ 'Oklahoma State',
-                              team == 'Oregon St' ~ 'Oregon State',
-                              team == 'San Jose State' ~ 'San José State',
-                              team == 'Southern Miss' ~ 'Southern Mississippi',
-                              team == 'UTSA' ~ 'UT San Antonio',
-                              team == 'Washington St' ~ 'Washington State',
-                              team == 'Western KY' ~ 'Western Kentucky',
-                              team == 'W Michigan' ~ 'Western Michigan',
-                              team == 'Arizona St' ~ 'Arizona State',
-                              team == 'Arkansas St' ~ 'Arkansas State',
-                              team == 'Boise St' ~ 'Boise State',
-                              team == 'Colorado St' ~ 'Colorado State',
-                              team == 'Florida St' ~ 'Florida State',
-                              team == 'Fresno St' ~ 'Fresno State',
-                              team == 'Georgia St' ~ 'Georgia State',
-                              team == 'Kansas St' ~ 'Kansas State',
-                              team == 'Miami OH' ~ 'Miami (OH)',
-                              team == 'Michigan St' ~ 'Michigan State',
-                              team == 'Pitt' ~ 'Pittsburgh',
-                              team == 'San Diego St' ~ 'San Diego State',
-                              team == 'San José St' ~ 'San José State',
-                              team == 'Texas St' ~ 'Texas State',
-                              TRUE ~ team)) |>
-    select(school, FPI, Wins, Losses)
+    mutate(team = case_when(team_name == 'Appalachian St' ~ 'Appalachian State',
+                            team_name == 'C Michigan' ~ 'Central Michigan',
+                            team_name == 'Coast Carolina' ~ 'Coastal Carolina',
+                            team_name == 'Coastal Car' ~ 'Coastal Carolina',
+                            team_name == 'UConn' ~ 'Connecticut',
+                            team_name == 'E Michigan' ~ 'Eastern Michigan',
+                            team_name == 'FAU' ~ 'Florida Atlantic',
+                            team_name == 'Florida Intl' ~ 'Florida International',
+                            team_name == 'FIU' ~ 'Florida International',
+                            team_name == 'Georgia So' ~ 'Georgia Southern',
+                            team_name == 'UL Monroe' ~ 'Louisiana Monroe',
+                            team_name == 'LA Tech' ~ 'Louisiana Tech',
+                            team_name == 'MTSU' ~ 'Middle Tennessee',
+                            team_name == 'Mississippi St' ~ 'Mississippi State',
+                            team_name == 'New Mexico St' ~ 'New Mexico State',
+                            team_name == 'N Illinois' ~ 'Northern Illinois',
+                            team_name == 'Oklahoma St' ~ 'Oklahoma State',
+                            team_name == 'Oregon St' ~ 'Oregon State',
+                            team_name == 'San Jose State' ~ 'San José State',
+                            team_name == 'Southern Miss' ~ 'Southern Mississippi',
+                            team_name == 'UTSA' ~ 'UT San Antonio',
+                            team_name == 'Washington St' ~ 'Washington State',
+                            team_name == 'Western KY' ~ 'Western Kentucky',
+                            team_name == 'W Michigan' ~ 'Western Michigan',
+                            team_name == 'Arizona St' ~ 'Arizona State',
+                            team_name == 'Arkansas St' ~ 'Arkansas State',
+                            team_name == 'Boise St' ~ 'Boise State',
+                            team_name == 'Colorado St' ~ 'Colorado State',
+                            team_name == 'Florida St' ~ 'Florida State',
+                            team_name == 'Fresno St' ~ 'Fresno State',
+                            team_name == 'Georgia St' ~ 'Georgia State',
+                            team_name == 'Kansas St' ~ 'Kansas State',
+                            team_name == 'Miami OH' ~ 'Miami (OH)',
+                            team_name == 'Michigan St' ~ 'Michigan State',
+                            team_name == 'Pitt' ~ 'Pittsburgh',
+                            team_name == 'San Diego St' ~ 'San Diego State',
+                            team_name == 'San José St' ~ 'San José State',
+                            team_name == 'Texas St' ~ 'Texas State',
+                            team_name == 'Sam Houston' ~ 'Sam Houston State',
+                            team_name == 'GA Southern' ~ 'Georgia Southern',
+                            team_name == 'Massachusetts' ~ 'UMass',
+                            team_name == "J'Ville St" ~ 'Jacksonville State',
+                            TRUE ~ team_name)) |>
+    select(team, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
   FPI_colnames <- c("team", "FPI", "Wins", "Losses")
   colnames(FPI_df) <- FPI_colnames
@@ -978,11 +989,11 @@ if (as.numeric(week) == 0) {
     select(team_name, fpi, w, l)
   ## pulling in PY2 FPI data
   FPI_df_PY2 <- espn_ratings_fpi(year = as.integer(year) - 2) |>
-    filter(name != "James Madison" & eam_name != "Sam Houston" & team_name != "Sam Houston State" & team_name != "Jacksonville State") |>
+    filter(team_name != "James Madison" & team_name != "Sam Houston" & team_name != "Sam Houston State" & team_name != "Jacksonville State") |>
     select(team_name, fpi, w, l)
   ## pulling in PY3 FPI data
   FPI_df_PY3 <- espn_ratings_fpi(year = as.integer(year) - 3) |>
-    filter(name != "James Madison" & eam_name != "Sam Houston" & team_name != "Sam Houston State" & team_name != "Jacksonville State" & team_name != "Connecticut" & team_name != "New Mexico State" & team_name != "Old Dominion") |>
+    filter(team_name != "James Madison" & team_name != "Sam Houston" & team_name != "Sam Houston State" & team_name != "Jacksonville State" & team_name != "Connecticut" & team_name != "New Mexico State" & team_name != "Old Dominion") |>
     select(team_name, fpi, w, l)
   ## converting character columns to numeric
   FPI_df_PY1[,2:ncol(FPI_df_PY1)] <- FPI_df_PY1[,2:ncol(FPI_df_PY1)] |> mutate_if(is.character,as.numeric)
@@ -1038,6 +1049,8 @@ if (as.numeric(week) == 0) {
                             team_name == 'Texas St' ~ 'Texas State',
                             team_name == 'Sam Houston' ~ 'Sam Houston State',
                             team_name == 'GA Southern' ~ 'Georgia Southern',
+                            team_name == 'Massachusetts' ~ 'UMass',
+                            team_name == "J'Ville St" ~ 'Jacksonville State',
                             TRUE ~ team_name)) |>
     select(team, fpi, w, l)
   FPI_df_PY2 <- FPI_df_PY2 |>
@@ -1081,6 +1094,8 @@ if (as.numeric(week) == 0) {
                             team_name == 'Texas St' ~ 'Texas State',
                             team_name == 'Sam Houston' ~ 'Sam Houston State',
                             team_name == 'GA Southern' ~ 'Georgia Southern',
+                            team_name == 'Massachusetts' ~ 'UMass',
+                            team_name == "J'Ville St" ~ 'Jacksonville State',
                             TRUE ~ team_name)) |>
     select(team, fpi, w, l)
   FPI_df_PY3 <- FPI_df_PY3 |>
@@ -1124,6 +1139,8 @@ if (as.numeric(week) == 0) {
                             team_name == 'Texas St' ~ 'Texas State',
                             team_name == 'Sam Houston' ~ 'Sam Houston State',
                             team_name == 'GA Southern' ~ 'Georgia Southern',
+                            team_name == 'Massachusetts' ~ 'UMass',
+                            team_name == "J'Ville St" ~ 'Jacksonville State',
                             TRUE ~ team_name)) |>
     select(team, fpi, w, l)
   ## changing column names here since all of the columns used in the VoA are extracted in the first step
@@ -1244,23 +1261,23 @@ if (as.numeric(week) == 0) {
     print("no teams missing from SRS_PY1 data frame")
   }
   
-  ## Current SRS
-  SRS <- cfbd_ratings_srs(year = as.numeric(year)) |>
-    select(team, rating) |>
-    filter(team %in% Stats$team)
-  colnames(SRS) <- c("team", "SRS_rating")
-  ## IFF SRS data for PY1 is missing due to whatever issue
-  missing_SRS_teams <- anti_join(Stats, SRS)
-  if (nrow(missing_SRS_teams) > 0) {
-    SampleSRS <- cfbd_ratings_srs(year = as.numeric(year)) |>
-      select(team, conference, rating)
-    missing_SRSteams <- missing_SRS_teams |>
-      select(team) |>
-      mutate(SRS_rating_PY1 = mean(SampleSRS$rating))
-    SRS <- rbind(SRS, missing_SRSteams)
-  } else {
-    print("no teams missing from SRS data frame")
-  }
+  # ## Current SRS
+  # SRS <- cfbd_ratings_srs(year = as.numeric(year)) |>
+  #   select(team, rating) |>
+  #   filter(team %in% Stats$team)
+  # colnames(SRS) <- c("team", "SRS_rating")
+  # ## IFF SRS data for PY1 is missing due to whatever issue
+  # missing_SRS_teams <- anti_join(Stats, SRS)
+  # if (nrow(missing_SRS_teams) > 0) {
+  #   SampleSRS <- cfbd_ratings_srs(year = as.numeric(year)) |>
+  #     select(team, conference, rating)
+  #   missing_SRSteams <- missing_SRS_teams |>
+  #     select(team) |>
+  #     mutate(SRS_rating_PY1 = mean(SampleSRS$rating))
+  #   SRS <- rbind(SRS, missing_SRSteams)
+  # } else {
+  #   print("no teams missing from SRS data frame")
+  # }
 } else if (as.numeric(week) <= 4) {
   ##### WEEKS 2-4 DATA PULL #####
   ## CURRENT SEASON STATS
@@ -2409,8 +2426,14 @@ if (as.numeric(week) == 0) {
   PY3_df_list <- list(PY3_stats_adv_stats_merge, recruit_PY3, talent_df_PY3, SP_Rankings_PY3, FPI_df_PY3, SRS_PY3)
   PY3_df <- PY3_df_list |>
     reduce(full_join, by = "team")
+  ## removing season and conference columns from COVID Optouts and FCS data frames
+  COVID_Optouts_df <- COVID_Optouts_df |>
+    select(-one_of('season', 'conference'))
+  FCS_PY3 <- FCS_PY3 |>
+    select(-one_of('season', 'conference'))
   PY3_df <- rbind(PY3_df, COVID_Optouts_df)
   PY3_df <- rbind(PY3_df, FCS_PY3)
+  PY3_df[,2] <- PY3_df[,2] |> mutate_if(is.character, as.numeric)
   
   PY2_stats_adv_stats_list <- list(Stats_PY2, Adv_Stats_PY2)
   PY2_stats_adv_stats_merge <- PY2_stats_adv_stats_list |>
@@ -2464,6 +2487,7 @@ if (as.numeric(week) == 0) {
   PY2_df <- PY2_df_list |>
     reduce(full_join, by = "team")
   PY2_df <- rbind(PY2_df, FCS_PY2)
+  PY2_df[,2] <- PY2_df[,2] |> mutate_if(is.character, as.numeric)
   
   
   PY1_stats_adv_stats_list <- list(Stats_PY1, Adv_Stats_PY1)
@@ -2547,7 +2571,8 @@ if (as.numeric(week) == 0) {
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
   ## merging all current year data frames
   # due to availability issues, SP_Rankings not included with current data
-  Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df, SRS)
+  # SRS left out for Week 1
+  Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df)
   Current_df <- Current_df_list |>
     reduce(full_join, by = "team")
   
@@ -2565,7 +2590,7 @@ if (as.numeric(week) == 0) {
            FPI_SP_SRS_PY1_mean = (sp_rating_PY1 + FPI_PY1 + SRS_rating_PY1) / 3,
            AllPY_FPI_SP_SRS_mean = (FPI_SP_SRS_PY3_mean + FPI_SP_SRS_PY2_mean + FPI_SP_SRS_PY1_mean) / 3,
            WeightedAllPY_FPI_SP_SRS_mean = ((FPI_SP_SRS_PY3_mean * 0.1) + (FPI_SP_SRS_PY2_mean * 0.25) + (FPI_SP_SRS_PY1_mean * 0.65)) / 3,
-           FPI_SRS_mean = (FPI + SRS_rating) / 2)
+           FPI_SRS_mean = (FPI + SRS_rating_PY1) / 2)
            # FPI_SP_mean = (sp_rating + FPI) / 2)
   # due to availability issues, SP_Rankings not included with current data
 } else if (as.numeric(week) <= 4) {
@@ -4472,7 +4497,7 @@ if (as.numeric(week) == 0) {
            # Rank_SP_Def_Rating = dense_rank(sp_defense_rating),
            # Rank_SP_SpecialTeams_Rating = dense_rank(desc(sp_special_teams_rating)),
            Rank_FPI = dense_rank(desc(FPI)),
-           Rank_SRS = dense_rank(desc(SRS_rating)),
+           # Rank_SRS = dense_rank(desc(SRS_rating)),
            # Rank_FPI_SP_mean = dense_rank(desc(FPI_SP_mean)),
            Rank_FPI_SRS_mean = dense_rank(desc(FPI_SRS_mean)),
            # due to availability issues, SP_Rankings not included with current data
@@ -7015,7 +7040,7 @@ if (as.numeric(week) == 0) {
       Rank_Def_Pass_Play_Success_Rt_col2 = dense_rank(def_passing_plays_success_rate),
       Rank_Def_Pass_Play_Explosiveness_col2 = dense_rank(def_passing_plays_explosiveness))
 }
-## end of if statement
+ ## end of if statement
 
 ## Adding Column with CFB Week number
 # same number for each team, numeric version of number input in readline function at beginning of script
@@ -7027,7 +7052,7 @@ VoA_Variables <- VoA_Variables |>
 
 ##### calculating the mean stat ranking, VoA_Output #####
 ## Rank variables start at 248 for Week 0
-## Rank variables start at ???? for Week 1
+## Rank variables start at 321 for Week 1
 ## it will be a different number for the other weeks
 ## script wouldn't run properly without a real number in there so I'll have to come back
 # and edit the number in during the season as I figure out how big VoA_Variables gets
@@ -7043,7 +7068,7 @@ if (as.numeric(week) == 0) {
 } else if (as.numeric(week) == 1) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,316:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,321:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
@@ -7233,7 +7258,7 @@ if (as.numeric(week) == 0) {
     ) |>
     data_color( # Update cell colors, testing different color palettes
       columns = c(VoA_Rating), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "Reds"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = FALSE
@@ -7266,7 +7291,7 @@ if (as.numeric(week) == 0) {
     ) |> 
     data_color( # Update cell colors, testing different color palettes
       columns = c(VoA_Rating), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "RdBu"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = TRUE
@@ -7299,7 +7324,7 @@ if (as.numeric(week) == 0) {
     ) |>
     data_color( # Update cell colors, testing different color palettes
       columns = c(VoA_Rating), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "Reds"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = FALSE
@@ -7332,7 +7357,7 @@ if (as.numeric(week) == 0) {
     ) |> 
     data_color( # Update cell colors, testing different color palettes
       columns = c(VoA_Rating), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "RdBu"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = TRUE
@@ -7365,7 +7390,7 @@ if (as.numeric(week) == 0) {
     ) |>
     data_color( # Update cell colors, testing different color palettes
       columns = c(VoA_Rating), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "Reds"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = FALSE
@@ -7398,7 +7423,7 @@ if (as.numeric(week) == 0) {
     ) |> 
     data_color( # Update cell colors, testing different color palettes
       columns = c(VoA_Rating), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "RdBu"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = TRUE
@@ -13091,7 +13116,7 @@ if (as.numeric(week) > 5) {
     ) |>
     data_color( # Update cell colors, testing different color palettes
       columns = c(Resume_VoA), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "Reds"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = FALSE
@@ -13124,7 +13149,7 @@ if (as.numeric(week) > 5) {
     ) |> 
     data_color( # Update cell colors, testing different color palettes
       columns = c(Resume_VoA), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "RdBu"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = TRUE
@@ -13157,7 +13182,7 @@ if (as.numeric(week) > 5) {
     ) |>
     data_color( # Update cell colors, testing different color palettes
       columns = c(Resume_VoA), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "Reds"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = FALSE
@@ -13190,7 +13215,7 @@ if (as.numeric(week) > 5) {
     ) |> 
     data_color( # Update cell colors, testing different color palettes
       columns = c(Resume_VoA), # ...for dose column
-      colors = scales::col_numeric( # <- bc it's numeric
+      fn = scales::col_numeric( # <- bc it's numeric
         palette = brewer.pal(9, "RdBu"), # A color scheme (gradient)
         domain = c(), # Column scale endpoints
         reverse = TRUE
