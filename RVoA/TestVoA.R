@@ -2207,6 +2207,13 @@ VoA_Variables_Test <- VoA_Variables_Test |>
   select(-conference)
 colnames(VoA_Variables_Test)[colnames(VoA_Variables_Test) == "conference_temp"] <- "conference"
 
+##### NA troubleshooting #####
+# VoA_Var_NAS <- VoA_Variables[rowSums(is.na(VoA_Variables)) > 0,]
+# colnames(VoA_Var_NAS)[colSums(is.na(VoA_Var_NAS)) > 0]
+# VoA_Var_NAS <- VoA_Var_NAS |>
+#   select(team, recruit_pts_PY3, Conference_Strength, VoA_Output)
+
+
 ##### Adding Rank Columns #####
 ### if Week = 0
 # PY3 weighted 1x, PY2 weighted 2x, PY1 weighted 3x
