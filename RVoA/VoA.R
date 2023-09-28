@@ -1714,23 +1714,28 @@ if (as.numeric(week) == 0) {
     print("no teams missing from SRS_PY1 data frame")
   }
   
-  # ## Current SRS
-  # SRS <- cfbd_ratings_srs(year = as.numeric(year)) |>
-  #   select(team, rating) |>
-  #   filter(team %in% Stats$team)
-  # colnames(SRS) <- c("team", "SRS_rating")
-  # ## IFF SRS data for PY1 is missing due to whatever issue
-  # missing_SRS_teams <- anti_join(Stats, SRS)
-  # if (nrow(missing_SRS_teams) > 0) {
-  #   SampleSRS <- cfbd_ratings_srs(year = as.numeric(year)) |>
-  #     select(team, conference, rating)
-  #   missing_SRSteams <- missing_SRS_teams |>
-  #     select(team) |>
-  #     mutate(SRS_rating_PY1 = mean(SampleSRS$rating))
-  #   SRS <- rbind(SRS, missing_SRSteams)
-  # } else {
-  #   print("no teams missing from SRS data frame")
-  # }
+  ## Current SRS
+  ## current SRs is only available after Week 4 at the earliest
+  if (as.numeric(week) == 4) {
+    SRS <- cfbd_ratings_srs(year = as.numeric(year)) |>
+      select(team, rating) |>
+      filter(team %in% Stats$team)
+    colnames(SRS) <- c("team", "SRS_rating")
+    #IFF SRS data for PY1 is missing due to whatever issue
+    missing_SRS_teams <- anti_join(Stats, SRS)
+    if (nrow(missing_SRS_teams) > 0) {
+      SampleSRS <- cfbd_ratings_srs(year = as.numeric(year)) |>
+        select(team, conference, rating)
+      missing_SRSteams <- missing_SRS_teams |>
+        select(team) |>
+        mutate(SRS_rating_PY1 = mean(SampleSRS$rating))
+      SRS <- rbind(SRS, missing_SRSteams)
+    } else {
+      print("no teams missing from SRS data frame")
+    }
+  } else {
+    print("SRS not ready yet!")
+  }
 } else if (as.numeric(week) <= 6) {
   ##### WEEKS 5-6 Data Pull #####
   ## CURRENT SEASON STATS
@@ -2779,9 +2784,15 @@ if (as.numeric(week) == 0) {
            def_passing_plays_success_rate, def_passing_plays_explosiveness)
   ## merging all current year data frames
   # due to availability issues, SP_Rankings not included with current data
-  Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df, SP_Rankings, recruit_PY3)
-  Current_df <- Current_df_list |>
-    reduce(full_join, by = "team")
+  if (as.numeric(week) < 4) {
+    Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df, SP_Rankings, recruit_PY3)
+    Current_df <- Current_df_list |>
+      reduce(full_join, by = "team")
+  } else {
+    Current_df_list <- list(stats_adv_stats_merge, recruit, FPI_df, SP_Rankings, recruit_PY3, SRS)
+    Current_df <- Current_df_list |>
+      reduce(full_join, by = "team")
+  }
   
   ## merging all PY data frames in order of PY2, PY1
   all_PY_df_list <- list(PY2_df, PY1_df)
@@ -2790,27 +2801,51 @@ if (as.numeric(week) == 0) {
   
   ## after binding JMU csv as new row to PY df
   all_df_list <- list(Current_df, all_PY_df)
-  VoA_Variables <- all_df_list |>
-    reduce(full_join, by = "team") |>
-    mutate(PPA_diff_PY2 = off_ppa_PY2 - def_ppa_PY2,
-           PPA_diff_PY1 = off_ppa_PY1 - def_ppa_PY1,
-           SuccessRt_diff_PY2 = off_success_rate_PY2 - def_success_rate_PY2,
-           SuccessRt_diff_PY1 = off_success_rate_PY1 - def_success_rate_PY1,
-           HavocRt_diff_PY2 = def_havoc_total_PY2 - off_havoc_total_PY2,
-           HavocRt_diff_PY1 = def_havoc_total_PY1 - off_havoc_total_PY1,
-           Explosiveness_diff_PY2 = off_explosiveness_PY2 - def_explosiveness_PY2,
-           Explosiveness_diff_PY1 = off_explosiveness_PY1 - def_explosiveness_PY1,
-           PPA_diff = off_ppa - def_ppa,
-           SuccessRt_diff = off_success_rate - def_success_rate,
-           HavocRt_diff = def_havoc_total - off_havoc_total,
-           Explosiveness_diff = off_explosiveness - def_explosiveness,
-           FPI_SP_SRS_PY2_mean = (sp_rating_PY2 + FPI_PY2 + SRS_rating_PY2) / 3,
-           FPI_SP_SRS_PY1_mean = (sp_rating_PY1 + FPI_PY1 + SRS_rating_PY1) / 3,
-           AllPY_FPI_SP_SRS_mean = (FPI_SP_SRS_PY2_mean + FPI_SP_SRS_PY1_mean) / 2,
-           WeightedAllPY_FPI_SP_SRS_mean = ((FPI_SP_SRS_PY2_mean * 0.3) + (FPI_SP_SRS_PY1_mean * 0.7)) / 2,
-           FPI_SP_mean = (FPI + sp_rating) / 2,
-           FPI_SRS_mean = (FPI + SRS_rating_PY1) / 2,
-           FPI_SP_SRS_mean = (FPI + sp_rating + SRS_rating_PY1) / 3)
+  if (as.numeric(week) < 4){
+    VoA_Variables <- all_df_list |>
+      reduce(full_join, by = "team") |>
+      mutate(PPA_diff_PY2 = off_ppa_PY2 - def_ppa_PY2,
+             PPA_diff_PY1 = off_ppa_PY1 - def_ppa_PY1,
+             SuccessRt_diff_PY2 = off_success_rate_PY2 - def_success_rate_PY2,
+             SuccessRt_diff_PY1 = off_success_rate_PY1 - def_success_rate_PY1,
+             HavocRt_diff_PY2 = def_havoc_total_PY2 - off_havoc_total_PY2,
+             HavocRt_diff_PY1 = def_havoc_total_PY1 - off_havoc_total_PY1,
+             Explosiveness_diff_PY2 = off_explosiveness_PY2 - def_explosiveness_PY2,
+             Explosiveness_diff_PY1 = off_explosiveness_PY1 - def_explosiveness_PY1,
+             PPA_diff = off_ppa - def_ppa,
+             SuccessRt_diff = off_success_rate - def_success_rate,
+             HavocRt_diff = def_havoc_total - off_havoc_total,
+             Explosiveness_diff = off_explosiveness - def_explosiveness,
+             FPI_SP_SRS_PY2_mean = (sp_rating_PY2 + FPI_PY2 + SRS_rating_PY2) / 3,
+             FPI_SP_SRS_PY1_mean = (sp_rating_PY1 + FPI_PY1 + SRS_rating_PY1) / 3,
+             AllPY_FPI_SP_SRS_mean = (FPI_SP_SRS_PY2_mean + FPI_SP_SRS_PY1_mean) / 2,
+             WeightedAllPY_FPI_SP_SRS_mean = ((FPI_SP_SRS_PY2_mean * 0.3) + (FPI_SP_SRS_PY1_mean * 0.7)) / 2,
+             FPI_SP_mean = (FPI + sp_rating) / 2,
+             FPI_SRS_mean = (FPI + SRS_rating_PY1) / 2,
+             FPI_SP_SRS_mean = (FPI + sp_rating + SRS_rating_PY1) / 3)
+  } else {
+    VoA_Variables <- all_df_list |>
+      reduce(full_join, by = "team") |>
+      mutate(PPA_diff_PY2 = off_ppa_PY2 - def_ppa_PY2,
+             PPA_diff_PY1 = off_ppa_PY1 - def_ppa_PY1,
+             SuccessRt_diff_PY2 = off_success_rate_PY2 - def_success_rate_PY2,
+             SuccessRt_diff_PY1 = off_success_rate_PY1 - def_success_rate_PY1,
+             HavocRt_diff_PY2 = def_havoc_total_PY2 - off_havoc_total_PY2,
+             HavocRt_diff_PY1 = def_havoc_total_PY1 - off_havoc_total_PY1,
+             Explosiveness_diff_PY2 = off_explosiveness_PY2 - def_explosiveness_PY2,
+             Explosiveness_diff_PY1 = off_explosiveness_PY1 - def_explosiveness_PY1,
+             PPA_diff = off_ppa - def_ppa,
+             SuccessRt_diff = off_success_rate - def_success_rate,
+             HavocRt_diff = def_havoc_total - off_havoc_total,
+             Explosiveness_diff = off_explosiveness - def_explosiveness,
+             FPI_SP_SRS_PY2_mean = (sp_rating_PY2 + FPI_PY2 + SRS_rating_PY2) / 3,
+             FPI_SP_SRS_PY1_mean = (sp_rating_PY1 + FPI_PY1 + SRS_rating_PY1) / 3,
+             AllPY_FPI_SP_SRS_mean = (FPI_SP_SRS_PY2_mean + FPI_SP_SRS_PY1_mean) / 2,
+             WeightedAllPY_FPI_SP_SRS_mean = ((FPI_SP_SRS_PY2_mean * 0.3) + (FPI_SP_SRS_PY1_mean * 0.7)) / 2,
+             FPI_SP_mean = (FPI + sp_rating) / 2,
+             FPI_SRS_mean = (FPI + SRS_rating_PY1) / 2,
+             FPI_SP_SRS_mean = (FPI + sp_rating + SRS_rating) / 3)
+  }
   # due to availability issues, SP_Rankings sometimes not included with current data
   # as of 2023 week 2, some SP ratings are available.
   # due to availability issues, they may not always be completely up to date
@@ -7404,13 +7439,17 @@ if (as.numeric(week) == 0) {
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
-} else if (as.numeric(week) <= 4) {
+} else if (as.numeric(week) <= 3) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,260:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
+} else if (as.numeric(week) == 4) {
+  ## Append new column of Model output, which is the mean of all variables in VoARanks
+  VoA_Variables <- VoA_Variables |>
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,261:ncol(VoA_Variables)])))
 } else if (as.numeric(week) == 5) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
@@ -7470,24 +7509,25 @@ if (as.numeric(week) == 0) {
 } else if (as.numeric(week) == 1) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,316:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,321:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
-} else if (as.numeric(week) <= 4) {
+} else if (as.numeric(week) <= 3) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
-    mutate(VoA_Output = (rowMeans(VoA_Variables[,237:ncol(VoA_Variables)])))
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,260:ncol(VoA_Variables)])))
   ## Append column of VoA Final Rankings
   # VoA_Variables <- VoA_Variables |>
   #   mutate(VoA_Ranking = dense_rank(VoA_Output))
+} else if (as.numeric(week) == 4) {
+  ## Append new column of Model output, which is the mean of all variables in VoARanks
+  VoA_Variables <- VoA_Variables |>
+    mutate(VoA_Output = (rowMeans(VoA_Variables[,261:ncol(VoA_Variables)])))
 } else if (as.numeric(week) == 5) {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
     mutate(VoA_Output = (rowMeans(VoA_Variables[,157:ncol(VoA_Variables)])))
-  ## Append column of VoA Final Rankings
-  # VoA_Variables <- VoA_Variables |>
-  #   mutate(VoA_Ranking = dense_rank(VoA_Output))
 } else {
   ## Append new column of Model output, which is the mean of all variables in VoARanks
   VoA_Variables <- VoA_Variables |>
@@ -7522,31 +7562,31 @@ if (as.numeric(week) == 0) {
 # current will be only data source used, everything weighted "1x" (aside from special variables)
 set.seed(386)
 if (as.numeric(week) == 0) {
-  model <- lm(AllPY_FPI_SP_SRS_mean ~ off_ppa_PY1^3 + off_ppa_PY2^2 + def_ppa_PY1^3 + def_ppa_PY2^2 + off_ppa_PY3 + def_ppa_PY3 + VoA_Output^5 + Conference_Strength^2 + off_ypp_PY3 + off_ypp_PY2^2 + off_ypp_PY1^3 + off_success_rate_PY3 + off_success_rate_PY2^2 + off_success_rate_PY1^3 + def_success_rate_PY3 + def_success_rate_PY2^2 + def_success_rate_PY1^3 + off_explosiveness_PY3 + off_explosiveness_PY2^2 + off_explosiveness_PY1^3 + def_explosiveness_PY3 + def_explosiveness_PY2^2 + def_explosiveness_PY1^3 + off_pts_per_opp_PY3 + off_pts_per_opp_PY2^2 + off_pts_per_opp_PY1^3 + def_pts_per_opp_PY3 + def_pts_per_opp_PY2^2 + def_pts_per_opp_PY1^3, data = VoA_Variables)
+  model <- lm(AllPY_FPI_SP_SRS_mean ~ off_ppa_PY1^3 + off_ppa_PY2^2 + def_ppa_PY1^3 + def_ppa_PY2^2 + off_ppa_PY3 + def_ppa_PY3 + VoA_Output^5 + Conference_Strength^2 + off_ypp_PY3 + off_ypp_PY2^2 + off_ypp_PY1^3 + off_success_rate_PY3 + off_success_rate_PY2^2 + off_success_rate_PY1^3 + def_success_rate_PY3 + def_success_rate_PY2^2 + def_success_rate_PY1^3 + off_explosiveness_PY3 + off_explosiveness_PY2^2 + off_explosiveness_PY1^3 + def_explosiveness_PY3 + def_explosiveness_PY2^2 + def_explosiveness_PY1^3 + off_pts_per_opp_PY3 + off_pts_per_opp_PY2^2 + off_pts_per_opp_PY1^3 + def_pts_per_opp_PY3 + def_pts_per_opp_PY2^2 + def_pts_per_opp_PY1^3 +  PPA_diff_PY2^2 + PPA_diff_PY1^3 + PPA_diff_PY3 + SuccessRt_diff_PY2^2 + SuccessRt_diff_PY1^3 + SuccessRt_diff_PY3 + HavocRt_diff_PY2^2 + HavocRt_diff_PY1^3 + HavocRt_diff_PY3 + Explosiveness_diff_PY2^2 + Explosiveness_diff_PY1^3 + Explosiveness_diff_PY3, data = VoA_Variables)
   ## summary(model)
   VoA_Variables <- VoA_Variables |>
     mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating))) 
 } else if (as.numeric(week) == 1) {
-  model <- lm(FPI_SRS_mean ~ off_ppa + off_ppa_PY1^3 + off_ppa_PY2^2 + def_ppa + def_ppa_PY1^3 + def_ppa_PY2^2 + off_ppa_PY3 + def_ppa_PY3 + VoA_Output^5 + Conference_Strength^2 + off_ypp_PY3 + off_ypp_PY2^2 + off_ypp_PY1^3 + off_ypp + off_success_rate_PY3 + off_success_rate + off_success_rate_PY2^2 + off_success_rate_PY1^3 + def_success_rate_PY3 + def_success_rate_PY2^2 + def_success_rate_PY1^3 + def_success_rate + off_explosiveness_PY3 + off_explosiveness_PY2^2 + off_explosiveness_PY1^3 + off_explosiveness + def_explosiveness_PY3 + def_explosiveness_PY2^2 + def_explosiveness_PY1^3 + def_explosiveness + off_pts_per_opp_PY3 + off_pts_per_opp_PY2^2 + off_pts_per_opp_PY1^3 + off_pts_per_opp + def_pts_per_opp_PY3 + def_pts_per_opp_PY2^2 + def_pts_per_opp_PY1^3 + def_pts_per_opp, data = VoA_Variables)
+  model <- lm(FPI_SRS_mean ~ off_ppa + off_ppa_PY1^3 + off_ppa_PY2^2 + def_ppa + def_ppa_PY1^3 + def_ppa_PY2^2 + off_ppa_PY3 + def_ppa_PY3 + VoA_Output^5 + Conference_Strength^2 + off_ypp_PY3 + off_ypp_PY2^2 + off_ypp_PY1^3 + off_ypp + off_success_rate_PY3 + off_success_rate + off_success_rate_PY2^2 + off_success_rate_PY1^3 + def_success_rate_PY3 + def_success_rate_PY2^2 + def_success_rate_PY1^3 + def_success_rate + off_explosiveness_PY3 + off_explosiveness_PY2^2 + off_explosiveness_PY1^3 + off_explosiveness + def_explosiveness_PY3 + def_explosiveness_PY2^2 + def_explosiveness_PY1^3 + def_explosiveness + off_pts_per_opp_PY3 + off_pts_per_opp_PY2^2 + off_pts_per_opp_PY1^3 + off_pts_per_opp + def_pts_per_opp_PY3 + def_pts_per_opp_PY2^2 + def_pts_per_opp_PY1^3 + def_pts_per_opp + PPA_diff_PY3 + PPA_diff_PY2^2 + PPA_diff_PY1^3 + PPA_diff + SuccessRt_diff_PY3 + SuccessRt_diff_PY2^2 + SuccessRt_diff_PY1^3 + SuccessRt_diff + HavocRt_diff_PY3 + HavocRt_diff_PY2^2 + HavocRt_diff_PY1^3 + HavocRt_diff + Explosiveness_diff_PY3 + Explosiveness_diff_PY2^2 + Explosiveness_diff_PY1^3 + Explosiveness_diff, data = VoA_Variables)
   ## summary(model)
   VoA_Variables <- VoA_Variables |>
     mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 } else if (as.numeric(week) <= 4) {
-  model <- lm(FPI_SP_SRS_mean ~ off_ppa^2 + off_ppa_PY1^2 + off_ppa_PY2 + def_ppa^2 + def_ppa_PY1^2 + def_ppa_PY2 + VoA_Output^5 + Conference_Strength^2 + off_ypp_PY2 + off_ypp_PY1^2 + off_ypp^2 + off_success_rate^2 + off_success_rate_PY2 + off_success_rate_PY1^2 + def_success_rate_PY2 + def_success_rate_PY1^2 + def_success_rate^2 + off_explosiveness_PY2 + off_explosiveness_PY1^2 + off_explosiveness^2 + def_explosiveness_PY2 + def_explosiveness_PY1^2 + def_explosiveness^2 + off_pts_per_opp_PY2 + off_pts_per_opp_PY1^2 + off_pts_per_opp^2 + def_pts_per_opp_PY2 + def_pts_per_opp_PY1^2 + def_pts_per_opp^2, data = VoA_Variables)
+  model <- lm(FPI_SP_SRS_mean ~ off_ppa^2 + off_ppa_PY1^2 + off_ppa_PY2 + def_ppa^2 + def_ppa_PY1^2 + def_ppa_PY2 + VoA_Output^5 + Conference_Strength^2 + off_ypp_PY2 + off_ypp_PY1^2 + off_ypp^2 + off_success_rate^2 + off_success_rate_PY2 + off_success_rate_PY1^2 + def_success_rate_PY2 + def_success_rate_PY1^2 + def_success_rate^2 + off_explosiveness_PY2 + off_explosiveness_PY1^2 + off_explosiveness^2 + def_explosiveness_PY2 + def_explosiveness_PY1^2 + def_explosiveness^2 + off_pts_per_opp_PY2 + off_pts_per_opp_PY1^2 + off_pts_per_opp^2 + def_pts_per_opp_PY2 + def_pts_per_opp_PY1^2 + def_pts_per_opp^2 + PPA_diff_PY2 + PPA_diff_PY1^2 + PPA_diff^2 + SuccessRt_diff_PY2 + SuccessRt_diff_PY1^2 + SuccessRt_diff^2 + HavocRt_diff_PY2 + HavocRt_diff_PY1^2 + HavocRt_diff^2 + Explosiveness_diff_PY2 + Explosiveness_diff_PY1^2 + Explosiveness_diff^2, data = VoA_Variables)
   ## summary(model)
   VoA_Variables <- VoA_Variables |>
     mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 } else if (as.numeric(week) <= 6) {
-  model <- lm(FPI_SRS_mean ~ off_ppa^2 + off_ppa_PY1 + def_ppa^2 + def_ppa_PY1 + VoA_Output^5 + Conference_Strength^2 + off_ypp_PY1 + off_ypp^2 + off_success_rate^2 + off_success_rate_PY1 + def_success_rate_PY1 + def_success_rate^2 + off_explosiveness_PY1 + off_explosiveness^2 + def_explosiveness_PY1 + def_explosiveness^2 + off_pts_per_opp_PY1 + off_pts_per_opp^2 + def_pts_per_opp_PY1 + def_pts_per_opp^2, data = VoA_Variables)
+  model <- lm(FPI_SRS_mean ~ off_ppa^2 + off_ppa_PY1 + def_ppa^2 + def_ppa_PY1 + VoA_Output^5 + Conference_Strength^2 + off_ypp_PY1 + off_ypp^2 + off_success_rate^2 + off_success_rate_PY1 + def_success_rate_PY1 + def_success_rate^2 + off_explosiveness_PY1 + off_explosiveness^2 + def_explosiveness_PY1 + def_explosiveness^2 + off_pts_per_opp_PY1 + off_pts_per_opp^2 + def_pts_per_opp_PY1 + def_pts_per_opp^2 + PPA_diff_PY1 + PPA_diff^2 + SuccessRt_diff_PY1 + SuccessRt_diff^2 + HavocRt_diff_PY1 + HavocRt_diff^2 + Explosiveness_diff_PY1 + Explosiveness_diff^2, data = VoA_Variables)
   ## summary(model)
   VoA_Variables <- VoA_Variables |>
     mutate(VoA_Rating = predict(model),
            VoA_Ranking = dense_rank(desc(VoA_Rating)))
 } else {
-  model <- lm(FPI_SRS_mean ~ off_ppa + def_ppa + VoA_Output^3 + Conference_Strength^2 + off_ypp + off_success_rate + def_success_rate + off_explosiveness + def_explosiveness + off_pts_per_opp + def_pts_per_opp, data = VoA_Variables)
+  model <- lm(FPI_SRS_mean ~ off_ppa + def_ppa + VoA_Output^3 + Conference_Strength^2 + off_ypp + off_success_rate + def_success_rate + off_explosiveness + def_explosiveness + off_pts_per_opp + def_pts_per_opp + PPA_diff + SuccessRt_diff + HavocRt_diff + Explosiveness_diff, data = VoA_Variables)
   ## summary(model)
   VoA_Variables <- VoA_Variables |>
     mutate(VoA_Rating = predict(model),

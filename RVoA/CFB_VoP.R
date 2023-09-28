@@ -69,11 +69,19 @@ if (as.numeric(upcoming) == 1) {
 # using last year's until SRS ratings are available for current season
 # expectation is that this will be sometime between weeks 5 and 7, based on 2022 season
 set.seed(69)
-FCS_ratings <- cfbd_ratings_srs(as.numeric(year) - 1) |>
-  filter(conference != "ACC" & conference != "American Athletic" & conference != "Big 12" & conference != "Big Ten" & conference != "Conference USA" & conference != "FBS Independents" & conference != "Mid-American" & conference != "Mountain West" & conference != "Pac-12" & conference != "SEC" & conference != "Sun Belt") |>
-  filter(team != "Jacksonville State" & team != "Sam Houston State" & team != "James Madison") |>
-  select(team, rating)
-colnames(FCS_ratings) <- c("team", "VoA_Rating")
+if (as.numeric(upcoming) < 5) {
+  FCS_ratings <- cfbd_ratings_srs(as.numeric(year) - 1) |>
+    filter(conference != "ACC" & conference != "American Athletic" & conference != "Big 12" & conference != "Big Ten" & conference != "Conference USA" & conference != "FBS Independents" & conference != "Mid-American" & conference != "Mountain West" & conference != "Pac-12" & conference != "SEC" & conference != "Sun Belt") |>
+    filter(team != "Jacksonville State" & team != "Sam Houston State" & team != "James Madison") |>
+    select(team, rating)
+  colnames(FCS_ratings) <- c("team", "VoA_Rating")
+} else {
+  FCS_ratings <- cfbd_ratings_srs(as.numeric(year)) |>
+    filter(conference != "ACC" & conference != "American Athletic" & conference != "Big 12" & conference != "Big Ten" & conference != "Conference USA" & conference != "FBS Independents" & conference != "Mid-American" & conference != "Mountain West" & conference != "Pac-12" & conference != "SEC" & conference != "Sun Belt") |>
+    filter(team != "Jacksonville State" & team != "Sam Houston State" & team != "James Madison") |>
+    select(team, rating)
+  colnames(FCS_ratings) <- c("team", "VoA_Rating")
+}
 
 ## Binding most recent VoA (PrevWeek_VoA) and FCS_ratings as if rating systems are the same
 PrevWeek_VoA <- rbind(PrevWeek_VoA, FCS_ratings)
@@ -222,60 +230,6 @@ upcoming_games_df <- upcoming_games_df |>
                               Proj_Margin > 45 ~ 100,
                               TRUE ~ Initial_Win_Prob)) |>
   select(game_id, season, week, neutral_site, home_team, home_VoA_Rating, away_team, away_VoA_Rating, Proj_Winner, Proj_Margin, Win_Prob)
-## Creating gt table
-# adding title and subtitle
-upcoming_games_gt <- upcoming_games_df |>
-  gt() |> # use 'gt' to make an awesome table...
-  gt_theme_espn() |>
-  tab_header(
-    title = paste(year, week_text, upcoming, "Vortex of Projection Game Projections"), # ...with this title
-    subtitle = "The Unquestionably Puzzling Yet Impeccibly Perceptive Vortex of Projection")  |>  # and this subtitle
-  fmt_number( # A column (numeric data)
-    columns = c(Proj_Margin), # What column variable? FinalVoATop25$VoA_Rating
-    decimals = 5 # With four decimal places
-  ) |> 
-  fmt_number( # Another column (also numeric data)
-    columns = c(home_VoA_Rating), # What column variable? FinalVoATop25$VoA_Ranking
-    decimals = 5 # I want this column to have 5 decimal places
-  ) |>
-  fmt_number( # Another numeric column
-    columns = c(away_VoA_Rating),
-    decimals = 5
-  ) |>
-  fmt_number( # Another numeric column
-    columns = c(away_VoA_Rating),
-    decimals = 2
-  ) |>  
-  data_color( # Update cell colors, testing different color palettes
-    columns = c(Proj_Margin), # ...for dose column
-    fn = scales::col_numeric( # <- bc it's numeric
-      palette = brewer.pal(9, "RdBu"), # A color scheme (gradient)
-      domain = c(), # Column scale endpoints
-      reverse = FALSE
-    )
-  ) |>
-  data_color( # Update cell colors, testing different color palettes
-    columns = c(Win_Prob), # ...for dose column
-    fn = scales::col_numeric( # <- bc it's numeric
-      palette = brewer.pal(9, "RdYlGn"), # A color scheme (gradient)
-      domain = c(), # Column scale endpoints
-      reverse = FALSE
-    )
-  ) |>
-  cols_label(home_team = "Home", away_team = "Away", home_VoA_Rating = "Home VoA Rating", away_VoA_Rating = "Away VoA Rating", Proj_Winner = "Projected Winner", Proj_Margin = "Projected Margin", Win_Prob = "Win Probability") |> # Update labels
-  cols_move_to_end(columns = "Win_Prob") |>
-  cols_hide(c(game_id, season, week, neutral_site)) |>
-  tab_footnote(
-    footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, FCS data mostly from stats.ncaa.org,
-    VoA Ratings for FCS teams are actually SRS ratings taken from CFB Data API"
-  )
-
-upcoming_games_gt
-upcoming_games_gt |>
-  gtsave(
-    gameprojections_filename, expand = 5,
-    path = here("RVoA", "Outputs", "VoP")
-  )
 
 ## bowl projection table made slightly differently
 # not saved, just created for personal use
@@ -331,6 +285,57 @@ if (as.numeric(upcoming) == 16) {
     VoA Ratings for FCS teams are actually SRS ratings taken from CFB Data API"
     )
 } else {
-  print("still the regular season")
+  ## Creating gt table
+  # adding title and subtitle
+  upcoming_games_gt <- upcoming_games_df |>
+    gt() |> # use 'gt' to make an awesome table...
+    gt_theme_espn() |>
+    tab_header(
+      title = paste(year, week_text, upcoming, "Vortex of Projection Game Projections"), # ...with this title
+      subtitle = "The Unquestionably Puzzling Yet Impeccibly Perceptive Vortex of Projection")  |>  # and this subtitle
+    fmt_number( # A column (numeric data)
+      columns = c(Proj_Margin), # What column variable? FinalVoATop25$VoA_Rating
+      decimals = 5 # With four decimal places
+    ) |> 
+    fmt_number( # Another column (also numeric data)
+      columns = c(home_VoA_Rating), # What column variable? FinalVoATop25$VoA_Ranking
+      decimals = 5 # I want this column to have 5 decimal places
+    ) |>
+    fmt_number( # Another numeric column
+      columns = c(away_VoA_Rating),
+      decimals = 5
+    ) |>
+    fmt_number( # Another numeric column
+      columns = c(away_VoA_Rating),
+      decimals = 2
+    ) |>  
+    data_color( # Update cell colors, testing different color palettes
+      columns = c(Proj_Margin), # ...for dose column
+      fn = scales::col_numeric( # <- bc it's numeric
+        palette = brewer.pal(9, "RdBu"), # A color scheme (gradient)
+        domain = c(), # Column scale endpoints
+        reverse = FALSE
+      )
+    ) |>
+    data_color( # Update cell colors, testing different color palettes
+      columns = c(Win_Prob), # ...for dose column
+      fn = scales::col_numeric( # <- bc it's numeric
+        palette = brewer.pal(9, "RdYlGn"), # A color scheme (gradient)
+        domain = c(), # Column scale endpoints
+        reverse = FALSE
+      )
+    ) |>
+    cols_label(home_team = "Home", away_team = "Away", home_VoA_Rating = "Home VoA Rating", away_VoA_Rating = "Away VoA Rating", Proj_Winner = "Projected Winner", Proj_Margin = "Projected Margin", Win_Prob = "Win Probability") |> # Update labels
+    cols_move_to_end(columns = "Win_Prob") |>
+    cols_hide(c(game_id, season, week, neutral_site)) |>
+    tab_footnote(
+      footnote = "Data from CFB Data API, ESPN.com, and ESPN's Bill Connelly via cfbfastR, FCS data mostly from stats.ncaa.org,
+    VoA Ratings for FCS teams are actually SRS ratings taken from CFB Data API"
+    )
 }
 upcoming_games_gt
+upcoming_games_gt |>
+  gtsave(
+    gameprojections_filename, expand = 5,
+    path = here("RVoA", "Outputs", "VoP")
+  )
